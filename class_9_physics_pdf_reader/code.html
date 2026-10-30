@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><title>Document Reader</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "error-container": "#ffdad6", "on-tertiary": "#ffffff", "tertiary-fixed-dim": "#f3bf4b", "surface-bright": "#effdf3", "surface-container-high": "#ddece2", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-primary-container": "#92e9ab", "surface": "#effdf3", "primary": "#005129", "surface-container": "#e3f1e7", "surface-container-highest": "#d8e6dc", "surface-tint": "#0c6d3b", "on-tertiary-fixed": "#261900", "primary-container": "#086b3a", "primary-fixed": "#9ef5b7", "inverse-primary": "#83d99c", "secondary-fixed": "#8af9b4", "on-secondary-fixed": "#00210f", "tertiary": "#5b4200", "on-error": "#ffffff", "on-tertiary-container": "#ffd06f", "tertiary-container": "#785800", "error": "#ba1a1a", "inverse-on-surface": "#e6f4ea", "on-surface": "#121e18", "tertiary-fixed": "#ffdea0", "on-surface-variant": "#3f4940", "inverse-surface": "#27332d", "background": "#effdf3", "surface-variant": "#d8e6dc", "on-secondary-fixed-variant": "#00522e", "on-primary-fixed": "#00210e", "on-error-container": "#93000a", "secondary": "#006d3f", "on-secondary-container": "#007443", "secondary-fixed-dim": "#6ddc9a", "outline": "#6f7a70", "on-primary-fixed-variant": "#00522a", "on-tertiary-fixed-variant": "#5c4300", "secondary-container": "#8af9b4", "outline-variant": "#bec9be", "surface-dim": "#cfddd4", "surface-container-lowest": "#ffffff", "primary-fixed-dim": "#83d99c", "surface-container-low": "#e9f7ed", "on-background": "#121e18" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "margin-tablet": "1.5rem", "space-md": "1rem", "space-lg": "1.5rem", "gutter": "1rem", "margin": "1rem", "space-xl": "2rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "space-xs": "0.25rem" }, fontFamily: { "headline-md": ["Plus Jakarta Sans"], "label-md": ["Inter"], "label-lg": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "title-md": ["Inter"], "body-sm": ["Inter"], "display-lg": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-lg": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Inter"] }, fontSize: { "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#effdf3;}body{overscroll-behavior:y contain;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-fixed"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs min-w-0 flex-1"><button aria-label="Go back" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col min-w-0 pr-space-xs"><h1 class="font-title-md text-title-md text-on-surface truncate">Document Reader</h1><span class="font-label-sm text-label-sm text-primary font-semibold truncate">Pg 82 of 218 • Ch. 4: Work and Energy</span></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Search document" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">search</span></button><button aria-label="Bookmark page" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">bookmark_border</span></button><button aria-label="Reader display settings" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">tune</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-surface"><div class="flex flex-col w-full">
+<!-- Offline Verified & Progress Pill Header -->
+<div class="px-margin pt-space-xs pb-space-sm flex flex-col gap-space-xs">
+<!-- Village Offline Mode Status Strip -->
+<div class="w-full bg-surface-container-low px-space-md py-1.5 rounded-full flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Offline Ready • Village Study Mode Verified</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">38% Complete</span>
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[38%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Quick Display Theme Selector & Reading Mode Bar -->
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-1.5 bg-surface-container p-1 rounded-full">
+<button class="px-space-sm py-1 rounded-full bg-surface-container-lowest text-primary font-label-sm text-label-sm shadow-sm flex items-center gap-1 transition-all" id="themeDayBtn">
+<span class="material-symbols-outlined text-[15px]">light_mode</span>
+<span>Day</span>
+</button>
+<button class="px-space-sm py-1 rounded-full text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-all" id="themeSepiaBtn">
+<span class="material-symbols-outlined text-[15px]">menu_book</span>
+<span>Sepia</span>
+</button>
+<button class="px-space-sm py-1 rounded-full text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-all" id="themeDarkBtn">
+<span class="material-symbols-outlined text-[15px]">dark_mode</span>
+<span>Night</span>
+</button>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Bookmarked page" class="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full bg-tertiary-fixed text-on-tertiary-fixed shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+<button aria-label="Fit textbook width" class="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">fit_screen</span>
+</button>
+<button aria-label="Listen audio translation" class="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim transition-colors" id="ttsVoiceBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">headphones</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Textbook Reading Surface (Simulation of authentic Peshawar Textbook Board Page 82) -->
+<div class="px-margin pb-space-lg">
+<article class="w-full bg-surface-container-lowest rounded-xl shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md transition-colors duration-200" id="textbookPageCanvas">
+<!-- Academic Page Running Head -->
+<div class="flex items-center justify-between pb-space-xs text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+<span class="font-label-sm text-label-sm tracking-wide font-semibold text-primary uppercase">KPK TEXTBOOK BOARD PESHAWAR</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold tracking-wider text-on-surface-variant">UNIT 4: WORK & ENERGY</span>
+</div>
+<!-- Syllabus Reference Badge & Academic Heading -->
+<div class="flex flex-col gap-1.5 pt-space-xs">
+<div class="self-start inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-primary">
+<span class="material-symbols-outlined text-[14px]">school</span>
+<span class="font-label-sm text-label-sm font-semibold">SLO 4.2.1 • Student Learning Outcome</span>
+</div>
+<div class="flex items-baseline justify-between gap-space-sm flex-wrap">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold">
+            4.2 Kinetic Energy
+          </h2>
+<span class="font-headline-sm text-headline-sm text-primary font-semibold" dir="rtl">
+            حرکی توانائی (توانائی بالحرکت)
+          </span>
+</div>
+</div>
+<!-- Bilingual Concept Definition with Active Highlighter Annotation -->
+<div class="relative bg-tertiary-fixed/30 p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-tertiary uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+            Standard Definition
+          </span>
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed font-bold bg-tertiary-fixed px-2 py-0.5 rounded-full">
+            BISE Peshawar Target
+          </span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+<mark class="bg-tertiary-fixed/70 text-on-surface rounded px-1 py-0.5 font-medium">Kinetic energy is the energy possessed by an object due to its motion.</mark> Any moving object can do work against a resisting force before coming to rest.
+        </p>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium text-right" dir="rtl">
+          کسی جسم میں اس کی حرکت کی وجہ سے کام کرنے کی صلاحیت کو "حرکی توانائی" کہتے ہیں۔
+        </p>
+<!-- Sticky Exam Note Badge Floating Tag -->
+<div class="mt-1 bg-surface-container-lowest p-2 rounded-lg shadow-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">priority_high</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm font-bold text-tertiary">Teacher Note for SSC Board Exam:</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Frequently tested 4-mark derivation question in Mardan, Swat, and Peshawar Board Annuals.</span>
+</div>
+</div>
+</div>
+<!-- Schematic Diagram Box: Figure 4.3 -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schema</span>
+            PHYSICS SCHEMATIC DIAGRAM
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Vector Resolution</span>
+</div>
+<!-- Clean Scalable Vector Diagram -->
+<div class="w-full bg-surface-container-lowest rounded-lg p-space-sm flex items-center justify-center">
+<svg aria-label="Schematic vector diagram of moving mass doing work" class="w-full h-auto max-h-40" role="img" viewbox="0 0 340 130" xmlns="http://www.w3.org/2000/svg">
+<!-- Road surface line -->
+<line stroke="#6f7a70" stroke-linecap="round" stroke-width="2" x1="15" x2="325" y1="105" y2="105"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="25" x2="35" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="65" x2="75" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="105" x2="115" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="145" x2="155" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="185" x2="195" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="225" x2="235" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="265" x2="275" y1="112" y2="120"></line>
+<line stroke="#bec9be" stroke-width="1.5" x1="305" x2="315" y1="112" y2="120"></line>
+<!-- Initial Body position (m) -->
+<rect fill="#ddece2" height="40" rx="6" stroke="#005129" stroke-width="2" width="55" x="35" y="55"></rect>
+<circle cx="48" cy="98" fill="#121e18" r="7"></circle>
+<circle cx="77" cy="98" fill="#121e18" r="7"></circle>
+<text fill="#005129" font-family="Inter" font-size="12" font-weight="700" text-anchor="middle" x="62" y="79">Mass m</text>
+<text fill="#3f4940" font-family="Inter" font-size="11" font-weight="600" text-anchor="middle" x="62" y="44">v_i = 0</text>
+<!-- Force & Velocity Vector Arrow -->
+<path d="M 95 72 L 145 72" stroke="#086b3a" stroke-linecap="round" stroke-width="2.5"></path>
+<polygon fill="#086b3a" points="145,67 155,72 145,77"></polygon>
+<text fill="#086b3a" font-family="Inter" font-size="12" font-weight="700" text-anchor="middle" x="125" y="64">Force (F)</text>
+<!-- Displacement Bracket -->
+<line stroke="#5b4200" stroke-dasharray="3,3" stroke-width="1.5" x1="62" x2="265" y1="26" y2="26"></line>
+<line stroke="#5b4200" stroke-width="1.5" x1="62" x2="62" y1="20" y2="32"></line>
+<line stroke="#5b4200" stroke-width="1.5" x1="265" x2="265" y1="20" y2="32"></line>
+<text fill="#5b4200" font-family="Inter" font-size="11" font-weight="700" text-anchor="middle" x="163" y="18">Displacement (s)</text>
+<!-- Final Body position -->
+<rect fill="#8af9b4" fill-opacity="0.35" height="40" rx="6" stroke="#005129" stroke-width="2" width="55" x="238" y="55"></rect>
+<circle cx="251" cy="98" fill="#121e18" r="7"></circle>
+<circle cx="280" cy="98" fill="#121e18" r="7"></circle>
+<text fill="#005129" font-family="Inter" font-size="12" font-weight="700" text-anchor="middle" x="265" y="79">m</text>
+<text fill="#086b3a" font-family="Inter" font-size="11" font-weight="600" text-anchor="middle" x="265" y="44">v_f = v</text>
+<!-- Velocity Vector at point B -->
+<path d="M 298 72 L 328 72" stroke="#005129" stroke-linecap="round" stroke-width="2"></path>
+<polygon fill="#005129" points="328,68 335,72 328,76"></polygon>
+<text fill="#005129" font-family="Inter" font-size="10" font-weight="700" x="316" y="64">v</text>
+</svg>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center">
+<strong>Figure 4.3:</strong> Work done (<span class="font-semibold text-on-surface">W = F × s</span>) accelerating mass <span class="font-semibold text-on-surface">m</span> uniformly transforms into its final Kinetic Energy (<span class="font-semibold text-primary">K.E</span>).
+        </p>
+</div>
+<!-- Real World Context Photography -->
+<div class="relative w-full h-44 rounded-xl overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="High quality educational photograph of a traditional colorful Pakistani passenger bus and modern vehicles traversing the scenic Karakoram highway pass in Khyber Pakhtunkhwa with motion blur illustrating kinetic energy of moving mass in daylight mountain backdrop, clear vivid academic style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpUD8v9ZJ-vuwecUs8Y9zMYWFaFpphSjr_IV7jsn5wS7JmRlvCacT89YLfQoNwt_5XYplS-AuPcwnnWZEMED_KBQPRu6pUuGXZ7vtje4R_NYnC14UewXZRVNO2-xHRHnTI-c4VuPam0-p3KHEMpRpYIGmJyeOoRQtEZWgYAsFT2QDRi9jVA4qY861sBEHIouny-eZioCC2D8sYqbw2ewwTELkjUS3zzOFU7OLz-uvEwM_EDoB7DCg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-space-sm text-on-primary">
+<span class="font-label-sm text-label-sm text-primary-fixed font-bold uppercase tracking-wider">Practical Illustration • روزمرہ زندگی کی مثال</span>
+<p class="font-body-sm text-body-sm text-on-primary font-medium">A fully loaded truck moving at 60 km/h possesses greater kinetic energy than a light car at the same speed due to larger mass.</p>
+</div>
+</div>
+<!-- Formal Mathematical Derivation Section -->
+<div class="flex flex-col gap-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">functions</span>
+          Mathematical Derivation of K.E Formula
+        </h3>
+<p class="font-body-md text-body-md text-on-surface">
+          Consider a body of mass <span class="font-semibold text-primary">m</span> initially at rest (<span class="font-semibold">v<sub>i</sub> = 0</span>). When a constant external force <span class="font-semibold text-primary">F</span> acts upon it through displacement <span class="font-semibold text-primary">s</span>, it produces an acceleration <span class="font-semibold text-primary">a</span> and acquires velocity <span class="font-semibold text-primary">v</span>.
+        </p>
+<!-- Step-by-Step Proof Cards -->
+<div class="flex flex-col gap-space-xs">
+<div class="bg-surface-container p-space-sm rounded-lg flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface">1. Work done by the force on the body:</span>
+<span class="font-title-md text-title-md text-primary font-bold">W = F × s</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-lg flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface">2. According to Newton's 2nd Law of Motion:</span>
+<span class="font-title-md text-title-md text-primary font-bold">F = m × a</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-lg flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface">3. From the 3rd Equation of Motion:</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">2as = v<sub>f</sub><sup>2</sup> − v<sub>i</sub><sup>2</sup></span>
+</div>
+<div class="flex items-center justify-between pt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span>Substituting v<sub>i</sub> = 0 and v<sub>f</sub> = v:</span>
+<span class="font-title-md text-title-md text-primary font-bold">s = v<sup>2</sup> / (2a)</span>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface">
+          Substituting the values of <span class="font-semibold text-primary">F</span> and <span class="font-semibold text-primary">s</span> into the work equation:
+        </p>
+<!-- Final Formula Highlight Banner -->
+<div class="w-full bg-secondary-container p-space-md rounded-xl flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-secondary-container shadow-sm">
+<div class="flex flex-col items-center sm:items-start">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Work Done = Kinetic Energy</span>
+<div class="font-display-lg text-display-lg font-bold text-on-secondary-container tracking-tight">
+              K.E = ½ m v²
+            </div>
+</div>
+<div class="flex flex-col items-center sm:items-end bg-surface-container-lowest/80 px-space-md py-space-xs rounded-lg text-on-surface">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">Standard SI Unit</span>
+<span class="font-title-md text-title-md text-primary font-bold">Joule (J)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">1 J = 1 kg·m²/s² = 1 N·m</span>
+</div>
+</div>
+</div>
+<!-- Bilingual Vocabulary & Formula Quick Tooltip -->
+<div class="bg-surface-container-high p-space-sm rounded-lg flex items-center justify-between gap-space-sm flex-wrap">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">translate</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Glossary:</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Kinetic Energy = توانائی بالحرکت (کام کرنے کی صلاحیت)</span>
+</div>
+<button class="inline-flex items-center gap-1 text-primary hover:text-on-surface-variant font-label-sm text-label-sm font-semibold" type="button">
+<span>Audio Term</span>
+<span class="material-symbols-outlined text-[16px]">volume_up</span>
+</button>
+</div>
+<!-- Official Textbook Page Footer -->
+<div class="flex items-center justify-between pt-space-md text-on-surface-variant">
+<span class="font-label-sm text-label-sm">Govt. of Khyber Pakhtunkhwa • Free Distribution</span>
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-title-md text-title-md font-bold text-primary">
+          82
+        </div>
+<span class="font-label-sm text-label-sm">PHYSICS 9 (ENGLISH MEDIUM)</span>
+</div>
+</article>
+</div>
+<!-- Interactive Reader Study Action Toolbar Floating Overlay -->
+<div class="px-margin pb-space-md">
+<div class="w-full bg-surface-container-highest p-space-xs rounded-2xl shadow-md flex items-center justify-between gap-space-xs">
+<!-- Quick Page Steppers -->
+<div class="flex items-center gap-1">
+<button aria-label="Previous Page" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<div class="px-2 py-1 rounded-full bg-surface-container-lowest text-primary font-label-md text-label-md font-bold flex items-center gap-1">
+<span>82</span>
+<span class="text-on-surface-variant font-normal">/ 218</span>
+</div>
+<button aria-label="Next Page" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+<!-- Quick Study Highlighting & Sticky Annotation Tools -->
+<div class="flex items-center gap-1">
+<button aria-label="Highlighter pen active" class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center shadow-sm" id="toolHighlightBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">brush</span>
+</button>
+<button aria-label="Add Student Sticky Note" class="w-10 h-10 rounded-full text-on-surface hover:bg-surface-container-low flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">note_add</span>
+</button>
+<button aria-label="Bookmark this page" class="w-10 h-10 rounded-full text-on-surface hover:bg-surface-container-low flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">grade</span>
+</button>
+<button aria-label="Toggle reader fullscreen" class="w-10 h-10 rounded-full text-on-surface hover:bg-surface-container-low flex items-center justify-center transition-colors" id="fullscreenToggleBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple reading theme toggle state
+  const canvas = document.getElementById('textbookPageCanvas');
+  const dayBtn = document.getElementById('themeDayBtn');
+  const sepiaBtn = document.getElementById('themeSepiaBtn');
+  const darkBtn = document.getElementById('themeDarkBtn');
+
+  function resetThemeBtns() {
+    [dayBtn, sepiaBtn, darkBtn].forEach(btn => {
+      btn.className = "px-space-sm py-1 rounded-full text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-all";
+    });
+  }
+
+  dayBtn?.addEventListener('click', () => {
+    resetThemeBtns();
+    dayBtn.className = "px-space-sm py-1 rounded-full bg-surface-container-lowest text-primary font-label-sm text-label-sm shadow-sm flex items-center gap-1 transition-all";
+    canvas.className = "w-full bg-surface-container-lowest rounded-xl shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md transition-colors duration-200 text-on-surface";
+  });
+
+  sepiaBtn?.addEventListener('click', () => {
+    resetThemeBtns();
+    sepiaBtn.className = "px-space-sm py-1 rounded-full bg-[#f4ecd8] text-[#5b4200] font-label-sm text-label-sm shadow-sm flex items-center gap-1 transition-all";
+    canvas.className = "w-full bg-[#fbf0d9] rounded-xl shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md transition-colors duration-200 text-[#2c1d00]";
+  });
+
+  darkBtn?.addEventListener('click', () => {
+    resetThemeBtns();
+    darkBtn.className = "px-space-sm py-1 rounded-full bg-inverse-surface text-inverse-on-surface font-label-sm text-label-sm shadow-sm flex items-center gap-1 transition-all";
+    canvas.className = "w-full bg-[#1b2620] rounded-xl shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md transition-colors duration-200 text-[#e6f4ea]";
+  });
+
+  // Audio Read Aloud Interaction Feedback
+  const ttsBtn = document.getElementById('ttsVoiceBtn');
+  ttsBtn?.addEventListener('click', () => {
+    ttsBtn.classList.toggle('animate-pulse');
+  });
+</script></main><footer class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)]"><div class="h-20 px-space-md flex flex-col justify-center gap-space-xs"><div class="flex items-center gap-space-sm px-space-xs"><span class="font-label-sm text-label-sm text-on-surface-variant shrink-0 w-8 text-right">82</span><div class="flex-1 relative flex items-center h-5"><input aria-label="Page navigation scrubber" class="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none accent-primary cursor-pointer" max="218" min="1" type="range" value="82"/></div><span class="font-label-sm text-label-sm text-on-surface-variant shrink-0 w-8">218</span></div><div class="flex items-center justify-between px-space-sm"><button class="min-w-[44px] min-h-[44px] flex items-center justify-center gap-space-xs px-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">toc</span><span class="font-label-sm text-label-sm hidden sm:inline">Contents</span></button><button class="min-w-[44px] min-h-[44px] flex items-center justify-center gap-space-xs px-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">edit_note</span><span class="font-label-sm text-label-sm hidden sm:inline">Annotate</span></button><button class="min-w-[44px] min-h-[44px] flex items-center justify-center gap-space-xs px-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">palette</span><span class="font-label-sm text-label-sm hidden sm:inline">Theme</span></button><button class="min-w-[44px] min-h-[44px] flex items-center justify-center gap-space-xs px-space-sm rounded-full text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">format_size</span><span class="font-label-sm text-label-sm hidden sm:inline">Typography</span></button></div></div></footer></body></html>

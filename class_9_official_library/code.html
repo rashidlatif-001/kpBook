@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary": "#005129", "outline": "#6f7a70", "on-error": "#ffffff", "on-primary-fixed-variant": "#00522a", "error-container": "#ffdad6", "on-surface": "#121e18", "inverse-on-surface": "#e6f4ea", "surface": "#effdf3", "on-error-container": "#93000a", "surface-container-lowest": "#ffffff", "background": "#effdf3", "on-background": "#121e18", "on-primary-container": "#92e9ab", "tertiary": "#5b4200", "secondary": "#006d3f", "inverse-surface": "#27332d", "on-secondary-container": "#007443", "tertiary-container": "#785800", "surface-container-low": "#e9f7ed", "surface-container-high": "#ddece2", "secondary-container": "#8af9b4", "surface-container-highest": "#d8e6dc", "secondary-fixed-dim": "#6ddc9a", "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "primary-fixed-dim": "#83d99c", "on-primary-fixed": "#00210e", "tertiary-fixed": "#ffdea0", "outline-variant": "bec9be", "primary-container": "#086b3a", "on-surface-variant": "#3f4940", "on-secondary-fixed": "#00210f", "surface-variant": "#d8e6dc", "on-tertiary-container": "#ffd06f", "on-secondary-fixed-variant": "#00522e", "surface-dim": "#cfddd4", "primary-fixed": "#9ef5b7", "on-primary": "#ffffff", "secondary-fixed": "#8af9b4", "surface-container": "#e3f1e7", "on-tertiary-fixed-variant": "#5c4300", "inverse-primary": "#83d99c", "tertiary-fixed-dim": "#f3bf4b", "on-tertiary-fixed": "#261900", "surface-tint": "#0c6d3b", "error": "#ba1a1a", "surface-bright": "#effdf3" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-xs": "0.25rem", "margin-tablet": "1.5rem", "margin": "1rem", "space-xl": "2rem", "gutter": "1rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem" }, "fontFamily": { "label-lg": ["Inter"], "title-md": ["Inter"], "label-md": ["Inter"], "display-lg": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Inter"] }, "fontSize": { "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }] } } } };</script><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col selection:bg-secondary-container selection:text-on-secondary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(23,35,29,0.04)]"><div class="pt-safe"><div class="h-6 px-margin flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm select-none"><span class="font-semibold tracking-tight text-on-surface">10:30</span><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[15px]">network_wifi</span><span class="material-symbols-outlined text-[15px]">5g</span><span class="material-symbols-outlined text-[16px]">battery_charging_full</span></div></div></div><div class="h-20 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="KPK E-Textbooks Official Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X2eAMxlkkz82BNvm4vyG2uQfjF3dqyR7QHaj2_9991ns6dPchDdyHB760Q-xNa6fhhEFZR-3IJTSf9IhtNVe-NIzyM3kSMuAlL8-VRPzVvsuXuoy4Q0pYsnnf7UEgd-XEF5xVn7-eZCEKYzPbCk3hReE0Z-FSmnK5Q5wNWbg00YYoBSCmPVLCSX7yhRrLYkt02hHvSzyixhG8KMCx0zLUkUsaxNQrxPloNj3aIiyBpKTQ4F3wWfXHa"/><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">KPK E-Textbooks</span><span class="text-[10px] font-label-sm font-semibold uppercase tracking-wider bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded-full">Home</span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Govt. of Khyber Pakhtunkhwa</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:bg-surface-container-high transition-colors focus:outline-none" type="button"><span class="material-symbols-outlined text-[24px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span></button><div class="relative w-11 h-11 flex items-center justify-center"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-container/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfoFEprdeQWHyA2M6LjY-aGREmdORDnWKUaw3Ai7H7Erd10MVstIhkiuY5aENMOlo_JSGpGsOMgnROYkSFSfLbjzQ_k15m3-PVChiCvu-RhuI_lNM-_TvVr44D-rbKzzq8P4ygEBiKrRld8HMGTmLMNGkwptEfTq8s2fIpQ7mQYkCHm5Ldu46PlAETm_8A95Tz7lNC0yXpppQbpuSrxWI8ctpmQQb3JE_Ei04R5ZWwAI_P6dAAj_s"/></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface"><div class="flex flex-col w-full pb-12">
+<!-- Offline Study Reassurance Strip -->
+<div class="w-full bg-surface-container-low rounded-xl px-space-md py-space-xs flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Ready for Offline Study in Village Mode</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Synced</span>
+</div>
+<!-- Page Header Context -->
+<div class="flex flex-col mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-bold text-primary">SSC Part-I Curriculum</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Session 2024–25</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight mt-0.5">Class 9 Library</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Official Textbooks &amp; Solved Guides by KP Textbook Board Peshawar</p>
+</div>
+<!-- Segmented Switcher -->
+<div class="bg-surface-container-high p-1 rounded-full flex items-center mb-space-md shadow-sm">
+<button class="flex-1 py-2 rounded-full bg-surface-container-lowest text-primary shadow-sm font-label-md text-label-md font-semibold text-center transition-all flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span>Official Textbooks</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-1.5 py-0.2 rounded-full font-bold">12</span>
+</button>
+<button class="flex-1 py-2 rounded-full text-on-surface-variant font-label-md text-label-md font-medium text-center hover:text-on-surface transition-all flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Study Guides &amp; Notes</span>
+<span class="bg-surface-variant text-on-surface-variant text-[10px] px-1.5 py-0.2 rounded-full font-semibold">8</span>
+</button>
+</div>
+<!-- Secondary Filter Chips & Sort Trigger -->
+<div class="flex flex-col gap-space-sm mb-space-lg">
+<!-- Horizontal Scroll Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar -mx-margin px-margin py-0.5">
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md font-semibold shadow-sm flex items-center gap-1">
+<span>All Subjects</span>
+</button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container transition-colors shadow-sm">
+        Science Group
+      </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container transition-colors shadow-sm">
+        Humanities Group
+      </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container transition-colors shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span>Downloaded</span>
+</button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container transition-colors shadow-sm">
+        English Medium
+      </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container transition-colors shadow-sm">
+        Urdu Medium
+      </button>
+</div>
+<!-- Active Filter Summary & Sort Bar -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">menu_book</span>
+<span>Showing <strong>6</strong> of 12 Core Subjects</span>
+</div>
+<button class="inline-flex items-center gap-1 bg-surface-container-low px-2.5 py-1 rounded-full text-on-surface font-label-sm text-label-sm font-semibold active:scale-95 transition-transform" type="button">
+<span>Sort: Curriculum Sequence</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</button>
+</div>
+</div>
+<!-- 2-Column Responsive Book Cards Shelf Grid -->
+<div class="grid grid-cols-2 gap-gutter-mobile mb-space-xl">
+<!-- BOOK 1: Mathematics 9 -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-primary-container flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-primary font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Eng Med</span>
+<span class="material-symbols-outlined text-surface text-[16px]">verified</span>
+</div>
+<!-- Abstract Board Graphic -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-secondary-fixed mb-1 opacity-90" fill="none" viewbox="0 0 48 48">
+<circle cx="24" cy="24" r="18" stroke="currentColor" stroke-dasharray="3 3" stroke-width="2.5"></circle>
+<path d="M14 30L24 14L34 30H14Z" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<path d="M18 24H30" stroke="currentColor" stroke-width="1.5"></path>
+<circle cx="24" cy="14" fill="currentColor" r="2.5"></circle>
+</svg>
+<span class="text-surface font-display-lg text-[13px] leading-tight font-bold tracking-tight">MATHEMATICS</span>
+<span class="text-primary-fixed font-label-sm text-[10px] tracking-widest font-semibold uppercase">Class 9 • Science</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>KPK TB Peshawar</span>
+<span>2024 Ed.</span>
+</div>
+</div>
+<!-- Book Info -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-primary uppercase">Science Group</span>
+<span class="inline-flex items-center gap-0.5 bg-secondary-container/60 text-on-secondary-container px-1 py-0.2 rounded font-label-sm text-[9px] font-bold">
+<span class="material-symbols-outlined text-[11px]">check</span>
+<span>Saved</span>
+</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">Mathematics 9</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 line-clamp-1">DCTE • 284 Pgs • 42 MB</span>
+<!-- Action CTA -->
+<button class="w-full mt-3 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1 active:bg-primary-container shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">menu_book</span>
+<span>Read Now</span>
+</button>
+</div>
+</div>
+<!-- BOOK 2: Physics 9 -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-[#004f4d] flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-[#004f4d] font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold">طبیعیات</span>
+<span class="material-symbols-outlined text-surface text-[16px]">school</span>
+</div>
+<!-- Atom Orbit Graphic -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-[#8af9e0] mb-1 opacity-90" fill="none" viewbox="0 0 48 48">
+<ellipse cx="24" cy="24" rx="18" ry="7" stroke="currentColor" stroke-width="2" transform="rotate(30 24 24)"></ellipse>
+<ellipse cx="24" cy="24" rx="18" ry="7" stroke="currentColor" stroke-width="2" transform="rotate(-30 24 24)"></ellipse>
+<circle cx="24" cy="24" fill="currentColor" r="4"></circle>
+</svg>
+<span class="text-surface font-display-lg text-[13px] leading-tight font-bold tracking-tight">PHYSICS 9</span>
+<span class="text-[#8af9e0] font-label-sm text-[10px] tracking-wider uppercase font-semibold">National Curr.</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>KP Textbooks</span>
+<span>Pt. 1 SSC</span>
+</div>
+</div>
+<!-- Book Info -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-primary uppercase">Science</span>
+<span class="font-label-sm text-[10px] font-bold text-primary">68% Done</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">Physics 9 (طبیعیات)</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 line-clamp-1">218 Pgs • 28 MB</span>
+<!-- Reading progress bar -->
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 68%;"></div>
+</div>
+<!-- Action CTA -->
+<button class="w-full mt-2 h-9 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md font-semibold flex items-center justify-center gap-1 active:opacity-90 shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">bookmark</span>
+<span>Cont. (Pg 82)</span>
+</button>
+</div>
+</div>
+<!-- BOOK 3: Chemistry 9 -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-[#24422e] flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-[#24422e] font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Bilingual</span>
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">science</span>
+</div>
+<!-- Molecule Graphic -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-tertiary-fixed mb-1" fill="none" viewbox="0 0 48 48">
+<line stroke="currentColor" stroke-width="2.5" x1="16" x2="32" y1="20" y2="20"></line>
+<line stroke="currentColor" stroke-width="2.5" x1="24" x2="32" y1="20" y2="34"></line>
+<line stroke="currentColor" stroke-width="2.5" x1="16" x2="24" y1="20" y2="34"></line>
+<circle cx="16" cy="20" fill="#f3bf4b" r="4.5"></circle>
+<circle cx="32" cy="20" fill="#f3bf4b" r="4.5"></circle>
+<circle cx="24" cy="34" fill="#ffdea0" r="5.5"></circle>
+</svg>
+<span class="text-surface font-display-lg text-[13px] leading-tight font-bold tracking-tight">CHEMISTRY</span>
+<span class="text-tertiary-fixed font-label-sm text-[10px] tracking-wider uppercase font-semibold">کیمیاء 9</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>Board Pesh</span>
+<span>196 Pgs</span>
+</div>
+</div>
+<!-- Book Info -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant uppercase">Science</span>
+<span class="font-label-sm text-[10px] text-outline font-medium">Cloud</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">Chemistry 9 (کیمیاء)</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 line-clamp-1">KPK Board • 34 MB</span>
+<!-- Action CTA: Download -->
+<button class="w-full mt-3 h-9 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1 hover:bg-secondary-container hover:text-on-secondary-container active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">cloud_download</span>
+<span>Get (34 MB)</span>
+</button>
+</div>
+</div>
+<!-- BOOK 4: Biology 9 (Downloading Live State) -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-primary flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-primary font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">حیاتیات</span>
+<span class="material-symbols-outlined text-secondary-container text-[16px]">psychology_alt</span>
+</div>
+<!-- Leaf / Cell Graphic -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-secondary-fixed mb-1" fill="none" viewbox="0 0 48 48">
+<path d="M12 36C12 36 14 14 36 12C36 12 34 34 12 36Z" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<path d="M12 36C22 26 28 20 36 12" stroke="currentColor" stroke-width="2"></path>
+<path d="M22 26L28 28" stroke="currentColor" stroke-width="1.5"></path>
+<path d="M18 30L22 33" stroke="currentColor" stroke-width="1.5"></path>
+</svg>
+<span class="text-surface font-display-lg text-[13px] leading-tight font-bold tracking-tight">BIOLOGY 9</span>
+<span class="text-secondary-fixed font-label-sm text-[10px] tracking-wider uppercase font-semibold">New Syllabus</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>KPK Board</span>
+<span>240 Pgs</span>
+</div>
+</div>
+<!-- Book Info & Live Progress -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-primary uppercase">Science</span>
+<span class="font-label-sm text-[10px] font-bold text-primary animate-pulse">45%</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">Biology 9 (حیاتیات)</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">17.5 / 39 MB (1.2 MB/s)</span>
+<!-- Progress Indicator -->
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-300" style="width: 45%;"></div>
+</div>
+<!-- Cancel / Paused Action Button -->
+<button class="w-full mt-2 h-9 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md font-semibold flex items-center justify-center gap-1 active:bg-error-container active:text-on-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+<span>Cancel</span>
+</button>
+</div>
+</div>
+<!-- BOOK 5: English Compulsory 9 -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-[#1b3b2b] flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-[#1b3b2b] font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Compulsory</span>
+<span class="material-symbols-outlined text-secondary-fixed text-[16px]">history_edu</span>
+</div>
+<!-- Classic Book / Feather Motif -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-secondary-fixed mb-1" fill="none" viewbox="0 0 48 48">
+<path d="M10 34C16 34 22 36 24 38C26 36 32 34 38 34V12C32 12 26 14 24 16C22 14 16 12 10 12V34Z" fill="none" stroke="currentColor" stroke-width="2.2"></path>
+<line stroke="currentColor" stroke-width="2" x1="24" x2="24" y1="16" y2="38"></line>
+<path d="M30 18L35 23" stroke="#f3bf4b" stroke-width="2"></path>
+</svg>
+<span class="text-surface font-display-lg text-[12px] leading-tight font-bold tracking-tight">ENGLISH 9</span>
+<span class="text-secondary-fixed font-label-sm text-[9px] tracking-wider uppercase font-semibold">SLO Curriculum</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>Textbook Board</span>
+<span>176 Pgs</span>
+</div>
+</div>
+<!-- Book Info -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-primary uppercase">All Groups</span>
+<span class="inline-flex items-center gap-0.5 bg-secondary-container/60 text-on-secondary-container px-1 py-0.2 rounded font-label-sm text-[9px] font-bold">
+<span class="material-symbols-outlined text-[11px]">check</span>
+<span>Saved</span>
+</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">English Compulsory 9</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 line-clamp-1">SLO Syllabus • 22 MB</span>
+<!-- Action CTA -->
+<button class="w-full mt-3 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1 active:bg-primary-container shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">menu_book</span>
+<span>Read Now</span>
+</button>
+</div>
+</div>
+<!-- BOOK 6: Pakistan Studies 9 -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl p-2.5 shadow-sm hover:shadow-md transition-shadow">
+<!-- Cover Preview -->
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-[#0d4529] flex flex-col justify-between p-2 shadow-inner">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container-lowest/90 text-[#0d4529] font-label-sm text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">مطالعہ پاکستان</span>
+<span class="material-symbols-outlined text-secondary-fixed text-[16px]">flag</span>
+</div>
+<!-- Bab-e-Khyber Monument Archetype Graphic -->
+<div class="my-auto flex flex-col items-center text-center px-1">
+<svg class="w-12 h-12 text-secondary-fixed mb-1" fill="none" viewbox="0 0 48 48">
+<path d="M12 36V22L16 16H32L36 22V36" stroke="currentColor" stroke-width="2"></path>
+<path d="M18 36V26C18 22.6863 20.6863 20 24 20C27.3137 20 30 22.6863 30 26V36" stroke="currentColor" stroke-width="2"></path>
+<line stroke="currentColor" stroke-width="2.5" x1="8" x2="40" y1="36" y2="36"></line>
+<circle cx="24" cy="14" fill="#f3bf4b" r="1.5"></circle>
+</svg>
+<span class="text-surface font-display-lg text-[11px] leading-tight font-bold tracking-tight">PAK STUDIES</span>
+<span class="text-secondary-fixed font-label-sm text-[9px] tracking-wider uppercase font-semibold">کلاس نہم</span>
+</div>
+<div class="flex items-center justify-between border-t border-surface/20 pt-1 text-[9px] text-surface/80 font-label-sm">
+<span>KPK Peshawar</span>
+<span>144 Pgs</span>
+</div>
+</div>
+<!-- Book Info -->
+<div class="flex flex-col mt-2 flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant uppercase">Urdu Medium</span>
+<span class="font-label-sm text-[10px] text-outline font-medium">Cloud</span>
+</div>
+<h2 class="font-title-md text-title-md text-on-surface line-clamp-1">Pak Studies 9 (مطالعہ)</h2>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5 line-clamp-1">144 Pgs • 19 MB</span>
+<!-- Action CTA -->
+<button class="w-full mt-3 h-9 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold flex items-center justify-center gap-1 hover:bg-secondary-container hover:text-on-secondary-container active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">cloud_download</span>
+<span>Get (19 MB)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Classroom Delight / Teachers Notes Banner -->
+<div class="w-full bg-surface-container rounded-xl p-space-md mb-space-lg flex items-center justify-between">
+<div class="flex items-start gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[20px]">lightbulb</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Need SLO Past Papers &amp; Model MCQs?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Switch to the "Study Guides &amp; Notes" tab to access unit-wise solved tests.</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 ml-1">chevron_right</span>
+</div>
+<!-- Bottom Floating Shelf Summary & Batch Action Pill -->
+<div class="sticky bottom-2 z-40 w-full px-1">
+<div class="bg-inverse-surface text-inverse-on-surface rounded-full py-2.5 px-space-md shadow-xl flex items-center justify-between">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">storage</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-semibold text-inverse-on-surface truncate">Offline Storage: 3 / 12 Saved</span>
+<span class="font-body-sm text-[11px] text-inverse-on-surface/75 truncate">92 MB used • 4.2 GB free on Device</span>
+</div>
+</div>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-bold hover:bg-secondary-fixed active:scale-95 transition-all flex items-center gap-1 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Get All (115 MB)</span>
+</button>
+</div>
+</div>
+</div></main><nav class="fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(23,35,29,0.05)] pb-safe" data-active-classes="[&amp;_.nav-pill]:bg-secondary-container [&amp;_.nav-pill]:text-on-secondary-container [&amp;_.nav-icon]:text-primary-container [&amp;_.nav-label]:text-primary-container [&amp;_.nav-label]:font-semibold"><div class="flex justify-around items-center h-16 px-space-md"><a class="group flex flex-col items-center justify-center min-w-[64px] min-h-[48px] py-1 text-on-surface-variant hover:text-on-surface transition-all select-none" data-path="home" href="#"><div class="nav-pill flex items-center justify-center w-14 h-8 rounded-full transition-all group-active:scale-95"><span class="nav-icon material-symbols-outlined text-[24px]">menu_book</span></div><span class="nav-label font-label-sm text-label-sm mt-0.5 text-on-surface-variant">Home</span></a><a class="group flex flex-col items-center justify-center min-w-[64px] min-h-[48px] py-1 text-on-surface-variant hover:text-on-surface transition-all select-none" data-path="downloads" href="#"><div class="nav-pill relative flex items-center justify-center w-14 h-8 rounded-full transition-all group-active:scale-95"><span class="nav-icon material-symbols-outlined text-[24px]">download_for_offline</span><span class="absolute -top-0.5 right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-container text-on-primary font-label-sm text-[10px] leading-none flex items-center justify-center font-bold">4</span></div><span class="nav-label font-label-sm text-label-sm mt-0.5 text-on-surface-variant">Downloads</span></a><a class="group flex flex-col items-center justify-center min-w-[64px] min-h-[48px] py-1 text-on-surface-variant hover:text-on-surface transition-all select-none" data-path="settings" href="#"><div class="nav-pill flex items-center justify-center w-14 h-8 rounded-full transition-all group-active:scale-95"><span class="nav-icon material-symbols-outlined text-[24px]">tune</span></div><span class="nav-label font-label-sm text-label-sm mt-0.5 text-on-surface-variant">Settings</span></a></div><div class="flex justify-center pb-2 pt-1"><div class="w-32 h-1 bg-on-surface/20 rounded-full"></div></div></nav></body></html>

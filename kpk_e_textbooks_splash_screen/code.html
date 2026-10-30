@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary": "#005129", "outline": "#6f7a70", "on-error": "#ffffff", "on-primary-fixed-variant": "#00522a", "error-container": "#ffdad6", "on-surface": "#121e18", "inverse-on-surface": "#e6f4ea", "surface": "#effdf3", "on-error-container": "#93000a", "surface-container-lowest": "#ffffff", "background": "#effdf3", "on-background": "#121e18", "on-primary-container": "#92e9ab", "tertiary": "#5b4200", "secondary": "#006d3f", "inverse-surface": "#27332d", "on-secondary-container": "#007443", "tertiary-container": "#785800", "surface-container-low": "#e9f7ed", "surface-container-high": "#ddece2", "secondary-container": "#8af9b4", "surface-container-highest": "#d8e6dc", "secondary-fixed-dim": "#6ddc9a", "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "primary-fixed-dim": "#83d99c", "on-primary-fixed": "#00210e", "tertiary-fixed": "#ffdea0", "outline-variant": "bec9be", "primary-container": "#086b3a", "on-surface-variant": "#3f4940", "on-secondary-fixed": "#00210f", "surface-variant": "#d8e6dc", "on-tertiary-container": "#ffd06f", "on-secondary-fixed-variant": "#00522e", "surface-dim": "#cfddd4", "primary-fixed": "#9ef5b7", "on-primary": "#ffffff", "secondary-fixed": "#8af9b4", "surface-container": "#e3f1e7", "on-tertiary-fixed-variant": "#5c4300", "inverse-primary": "#83d99c", "tertiary-fixed-dim": "#f3bf4b", "on-tertiary-fixed": "#261900", "surface-tint": "#0c6d3b", "error": "#ba1a1a", "surface-bright": "#effdf3" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.5rem", "space-xs": "0.25rem", "margin-tablet": "1.5rem", "margin": "1rem", "space-xl": "2rem", "gutter": "1rem", "space-md": "1rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem" }, "fontFamily": { "label-lg": ["Inter"], "title-md": ["Inter"], "label-md": ["Inter"], "display-lg": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-md": ["Inter"], "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Inter"] }, "fontSize": { "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500" }] } } } };</script><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } ::-webkit-scrollbar { display: none; }</style></head><body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col pt-safe pb-safe selection:bg-secondary-container selection:text-on-secondary-container"><main class="flex-1 flex flex-col relative w-full px-margin bg-surface"><div class="flex flex-col w-full relative overflow-hidden py-6 select-none min-h-[580px] justify-between">
+<!-- Soft Ambient Glow Effects -->
+<div class="absolute -top-16 -left-16 w-56 h-56 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/3 -right-20 w-64 h-64 bg-primary-fixed/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-10 left-1/4 w-72 h-72 bg-tertiary-fixed/15 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Top Offline Ready Pill & Network Status -->
+<div class="w-full flex items-center justify-between z-10 px-1">
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-secondary font-medium tracking-wide">Autonomous Node</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-container/50">
+<span class="material-symbols-outlined text-[16px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+<span class="font-label-sm text-label-sm text-on-secondary-container font-semibold">Village Sync Ready</span>
+</div>
+</div>
+<!-- Center Presentation: Emblem, Titles, Endorsement -->
+<div class="w-full flex flex-col items-center text-center my-auto z-10 px-2 py-4">
+<!-- Emblem Container with Luminous Aura -->
+<div class="relative flex items-center justify-center mb-6">
+<div class="absolute inset-0 bg-primary-container/25 rounded-full blur-xl scale-125 animate-pulse"></div>
+<div class="relative w-28 h-28 rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center p-2.5 transition-transform duration-700 hover:scale-105">
+<img alt="KPK E-Textbooks Official Emblem" class="w-full h-full object-contain drop-shadow-sm rounded-full" src="https://lh3.googleusercontent.com/aida/AEtjO1X2eAMxlkkz82BNvm4vyG2uQfjF3dqyR7QHaj2_9991ns6dPchDdyHB760Q-xNa6fhhEFZR-3IJTSf9IhtNVe-NIzyM3kSMuAlL8-VRPzVvsuXuoy4Q0pYsnnf7UEgd-XEF5xVn7-eZCEKYzPbCk3hReE0Z-FSmnK5Q5wNWbg00YYoBSCmPVLCSX7yhRrLYkt02hHvSzyixhG8KMCx0zLUkUsaxNQrxPloNj3aIiyBpKTQ4F3wWfXHa"/>
+<div class="absolute -bottom-1.5 -right-1 bg-tertiary-fixed text-on-tertiary-fixed w-7 h-7 rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+</div>
+</div>
+<!-- Main Branding & Typography -->
+<div class="flex flex-col items-center gap-1.5 max-w-xs">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight font-bold">
+        KPK E-Textbooks
+      </h1>
+<!-- Urdu Submark with Warm Amber Tone -->
+<p class="font-title-md text-title-md text-tertiary font-semibold tracking-normal" dir="rtl" lang="ur">
+        خیبر پختونخوا ای-ٹیکسٹ بکس
+      </p>
+<!-- Mint Tagline Badge -->
+<div class="mt-2 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container-high">
+<span class="font-label-md text-label-md text-primary font-medium">
+          Learning Without Limits • <span class="font-semibold" dir="rtl" lang="ur">علم سب کے لیے</span>
+</span>
+</div>
+</div>
+<!-- Formal Endorsement Card -->
+<div class="mt-7 w-full max-w-xs rounded-xl bg-surface-container-lowest p-3.5 shadow-sm flex items-start gap-2.5 text-left">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex-shrink-0 flex items-center justify-center text-primary mt-0.5">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Government Endorsement</span>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2 leading-tight mt-0.5">
+          Directorate of Curriculum &amp; Teacher Education (DCTE) &amp; KPK Textbook Board, Peshawar
+        </p>
+</div>
+</div>
+</div>
+<!-- Bottom Interactive / Loading Section -->
+<div class="w-full flex flex-col items-center z-10 px-2 space-y-4">
+<!-- Sleek Emerald & Amber Spinner & Status -->
+<div class="w-full max-w-xs rounded-2xl bg-surface-container-lowest p-4 shadow-sm flex flex-col items-center text-center">
+<div class="relative w-11 h-11 mb-2.5 flex items-center justify-center">
+<!-- SVG Dual Ring Spinner -->
+<svg class="w-full h-full animate-spin" fill="none" viewbox="0 0 44 44">
+<circle cx="22" cy="22" r="18" stroke="#DDF7E8" stroke-width="3.5"></circle>
+<path d="M40 22C40 12.0589 31.9411 4 22 4" stroke="#086B3A" stroke-linecap="round" stroke-width="3.5"></path>
+<path d="M22 40C26.5 40 31 38 34.5 35" stroke="#F3BF4B" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-primary">downloading</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold" id="loading-status">
+          Preparing your offline library...
+        </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+          Indexing Class 1–12 Pashto, Urdu &amp; English curricula
+        </span>
+</div>
+<!-- Micro Smooth Progress Track -->
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-300 w-1/3" id="progress-bar"></div>
+</div>
+</div>
+<!-- Version & Local Readiness Metadata -->
+<div class="flex items-center justify-center gap-2 text-center pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">v3.2.0</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+        Offline Ready
+      </span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">KPK-EDU-2025</span>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const phrases = [
+      "Preparing your offline library...",
+      "Syncing science & mathematics units...",
+      "Validating KPK Curriculum digital signatures...",
+      "Enabling village mode reader..."
+    ];
+    let step = 0;
+    const label = document.getElementById("loading-status");
+    const bar = document.getElementById("progress-bar");
+    
+    if (label && bar) {
+      const interval = setInterval(() => {
+        step++;
+        if (step < phrases.length) {
+          label.textContent = phrases[step];
+          const progressPercent = Math.min(25 + step * 25, 95);
+          bar.style.width = progressPercent + "%";
+        } else {
+          clearInterval(interval);
+          bar.style.width = "100%";
+          label.textContent = "Library loaded & ready!";
+        }
+      }, 1200);
+    }
+  })();
+</script></main><div class="flex justify-center pb-2 pt-1"><div class="w-32 h-1 bg-on-surface/20 rounded-full"></div></div></body></html>
