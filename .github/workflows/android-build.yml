@@ -57,5 +57,5 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: testers
           file: build/app/outputs/flutter-apk/app-release.apk
-          releaseNotes: "Automatic release build from GitHub Actions (${{ github.sha }})"
+          releaseNotes: "KPK Books Android Release v1.0.0 (${{ github.sha }})"
 
