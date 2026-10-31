@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
+import '../models/notification_model.dart';
 
 class AppState extends ChangeNotifier {
   int _selectedClass = 9;
@@ -12,6 +13,8 @@ class AppState extends ChangeNotifier {
   bool _wifiOnlyDownload = true;
   bool _lowDataMode = false;
 
+  List<NotificationItem> _notifications = [];
+
   int get selectedClass => _selectedClass;
   String get selectedLibraryTab => _selectedLibraryTab;
   String get searchQuery => _searchQuery;
@@ -19,11 +22,62 @@ class AppState extends ChangeNotifier {
   bool get isDarkMode => _isDarkMode;
   bool get wifiOnlyDownload => _wifiOnlyDownload;
   bool get lowDataMode => _lowDataMode;
+  List<NotificationItem> get notifications => _notifications;
+  int get unreadNotificationCount => _notifications.where((n) => !n.isRead).length;
 
   late List<Book> _allBooks;
 
   AppState() {
     _initializeBooks();
+    _initializeNotifications();
+  }
+
+  void _initializeNotifications() {
+    _notifications = [
+      NotificationItem(
+        id: 'notif_1',
+        title: 'Mid-term Exams Model Papers 2024–25',
+        titleUrdu: 'مڈ ٹرم امتحانات کے ماڈل پیپرز دستیاب ہیں',
+        message: 'Official solved model papers and syllabus breakdown for Class 9 & 10 have been uploaded by KPK Textbook Board.',
+        timestamp: '10:30 AM Today',
+        type: NotificationType.exam,
+        actionLabel: 'Explore Class 9 Guides',
+        relatedClass: 9,
+        isRead: false,
+      ),
+      NotificationItem(
+        id: 'notif_2',
+        title: 'Curriculum Update: Class 9 Physics',
+        titleUrdu: 'طبیعیات جماعت نہم کے نصاب میں اپڈیٹ',
+        message: 'Unit 3: Dynamics key definitions and formula sheet updated in accordance with the 2024–25 SLO guidelines.',
+        timestamp: 'Yesterday, 4:15 PM',
+        type: NotificationType.curriculum,
+        actionLabel: 'Read Unit 3',
+        relatedClass: 9,
+        isRead: false,
+      ),
+      NotificationItem(
+        id: 'notif_3',
+        title: 'New Textbook Edition: Class 10 Urdu Lazmi',
+        titleUrdu: 'اردو لازمی جماعت دہم کی نئی ایڈیشن',
+        message: 'The newly printed digital edition of Class 10 Urdu Lazmi is now ready for offline download.',
+        timestamp: '29 Oct 2026',
+        type: NotificationType.newBook,
+        actionLabel: 'View in Library',
+        relatedClass: 10,
+        isRead: false,
+      ),
+      NotificationItem(
+        id: 'notif_4',
+        title: 'Village Offline Mode Optimization',
+        titleUrdu: 'آف لائن ویلج موڈ کی بہتر کارکردگی',
+        message: 'Storage compression improved by 25%. Download once to read without cellular reception across all regions of KP.',
+        timestamp: '27 Oct 2026',
+        type: NotificationType.systemNotice,
+        actionLabel: 'Check Offline Shelf',
+        isRead: true,
+      ),
+    ];
   }
 
   void _initializeBooks() {
@@ -461,6 +515,26 @@ class AppState extends ChangeNotifier {
     book.isDownloaded = false;
     book.isDownloading = false;
     book.downloadProgress = 0.0;
+    notifyListeners();
+  }
+
+  void markAllNotificationsAsRead() {
+    for (var n in _notifications) {
+      n.isRead = true;
+    }
+    notifyListeners();
+  }
+
+  void markNotificationAsRead(String id) {
+    final idx = _notifications.indexWhere((n) => n.id == id);
+    if (idx != -1) {
+      _notifications[idx].isRead = true;
+      notifyListeners();
+    }
+  }
+
+  void deleteNotification(String id) {
+    _notifications.removeWhere((n) => n.id == id);
     notifyListeners();
   }
 }
