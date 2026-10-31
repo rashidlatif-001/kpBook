@@ -75,30 +75,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   scale: _scaleAnim,
                   child: Column(
                     children: [
-                      // Official Emblem circle
+                      // Official App Logo
                       Container(
-                        width: 110,
-                        height: 110,
+                        width: 120,
+                        height: 120,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [AppColors.primary, AppColors.secondary],
-                          ),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.25),
+                              color: AppColors.primary.withValues(alpha: 0.22),
                               blurRadius: 24,
-                              offset: const Offset(0, 10),
+                              offset: const Offset(0, 8),
                             ),
                           ],
+                          border: Border.all(
+                            color: AppColors.primaryContainer.withValues(alpha: 0.15),
+                            width: 2,
+                          ),
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.school_rounded,
-                            size: 56,
-                            color: Colors.white,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(26),
+                          child: Image.asset(
+                            'assets/images/app_logo.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),

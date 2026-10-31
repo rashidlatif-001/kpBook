@@ -33,13 +33,11 @@ class ConnectWithUsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    width: 72,
-                    height: 72,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.secondary],
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.primary.withValues(alpha: 0.2),
@@ -47,8 +45,15 @@ class ConnectWithUsScreen extends StatelessWidget {
                           offset: const Offset(0, 6),
                         ),
                       ],
+                      border: Border.all(color: AppColors.cardBorder, width: 1.5),
                     ),
-                    child: const Icon(Icons.school_rounded, color: Colors.white, size: 38),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Image.asset(
+                        'assets/images/app_logo.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 14),
                   const Text(
@@ -217,3 +222,4 @@ class ConnectWithUsScreen extends StatelessWidget {
     );
   }
 }
+

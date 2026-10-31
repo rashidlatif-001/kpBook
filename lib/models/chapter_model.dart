@@ -17,3 +17,4 @@ class Chapter {
     this.keyTopics = const [],
   });
 }
+

@@ -49,3 +49,4 @@ class AppColors {
   static const Color onErrorContainer = Color(0xFF93000A);
   static const Color cardBorder = Color(0xFFE5ECE6);
 }
+

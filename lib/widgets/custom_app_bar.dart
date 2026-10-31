@@ -33,13 +33,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              // KPK Emblem Emblem
+              // KPK App Logo
               Container(
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryContainer,
-                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.15),
@@ -47,12 +47,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       offset: const Offset(0, 2),
                     ),
                   ],
+                  border: Border.all(color: AppColors.cardBorder, width: 1),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.school_rounded,
-                    color: AppColors.onPrimary,
-                    size: 22,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(9),
+                  child: Image.asset(
+                    'assets/images/app_logo.png',
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -159,3 +160,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(68);
 }
+
