@@ -16,10 +16,18 @@ class OfflineShelfScreen extends StatelessWidget {
     final offlineBooks = appState.downloadedBooks;
 
     return Scaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         tag: 'Offline',
         title: 'Offline Study Shelf',
         subtitle: 'Saved Textbooks • Zero Internet Required',
+        showBackButton: true,
+        onBackPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else if (onSwitchTab != null) {
+            onSwitchTab!(0); // Return to Home screen
+          }
+        },
       ),
       body: Column(
         children: [

@@ -30,17 +30,26 @@ class _MainShellState extends State<MainShell> {
 
     final screens = [
       HomeScreen(onSwitchTab: _onSwitchTab),
-      const LibraryScreen(),
+      LibraryScreen(onSwitchTab: _onSwitchTab),
       OfflineShelfScreen(onSwitchTab: _onSwitchTab),
-      const SettingsScreen(),
+      SettingsScreen(onSwitchTab: _onSwitchTab),
     ];
 
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: Container(
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0; // Go to Home tab on system back
+          });
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: screens,
+        ),
+        bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceContainerLowest,
           border: const Border(
@@ -99,6 +108,7 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

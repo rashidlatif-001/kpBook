@@ -5,7 +5,9 @@ import '../theme/app_colors.dart';
 import 'connect_with_us_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final Function(int)? onSwitchTab;
+
+  const SettingsScreen({super.key, this.onSwitchTab});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +15,17 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
+          tooltip: 'Back to Previous Screen',
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else if (onSwitchTab != null) {
+              onSwitchTab!(0); // Return to Home screen
+            }
+          },
+        ),
         title: const Text(
           'Settings & Preferences',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),

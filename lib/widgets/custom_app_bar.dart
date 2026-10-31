@@ -8,6 +8,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String tag;
   final bool showNotification;
   final bool showDownloadManager;
+  final bool showBackButton;
+  final VoidCallback? onBackPressed;
 
   const CustomAppBar({
     super.key,
@@ -16,6 +18,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.tag = 'Home',
     this.showNotification = true,
     this.showDownloadManager = true,
+    this.showBackButton = false,
+    this.onBackPressed,
   });
 
   @override
@@ -33,6 +37,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
+              // Back Button (if enabled)
+              if (showBackButton) ...[
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: AppColors.onSurface,
+                    size: 24,
+                  ),
+                  tooltip: 'Back to Previous Screen',
+                  onPressed: onBackPressed ?? () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                const SizedBox(width: 10),
+              ],
               // KPK App Logo
               Container(
                 width: 40,

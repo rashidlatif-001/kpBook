@@ -7,7 +7,9 @@ import '../widgets/book_card.dart';
 import 'search_screen.dart';
 
 class LibraryScreen extends StatelessWidget {
-  const LibraryScreen({super.key});
+  final Function(int)? onSwitchTab;
+
+  const LibraryScreen({super.key, this.onSwitchTab});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +21,14 @@ class LibraryScreen extends StatelessWidget {
         tag: 'Class ${appState.selectedClass}',
         title: 'Class ${appState.selectedClass} Library',
         subtitle: 'Official KPK Textbook Board Collection',
+        showBackButton: true,
+        onBackPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else if (onSwitchTab != null) {
+            onSwitchTab!(0); // Return to Home screen
+          }
+        },
       ),
       body: Column(
         children: [
