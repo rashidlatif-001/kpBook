@@ -285,6 +285,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 8),
+
+              // Alternative: Back to login if verified via link
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                label: const Text(
+                  'Clicked link in email? Go to Sign In / لاگ ان کریں',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryContainer,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
