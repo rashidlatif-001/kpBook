@@ -108,8 +108,19 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      String userFriendlyError;
+      if (msg.contains('socket') || msg.contains('failed host lookup') || msg.contains('network') || msg.contains('clientexception')) {
+        userFriendlyError = 'Internet connection error. Please check your data or Wi-Fi.\nانٹرنیٹ کنکشن چیک کریں۔';
+      } else if (msg.contains('already registered') || msg.contains('user already exists')) {
+        userFriendlyError = 'This email is already registered. Please Sign In.\nیہ ای میل پہلے سے رجسٹرڈ ہے، براہ کرم لاگ ان کریں۔';
+      } else if (msg.contains('invalid login credentials') || msg.contains('invalid credentials')) {
+        userFriendlyError = 'Incorrect email or password. Please check your credentials.\nغلط ای میل یا پاس ورڈ۔';
+      } else {
+        userFriendlyError = e.toString().replaceAll('Exception: ', '').replaceAll('AuthException: ', '');
+      }
       setState(() {
-        _errorMessage = e.toString().replaceAll('Exception: ', '').replaceAll('AuthException: ', '');
+        _errorMessage = userFriendlyError;
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
