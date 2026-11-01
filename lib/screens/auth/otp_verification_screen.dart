@@ -292,3 +292,4 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 }
+
