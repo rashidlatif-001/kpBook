@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
+import 'auth/login_screen.dart';
 import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,9 +42,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   void _goToHome() {
     _timer?.cancel();
+    final bool isLoggedIn = SupabaseService.isAuthenticated;
+    final Widget targetScreen = isLoggedIn ? const MainShell() : const LoginScreen();
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const MainShell(),
+        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

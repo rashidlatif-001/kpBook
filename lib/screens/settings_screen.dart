@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
+import 'auth/login_screen.dart';
 import 'connect_with_us_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -34,6 +36,11 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // User Profile & Authentication Section
+          _buildUserAccountSection(context),
+
+          const SizedBox(height: 24),
+
           // Language Selection Section
           _buildSectionHeader('LANGUAGE / زبان / ژبه'),
           Container(
@@ -184,6 +191,113 @@ class SettingsScreen extends StatelessWidget {
       trailing: isSelected
           ? const Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 20)
           : null,
+    );
+  }
+
+  Widget _buildUserAccountSection(BuildContext context) {
+    final bool isLoggedIn = SupabaseService.isAuthenticated;
+    final String name = SupabaseService.userName;
+    final String email = SupabaseService.userEmail ?? 'Not logged in (Guest Mode)';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: AppColors.primaryContainer.withValues(alpha: 0.12),
+            child: Icon(
+              isLoggedIn ? Icons.person_rounded : Icons.person_outline_rounded,
+              color: AppColors.primaryContainer,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isLoggedIn ? name : 'Guest Student / مہمان',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  email,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+              tooltip: 'Log Out / لاگ آؤٹ',
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Log Out / لاگ آؤٹ'),
+                    content: const Text('Are you sure you want to log out of KPK E-Textbooks?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Log Out'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  await SupabaseService.signOut();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
+                }
+              },
+            )
+          else
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+              child: const Text(
+                'Sign In',
+                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryContainer),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
