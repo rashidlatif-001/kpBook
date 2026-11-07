@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Search,
   Filter,
@@ -11,6 +12,8 @@ import {
   ArrowUpDown,
   RefreshCw,
   UserCheck,
+  Calendar,
+  X,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { UserDetailsModal, UserDetail } from './UserDetailsModal';
@@ -51,12 +54,18 @@ const CLASSES = [
 ];
 
 export function UserTable() {
+  const searchParams = useSearchParams();
+  const urlClass = searchParams.get('class') || 'All Classes';
+  const urlStatus = searchParams.get('status') || 'All Statuses';
+  const urlTimeframe = searchParams.get('timeframe') || '';
+
   const [users, setUsers] = useState<UserDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selectedClass, setSelectedClass] = useState('All Classes');
+  const [selectedClass, setSelectedClass] = useState(urlClass);
   const [selectedDistrict, setSelectedDistrict] = useState('All Districts');
-  const [selectedStatus, setSelectedStatus] = useState('All Statuses');
+  const [selectedStatus, setSelectedStatus] = useState(urlStatus);
+  const [timeframe, setTimeframe] = useState(urlTimeframe);
   const [sortBy, setSortBy] = useState('created_at');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
@@ -64,6 +73,13 @@ export function UserTable() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  // Sync state if URL changes
+  useEffect(() => {
+    if (urlClass !== 'All Classes') setSelectedClass(urlClass);
+    if (urlStatus !== 'All Statuses') setSelectedStatus(urlStatus);
+    if (urlTimeframe) setTimeframe(urlTimeframe);
+  }, [urlClass, urlStatus, urlTimeframe]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -73,6 +89,7 @@ export function UserTable() {
       if (selectedClass !== 'All Classes') params.set('class', selectedClass);
       if (selectedDistrict !== 'All Districts') params.set('district', selectedDistrict);
       if (selectedStatus !== 'All Statuses') params.set('status', selectedStatus.toLowerCase());
+      if (timeframe) params.set('timeframe', timeframe);
       params.set('sort_by', sortBy);
       params.set('order', order);
       params.set('page', page.toString());
@@ -89,7 +106,7 @@ export function UserTable() {
     } finally {
       setLoading(false);
     }
-  }, [search, selectedClass, selectedDistrict, selectedStatus, sortBy, order, page]);
+  }, [search, selectedClass, selectedDistrict, selectedStatus, timeframe, sortBy, order, page]);
 
   useEffect(() => {
     fetchUsers();
@@ -204,13 +221,32 @@ export function UserTable() {
             <option value="suspended">Suspended</option>
           </select>
 
+          {/* Timeframe Pill */}
+          {timeframe && (
+            <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-xs border border-blue-300">
+              <Calendar className="w-3 h-3 text-blue-700" />
+              <span>{timeframe === 'today' ? "Today's Signups" : timeframe === 'weekly' ? "Past 7 Days Signups" : timeframe}</span>
+              <button
+                onClick={() => {
+                  setTimeframe('');
+                  setPage(1);
+                }}
+                className="hover:text-rose-600 ml-1 p-0.5 rounded-full hover:bg-blue-200"
+                title="Remove timeframe filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
           {/* Reset Filters */}
-          {(selectedClass !== 'All Classes' || selectedDistrict !== 'All Districts' || selectedStatus !== 'All Statuses' || search) && (
+          {(selectedClass !== 'All Classes' || selectedDistrict !== 'All Districts' || selectedStatus !== 'All Statuses' || timeframe || search) && (
             <button
               onClick={() => {
                 setSelectedClass('All Classes');
                 setSelectedDistrict('All Districts');
                 setSelectedStatus('All Statuses');
+                setTimeframe('');
                 setSearch('');
                 setPage(1);
               }}

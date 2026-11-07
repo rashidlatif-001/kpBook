@@ -96,46 +96,50 @@ export default async function DashboardPage() {
         description="Live monitoring of KPK E-Textbooks students, sessions, and downloads"
       />
 
-      {/* Top Metric Cards */}
+      {/* Top Metric Cards (All Clickable) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Registered Students"
           value={totalUsers}
-          subtitle="All-time verified mobile accounts"
+          subtitle="Click to view all student profiles"
           icon={Users}
           color="blue"
           badgeText="Live DB"
           badgeType="info"
+          href="/users"
         />
 
         <StatCard
           title="Today's Signups"
           value={todayUsers}
-          subtitle="New registrations in last 24h"
+          subtitle={todayUsers > 0 ? "Click to view today's signups" : "Click to view student list"}
           icon={Calendar}
           color="emerald"
-          badgeText={todayUsers > 0 ? `+${todayUsers} Today` : 'No new yet'}
+          badgeText={todayUsers > 0 ? `+${todayUsers} Today` : '0 New'}
           badgeType="success"
+          href="/users?timeframe=today"
         />
 
         <StatCard
           title="Active Students"
           value={activeUsers}
-          subtitle={`${inactiveUsers} currently inactive`}
+          subtitle="Click to filter active accounts"
           icon={UserCheck}
           color="indigo"
           badgeText="Active 30d"
           badgeType="info"
+          href="/users?status=active"
         />
 
         <StatCard
           title="Weekly Growth"
           value={weeklyUsers}
-          subtitle={`${monthlyUsers} signups in last 30 days`}
+          subtitle="Click to view this week's signups"
           icon={Activity}
           color="amber"
           badgeText="Last 7 Days"
           badgeType="warning"
+          href="/users?timeframe=weekly"
         />
       </div>
 

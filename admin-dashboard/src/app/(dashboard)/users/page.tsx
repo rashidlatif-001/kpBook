@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Topbar } from '@/components/layout/Topbar';
 import { UserTable } from '@/components/users/UserTable';
 
@@ -10,8 +10,9 @@ export default function UsersPage() {
         description="Search, filter, inspect, and export all registered KPK E-Textbooks students"
       />
 
-      <UserTable />
+      <Suspense fallback={<div className="p-12 text-center text-slate-400 font-medium">Loading student directory...</div>}>
+        <UserTable />
+      </Suspense>
     </>
   );
 }
-

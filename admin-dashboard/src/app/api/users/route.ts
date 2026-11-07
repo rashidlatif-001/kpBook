@@ -46,6 +46,15 @@ export async function GET(request: Request) {
       whereClauses.push(`status = $${params.length}`);
     }
 
+    const timeframe = searchParams.get('timeframe') || '';
+    if (timeframe === 'today') {
+      whereClauses.push(`created_at >= date_trunc('day', now())`);
+    } else if (timeframe === 'weekly') {
+      whereClauses.push(`created_at >= (now() - interval '7 days')`);
+    } else if (timeframe === 'monthly') {
+      whereClauses.push(`created_at >= (now() - interval '30 days')`);
+    }
+
     const whereSql = whereClauses.join(' AND ');
 
     // Allowed sort columns
