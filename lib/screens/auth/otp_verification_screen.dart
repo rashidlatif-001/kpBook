@@ -69,6 +69,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (!mounted) return;
 
       if (response.session != null || response.user != null) {
+        // Record login activity for Admin Dashboard
+        SupabaseService.recordLoginActivity();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Verification successful! Welcome to KPK E-Textbooks.'),

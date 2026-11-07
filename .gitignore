@@ -48,3 +48,8 @@ app.*.map.json
 # Private notes & credentials
 *.docx
 *.doc
+*-firebase-adminsdk-*.json
+*.env*
+.env
+.env.local
+.env.production

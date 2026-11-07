@@ -120,10 +120,45 @@ class SupabaseService {
     if (supa == null) {
       throw Exception('Supabase client is not initialized.');
     }
-    return await supa.auth.signInWithPassword(
+    final response = await supa.auth.signInWithPassword(
       email: email.trim(),
       password: password,
     );
+
+    // Record login activity in background
+    if (response.session != null || response.user != null) {
+      recordLoginActivity();
+    }
+
+    return response;
+  }
+
+  /// Record mobile login activity session in database for Admin Dashboard
+  static Future<void> recordLoginActivity({String status = 'success'}) async {
+    try {
+      final supa = client;
+      final user = currentUser;
+      if (supa == null || user == null) return;
+
+      String device = 'Mobile App';
+      try {
+        if (!kIsWeb) {
+          device = '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
+        } else {
+          device = 'Web Client';
+        }
+      } catch (_) {}
+
+      await supa.from('login_activity').insert({
+        'user_id': user.id,
+        'user_email': user.email ?? '',
+        'user_name': userName,
+        'device_info': device,
+        'status': status,
+      });
+    } catch (e) {
+      debugPrint('Notice: login_activity recording: $e');
+    }
   }
 
   /// Send password reset email
