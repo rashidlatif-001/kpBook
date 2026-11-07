@@ -21,3 +21,4 @@ for s in stmts:
     con.run(s)
 
 print("RLS policies updated successfully!")
+

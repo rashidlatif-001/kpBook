@@ -46,6 +46,7 @@ app.*.map.json
 
 
 # Private notes & credentials
+*.apk
 *.docx
 *.doc
 *-firebase-adminsdk-*.json
