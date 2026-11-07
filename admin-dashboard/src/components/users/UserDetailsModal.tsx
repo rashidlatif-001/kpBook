@@ -171,3 +171,4 @@ export function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
     </div>
   );
 }
+

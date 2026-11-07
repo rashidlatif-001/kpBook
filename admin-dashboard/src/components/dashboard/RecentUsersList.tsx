@@ -65,3 +65,4 @@ export function RecentUsersList({ users }: RecentUsersListProps) {
     </div>
   );
 }
+

@@ -65,3 +65,4 @@ export function ClassDistributionChart({ data }: ClassDistributionChartProps) {
     </div>
   );
 }
+

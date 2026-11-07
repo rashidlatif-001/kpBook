@@ -160,7 +160,7 @@ class ConnectWithUsScreen extends StatelessWidget {
 
             // Tech Specs
             const Text(
-              'Pakhtunkhwa Ilm • Flutter & Dart Native Edition\nVersion 1.0.0 (Build 2026.10)',
+              'Pakhtunkhwa Ilm • Flutter & Dart Native Edition\nVersion 1.0.1 (Build 2)',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 11, color: AppColors.outline),
             ),

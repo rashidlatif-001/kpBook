@@ -40,12 +40,12 @@ jobs:
         run: flutter pub get
 
       - name: Build Android Release APK
-        run: flutter build apk --release --android-skip-build-dependency-validation
+        run: flutter build apk --release --android-skip-build-dependency-validation --build-name="1.0.${{ github.run_number }}" --build-number=${{ github.run_number }}
 
       - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KPK-Books-Android-APK
+          name: KPK-Books-v1.0.${{ github.run_number }}-b${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
@@ -57,5 +57,5 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: testers
           file: build/app/outputs/flutter-apk/app-release.apk
-          releaseNotes: "KPK Books Android Release v1.0.0 (${{ github.sha }})"
+          releaseNotes: "KPK Books Android Release v1.0.${{ github.run_number }} (Build #${{ github.run_number }}) - Commit ${{ github.sha }}"
 

@@ -67,3 +67,4 @@ export function RegistrationChart({ data }: RegistrationChartProps) {
     </div>
   );
 }
+

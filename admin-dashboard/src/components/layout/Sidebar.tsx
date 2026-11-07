@@ -55,7 +55,10 @@ export function Sidebar({ adminName = 'KPK Admin', adminEmail = 'admin@kpbooks.g
             <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="font-bold text-white text-base leading-tight tracking-wide">KPK Books</h1>
+            <div className="flex items-center space-x-1.5">
+              <h1 className="font-bold text-white text-base leading-tight tracking-wide">KPK Books</h1>
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-semibold border border-blue-400/30">v1.0.1</span>
+            </div>
             <p className="text-xs text-blue-400 font-medium">Admin Portal</p>
           </div>
         </div>

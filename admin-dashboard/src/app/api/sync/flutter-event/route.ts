@@ -48,3 +48,4 @@ export async function POST(request: Request) {
 function splitEmail(email: string): string {
   return email.split('@')[0] || 'Student';
 }
+
