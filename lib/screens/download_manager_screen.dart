@@ -17,6 +17,8 @@ class DownloadManagerScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Download Manager',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
         ),
         leading: IconButton(

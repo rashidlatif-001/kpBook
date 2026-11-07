@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:kp_book/main.dart';
 import 'package:kp_book/providers/app_state.dart';
+import 'package:kp_book/widgets/custom_app_bar.dart';
 import 'package:kp_book/widgets/offline_sync_banner.dart';
 
 void main() {
@@ -76,6 +77,60 @@ void main() {
       final wasBookmarked = book.isBookmarked;
       state.toggleBookmark(book);
       expect(book.isBookmarked, equals(!wasBookmarked));
+    });
+  });
+
+  group('CustomAppBar UI & Back Button tests', () {
+    testWidgets('CustomAppBar renders title, subtitle and tag without overflow', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => AppState()),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              appBar: CustomAppBar(
+                title: 'Class 10 Library',
+                subtitle: 'Official KPK Textbook Board Collection',
+                tag: 'Class 10',
+                showBackButton: true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Class 10 Library'), findsOneWidget);
+      expect(find.text('Official KPK Textbook Board Collection'), findsOneWidget);
+      expect(find.text('CLASS 10'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+    });
+
+    testWidgets('CustomAppBar back button triggers callback properly', (WidgetTester tester) async {
+      bool backPressed = false;
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => AppState()),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              appBar: CustomAppBar(
+                title: 'Offline Shelf',
+                tag: 'Offline',
+                showBackButton: true,
+                onBackPressed: () {
+                  backPressed = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pump();
+      expect(backPressed, isTrue);
     });
   });
 }

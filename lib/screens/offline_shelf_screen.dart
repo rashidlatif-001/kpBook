@@ -41,32 +41,41 @@ class OfflineShelfScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryContainer,
-                            borderRadius: BorderRadius.circular(8),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryContainer,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.offline_pin_rounded, color: AppColors.onSecondaryContainer, size: 20),
                           ),
-                          child: const Icon(Icons.offline_pin_rounded, color: AppColors.onSecondaryContainer, size: 20),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Village Offline Mode',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Village Offline Mode',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                                ),
+                                Text(
+                                  '${offlineBooks.length} books ready for uninterrupted study',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${offlineBooks.length} books ready for uninterrupted study',
-                              style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(

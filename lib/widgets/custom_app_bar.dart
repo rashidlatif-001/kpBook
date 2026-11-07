@@ -12,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showNotification;
   final bool showDownloadManager;
   final bool showBackButton;
+  final bool? showLogo;
   final VoidCallback? onBackPressed;
 
   const CustomAppBar({
@@ -22,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showNotification = true,
     this.showDownloadManager = true,
     this.showBackButton = false,
+    this.showLogo,
     this.onBackPressed,
   });
 
@@ -29,6 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final unreadCount = appState.unreadNotificationCount;
+    final displayLogo = showLogo ?? !showBackButton;
 
     return Container(
       decoration: BoxDecoration(
@@ -40,108 +43,147 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Back Button (if enabled)
+              // Back Button (when enabled)
               if (showBackButton) ...[
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(
-                    Icons.arrow_back_rounded,
-                    color: AppColors.onSurface,
-                    size: 24,
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: onBackPressed ?? () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerHigh.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.8)),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: AppColors.onSurface,
+                        size: 20,
+                      ),
+                    ),
                   ),
-                  tooltip: 'Back to Previous Screen',
-                  onPressed: onBackPressed ?? () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                  },
                 ),
                 const SizedBox(width: 10),
               ],
-              // KPK App Logo
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+
+              // KPK App Logo (shown on primary screens or when showLogo is true)
+              if (displayLogo) ...[
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(color: AppColors.cardBorder, width: 1),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(9),
+                    child: Image.asset(
+                      'assets/images/app_logo.png',
+                      fit: BoxFit.cover,
                     ),
-                  ],
-                  border: Border.all(color: AppColors.cardBorder, width: 1),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(9),
-                  child: Image.asset(
-                    'assets/images/app_logo.png',
-                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // Title & Subtitle
+                const SizedBox(width: 10),
+              ],
+
+              // Title & Subtitle (with overflow protection and flex layout)
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                            color: AppColors.onSurface,
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
+                              color: AppColors.onSurface,
+                            ),
                           ),
                         ),
                         if (tag.isNotEmpty) ...[
                           const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondaryContainer,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              tag.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.4,
-                                color: AppColors.onSecondaryContainer,
+                          Flexible(
+                            flex: 0,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondaryContainer,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                tag.toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.3,
+                                  color: AppColors.onSecondaryContainer,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ],
                     ),
-                    const SizedBox(height: 1),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 1.5),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          color: AppColors.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
+
               // Download Manager button
               if (showDownloadManager)
                 IconButton(
                   tooltip: 'Download Manager',
-                  icon: const Icon(Icons.downloading_rounded, color: AppColors.primaryContainer, size: 24),
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.downloading_rounded,
+                    color: AppColors.primaryContainer,
+                    size: 22,
+                  ),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -149,14 +191,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     );
                   },
                 ),
-              // Notifications
+
+              if (showDownloadManager && showNotification)
+                const SizedBox(width: 6),
+
+              // Notifications button
               if (showNotification)
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
                     IconButton(
                       tooltip: 'Official Board Notifications',
-                      icon: const Icon(Icons.notifications_none_rounded, color: AppColors.onSurfaceVariant, size: 24),
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.onSurfaceVariant,
+                        size: 22,
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -166,24 +219,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     if (unreadCount > 0)
                       Positioned(
-                        top: 6,
-                        right: 6,
+                        top: 2,
+                        right: 2,
                         child: Container(
-                          padding: const EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(2.5),
                           decoration: const BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
+                            minWidth: 15,
+                            minHeight: 15,
                           ),
                           child: Text(
                             '$unreadCount',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 9,
+                              fontSize: 8.5,
                               fontWeight: FontWeight.w800,
                               height: 1,
                             ),
@@ -200,6 +253,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(68);
+  Size get preferredSize => const Size.fromHeight(66);
 }
-

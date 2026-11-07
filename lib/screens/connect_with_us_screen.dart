@@ -10,6 +10,8 @@ class ConnectWithUsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'App Information & Support',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
         ),
         leading: IconButton(

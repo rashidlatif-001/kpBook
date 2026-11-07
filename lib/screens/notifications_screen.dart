@@ -40,10 +40,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             Text(
               'Board Notifications',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface),
             ),
             Text(
               'KPK Textbook Board Alerts',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
             ),
           ],

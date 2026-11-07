@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/custom_app_bar.dart';
 import 'auth/login_screen.dart';
 import 'connect_with_us_screen.dart';
 
@@ -16,22 +17,20 @@ class SettingsScreen extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
-          tooltip: 'Back to Previous Screen',
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else if (onSwitchTab != null) {
-              onSwitchTab!(0); // Return to Home screen
-            }
-          },
-        ),
-        title: const Text(
-          'Settings & Preferences',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-        ),
+      appBar: CustomAppBar(
+        tag: 'Settings',
+        title: 'Settings & Preferences',
+        subtitle: 'App configuration & profile',
+        showBackButton: true,
+        showDownloadManager: false,
+        showNotification: false,
+        onBackPressed: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else if (onSwitchTab != null) {
+            onSwitchTab!(0); // Return to Home screen
+          }
+        },
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

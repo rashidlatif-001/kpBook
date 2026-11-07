@@ -39,3 +39,4 @@ def reset_database_to_zero():
 
 if __name__ == "__main__":
     reset_database_to_zero()
+
