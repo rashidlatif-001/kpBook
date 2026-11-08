@@ -1,6 +1,6 @@
 {
-    "name": "kp_book",
-    "short_name": "kp_book",
+    "name": "KPK E-Textbooks",
+    "short_name": "KPK E-Textbooks",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

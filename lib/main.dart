@@ -26,7 +26,7 @@ class KpkETextbooksApp extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
 
     return MaterialApp(
-      title: 'KPK E-Textbooks (Pakhtunkhwa Ilm)',
+      title: 'KPK E-Textbooks',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
