@@ -395,7 +395,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-                Text('v1.0.2', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
+                Text('v1.0.3', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
               ],
             ),
           ),

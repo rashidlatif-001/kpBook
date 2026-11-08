@@ -20,7 +20,8 @@ void main() {
     // Initial frame on splash screen renders KPK branding elements
     expect(find.text('KPK E-Textbooks'), findsOneWidget);
     expect(find.text('خیبر پختونخوا ای-ٹیکسٹ بکس'), findsOneWidget);
-    expect(find.text('Tap to Enter'), findsOneWidget);
+    expect(find.text('Loading curriculum data & offline cache...'), findsOneWidget);
+    expect(find.text('Tap to Enter'), findsNothing);
   });
 
   testWidgets('OfflineSyncBanner renders status banner with state', (WidgetTester tester) async {

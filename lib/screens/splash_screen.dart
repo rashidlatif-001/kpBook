@@ -151,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 ),
               ),
               const Spacer(),
-              // Bottom Progress / Continue
+              // Bottom Progress
               FadeTransition(
                 opacity: _fadeAnim,
                 child: Column(
@@ -173,26 +173,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    // Tap to skip
-                    TextButton(
-                      onPressed: _goToHome,
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Tap to Enter',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primaryContainer,
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.primaryContainer),
-                        ],
-                      ),
-                    ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
