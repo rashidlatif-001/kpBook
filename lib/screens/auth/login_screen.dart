@@ -399,8 +399,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      labelText: 'Password / پاس ورڈ',
+                      labelText: 'Password',
                       hintText: 'Minimum 6 characters',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
@@ -424,32 +425,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  // Confirm Password (Only in Register Mode)
+                  // Confirm Password (Only in Register Mode) with red underline until matching
                   if (!_isLoginMode) ...[
                     const SizedBox(height: 14),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm Password / تصدیقِ پاس ورڈ',
-                        prefixIcon: const Icon(Icons.lock_reset_outlined),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    Builder(builder: (context) {
+                      final bool isMismatch = _confirmPasswordController.text.isNotEmpty &&
+                          _confirmPasswordController.text != _passwordController.text;
+                      return TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          prefixIcon: const Icon(Icons.lock_reset_outlined),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            ),
+                            onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                           ),
-                          onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                          filled: true,
+                          fillColor: AppColors.surfaceContainerLowest,
+                          enabledBorder: isMismatch
+                              ? const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: AppColors.error, width: 2.2),
+                                )
+                              : OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                          focusedBorder: isMismatch
+                              ? const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: AppColors.error, width: 2.5),
+                                )
+                              : OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(color: AppColors.primaryContainer, width: 1.5),
+                                ),
+                          helperText: isMismatch ? 'Passwords do not match yet' : null,
+                          helperStyle: const TextStyle(color: AppColors.error, fontSize: 11),
                         ),
-                        filled: true,
-                        fillColor: AppColors.surfaceContainerLowest,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      validator: (val) {
-                        if (!_isLoginMode && val != _passwordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ),
+                        validator: (val) {
+                          if (!_isLoginMode && val != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      );
+                    }),
                   ],
 
                   // Forgot Password Link (Only in Login Mode)
@@ -513,47 +533,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
                           : Text(
-                              _isLoginMode ? 'Sign In / داخل ہوں' : 'Register & Get OTP / اکاؤنٹ بنائیں',
+                              _isLoginMode ? 'Sign In' : 'Register & Get OTP',
                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                             ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Divider
-                  const Row(
-                    children: [
-                      Expanded(child: Divider(color: AppColors.cardBorder)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'OR / یا',
-                          style: TextStyle(fontSize: 11, color: AppColors.outline),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: AppColors.cardBorder)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Continue as Guest Option
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => const MainShell()),
-                      );
-                    },
-                    icon: const Icon(Icons.explore_outlined, size: 18, color: AppColors.onSurfaceVariant),
-                    label: const Text(
-                      'Continue as Guest (مہمان کے طور پر دیکھیں)',
-                      style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.cardBorder),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ],

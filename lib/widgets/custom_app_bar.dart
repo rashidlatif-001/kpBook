@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
 import '../screens/download_manager_screen.dart';
 import '../screens/notifications_screen.dart';
@@ -12,7 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showNotification;
   final bool showDownloadManager;
   final bool showBackButton;
-  final bool? showLogo;
+  final bool showAvatar;
   final VoidCallback? onBackPressed;
 
   const CustomAppBar({
@@ -23,19 +25,72 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showNotification = true,
     this.showDownloadManager = true,
     this.showBackButton = false,
-    this.showLogo,
+    this.showAvatar = true,
     this.onBackPressed,
   });
+
+  Widget _buildInitialAvatar(String initial) {
+    return Center(
+      child: Text(
+        initial,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: AppColors.primaryContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatar(BuildContext context, AppState appState) {
+    final avatarPath = appState.profileImagePath;
+    final userName = SupabaseService.userName;
+    final initial = userName.isNotEmpty ? userName[0].toUpperCase() : 'S';
+
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.primaryContainer.withValues(alpha: 0.12),
+        border: Border.all(
+          color: AppColors.primaryContainer.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: avatarPath != null && avatarPath.isNotEmpty
+            ? (avatarPath.startsWith('http')
+                ? Image.network(
+                    avatarPath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _buildInitialAvatar(initial),
+                  )
+                : Image.file(
+                    File(avatarPath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _buildInitialAvatar(initial),
+                  ))
+            : _buildInitialAvatar(initial),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final unreadCount = appState.unreadNotificationCount;
-    final displayLogo = showLogo ?? !showBackButton;
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.95),
+        color: AppColors.surface.withValues(alpha: 0.98),
         border: const Border(
           bottom: BorderSide(color: AppColors.cardBorder, width: 0.8),
         ),
@@ -47,10 +102,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Back Button (when enabled)
+              // 1. Back Button with visible background color & properly sized icon
               if (showBackButton) ...[
                 Material(
                   color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: onBackPressed ?? () {
@@ -59,18 +115,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       }
                     },
                     child: Container(
-                      width: 38,
-                      height: 38,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerHigh.withValues(alpha: 0.5),
+                        color: AppColors.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.8)),
+                        border: Border.all(
+                          color: AppColors.cardBorder,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       alignment: Alignment.center,
                       child: const Icon(
                         Icons.arrow_back_rounded,
                         color: AppColors.onSurface,
-                        size: 20,
+                        size: 19,
                       ),
                     ),
                   ),
@@ -78,35 +144,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 const SizedBox(width: 10),
               ],
 
-              // KPK App Logo (shown on primary screens or when showLogo is true)
-              if (displayLogo) ...[
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                    border: Border.all(color: AppColors.cardBorder, width: 1),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(9),
-                    child: Image.asset(
-                      'assets/images/app_logo.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+              // 2. User Profile Image / Avatar (replaces the old top logo)
+              if (showAvatar) ...[
+                _buildProfileAvatar(context, appState),
                 const SizedBox(width: 10),
               ],
 
-              // Title & Subtitle (with overflow protection and flex layout)
+              // 3. Title & Subtitle (realigned to sit correctly alongside back button & avatar)
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -122,7 +166,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 15.5,
+                              fontSize: 15.0,
                               fontWeight: FontWeight.w700,
                               letterSpacing: -0.3,
                               color: AppColors.onSurface,
@@ -172,12 +216,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
 
-              // Download Manager button
+              // 4. Download Manager Button
               if (showDownloadManager)
                 IconButton(
                   tooltip: 'Download Manager',
                   visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(7),
                   constraints: const BoxConstraints(),
                   icon: const Icon(
                     Icons.downloading_rounded,
@@ -195,15 +239,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               if (showDownloadManager && showNotification)
                 const SizedBox(width: 6),
 
-              // Notifications button
+              // 5. Notifications Button with unread counter
               if (showNotification)
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
                     IconButton(
-                      tooltip: 'Official Board Notifications',
+                      tooltip: 'Official Notifications',
                       visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(7),
                       constraints: const BoxConstraints(),
                       icon: const Icon(
                         Icons.notifications_none_rounded,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_state.dart';
 import '../theme/app_colors.dart';
 
 class OfflineSyncBanner extends StatelessWidget {
@@ -6,13 +8,29 @@ class OfflineSyncBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+    final isOnline = appState.isOnline;
+
+    final bgColor = isOnline
+        ? const Color(0xFFE8F5E9)
+        : AppColors.surfaceContainerLow;
+    final borderColor = isOnline
+        ? const Color(0xFFC8E6C9)
+        : AppColors.cardBorder;
+    final iconColor = isOnline
+        ? const Color(0xFF2E7D32)
+        : AppColors.onSurfaceVariant;
+    final textColor = isOnline
+        ? const Color(0xFF1B5E20)
+        : AppColors.onSurface;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        border: const Border(
-          bottom: BorderSide(color: AppColors.cardBorder, width: 0.8),
+        color: bgColor,
+        border: Border(
+          bottom: BorderSide(color: borderColor, width: 0.8),
         ),
       ),
       child: Row(
@@ -20,44 +38,55 @@ class OfflineSyncBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.secondaryContainer,
+              color: isOnline
+                  ? const Color(0xFFC8E6C9)
+                  : AppColors.secondaryContainer,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(
-              Icons.offline_pin_rounded,
+            child: Icon(
+              isOnline ? Icons.wifi_rounded : Icons.wifi_off_rounded,
               size: 16,
-              color: AppColors.onSecondaryContainer,
+              color: iconColor,
             ),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Offline-First Enabled • Village Study Mode Ready',
+              isOnline
+                  ? 'Online • Live Cloud Sync Active'
+                  : 'Offline Mode • Studying Without Internet',
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primaryContainer,
+                fontWeight: FontWeight.w700,
+                color: textColor,
               ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
+              color: isOnline ? Colors.white : AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: AppColors.cardBorder, width: 0.8),
+              border: Border.all(color: borderColor, width: 0.8),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.wifi_off_rounded, size: 12, color: AppColors.outline),
-                SizedBox(width: 4),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isOnline ? const Color(0xFF388E3C) : AppColors.outline,
+                  ),
+                ),
+                const SizedBox(width: 5),
                 Text(
-                  'No internet needed',
+                  isOnline ? 'Online' : 'Offline',
                   style: TextStyle(
                     fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                    color: isOnline ? const Color(0xFF2E7D32) : AppColors.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -68,4 +97,3 @@ class OfflineSyncBanner extends StatelessWidget {
     );
   }
 }
-

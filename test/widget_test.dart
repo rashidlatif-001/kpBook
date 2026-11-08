@@ -23,26 +23,37 @@ void main() {
     expect(find.text('Tap to Enter'), findsOneWidget);
   });
 
-  testWidgets('OfflineSyncBanner renders status and description', (WidgetTester tester) async {
+  testWidgets('OfflineSyncBanner renders status banner with state', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: OfflineSyncBanner(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AppState()),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: OfflineSyncBanner(),
+          ),
         ),
       ),
     );
 
-    expect(find.text('Offline-First Enabled • Village Study Mode Ready'), findsOneWidget);
-    expect(find.text('No internet needed'), findsOneWidget);
-    expect(find.byIcon(Icons.offline_pin_rounded), findsOneWidget);
+    // Banner renders either Online or Offline mode
+    expect(
+      find.byWidgetPredicate((w) =>
+          w is Text &&
+          (w.data?.contains('Online • Live Cloud Sync Active') == true ||
+              w.data?.contains('Offline Mode • Studying Without Internet') == true)),
+      findsOneWidget,
+    );
   });
 
   group('AppState business logic unit tests', () {
-    test('Default state initializes correctly for KPK curriculum', () {
+    test('Default state initializes correctly: No class selected by default', () {
       final state = AppState();
-      expect(state.selectedClass, equals(9));
+      expect(state.selectedClass, isNull);
+      expect(state.hasSelectedClass, isFalse);
+      expect(state.booksForSelectedClass.isEmpty, isTrue);
       expect(state.currentLanguage, equals('en'));
-      expect(state.booksForSelectedClass.isNotEmpty, isTrue);
       expect(state.unreadNotificationCount, greaterThan(0));
     });
 
@@ -50,18 +61,41 @@ void main() {
       final state = AppState();
       state.setSelectedClass(10);
       expect(state.selectedClass, equals(10));
+      expect(state.hasSelectedClass, isTrue);
       for (final book in state.booksForSelectedClass) {
         expect(book.classNumber, equals(10));
       }
     });
 
-    test('Search query correctly matches textbook titles', () {
+    test('Search query with class and type filters matches accurately', () {
       final state = AppState();
-      state.setSearchQuery('Physics');
-      expect(state.searchQuery, equals('Physics'));
-      final results = state.searchBooks('Physics');
+      final results = state.searchBooksWithFilters(
+        query: 'Physics',
+        classFilter: 9,
+        typeFilter: 'Books',
+      );
       expect(results.isNotEmpty, isTrue);
-      expect(results.first.title.toLowerCase().contains('physics'), isTrue);
+      expect(results.first.classNumber, equals(9));
+      expect(results.first.isGuide, isFalse);
+    });
+
+    test('Search type filter correctly isolates Guides', () {
+      final state = AppState();
+      final guides = state.searchBooksWithFilters(
+        query: 'Guide',
+        classFilter: 9,
+        typeFilter: 'Guides',
+      );
+      expect(guides.isNotEmpty, isTrue);
+      expect(guides.first.isGuide, isTrue);
+    });
+
+    test('Resume reading tracks exact last read page accurately', () {
+      final state = AppState();
+      state.setSelectedClass(9);
+      final book = state.booksForSelectedClass.first;
+      state.updateLastReadPage(book, 45);
+      expect(state.lastReadBook?.lastReadPage, equals(45));
     });
 
     test('Notification unread count updates when marked as read', () {
@@ -71,17 +105,16 @@ void main() {
       expect(state.unreadNotificationCount, equals(0));
     });
 
-    test('Book bookmark toggles state correctly', () {
+    test('Clear temporary cache and downloads empties offline shelf and returns freed MB', () async {
       final state = AppState();
-      final book = state.booksForSelectedClass.first;
-      final wasBookmarked = book.isBookmarked;
-      state.toggleBookmark(book);
-      expect(book.isBookmarked, equals(!wasBookmarked));
+      final freed = await state.clearAllCacheAndDownloads();
+      expect(freed, greaterThan(0));
+      expect(state.downloadedBooks.isEmpty, isTrue);
     });
   });
 
   group('CustomAppBar UI & Back Button tests', () {
-    testWidgets('CustomAppBar renders title, subtitle and tag without overflow', (WidgetTester tester) async {
+    testWidgets('CustomAppBar renders title, subtitle, tag, and profile avatar', (WidgetTester tester) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -116,7 +149,7 @@ void main() {
           child: MaterialApp(
             home: Scaffold(
               appBar: CustomAppBar(
-                title: 'Offline Shelf',
+                title: 'Offline Mode',
                 tag: 'Offline',
                 showBackButton: true,
                 onBackPressed: () {

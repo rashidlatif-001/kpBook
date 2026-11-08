@@ -82,7 +82,7 @@ class _MainShellState extends State<MainShell> {
               NavigationDestination(
                 icon: const Icon(Icons.menu_book_outlined),
                 selectedIcon: const Icon(Icons.menu_book_rounded, color: AppColors.onSecondaryContainer),
-                label: 'Class ${appState.selectedClass}',
+                label: appState.hasSelectedClass ? 'Class ${appState.selectedClass}' : 'Library',
               ),
               NavigationDestination(
                 icon: Badge(

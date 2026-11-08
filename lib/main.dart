@@ -29,7 +29,7 @@ class KpkETextbooksApp extends StatelessWidget {
       title: 'KPK E-Textbooks (Pakhtunkhwa Ilm)',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      darkTheme: AppTheme.darkTheme,
       themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const SplashScreen(),
     );

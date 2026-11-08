@@ -24,6 +24,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Online/Offline dynamic sync banner
             const OfflineSyncBanner(),
 
             Padding(
@@ -120,73 +121,91 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 18),
 
-                  // Featured Exam Preparation Banner
+                  // Featured Exam Preparation Banner (Explore Guides & Free Offline Sync removed)
                   _buildExamBanner(context, appState),
 
                   const SizedBox(height: 20),
 
-                  // Quick Study Shortcuts
+                  // Quick Study Shortcuts (Resume reading reopen exact page)
                   _buildQuickJumpSection(context, appState),
 
                   const SizedBox(height: 24),
 
-                  // Class Selection (1 to 12)
+                  // Class Selection (1 to 12) - Unselected by default
                   _buildClassSelectionSection(context, appState),
 
                   const SizedBox(height: 24),
 
-                  // Featured Class 9 Books
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Class ${appState.selectedClass} Official Textbooks',
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.onSurface,
+                  // Official Textbooks for Selected Class (View All link removed)
+                  if (appState.hasSelectedClass) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Class ${appState.selectedClass} Official Textbooks',
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurface,
+                          ),
                         ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          if (onSwitchTab != null) {
-                            onSwitchTab!(1); // Go to library
-                          }
-                        },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'View All',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryContainer,
-                              ),
-                            ),
-                            Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.primaryContainer),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Books Grid for Class
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.68,
+                      ],
                     ),
-                    itemCount: popularBooks.length > 4 ? 4 : popularBooks.length,
-                    itemBuilder: (context, index) {
-                      return BookCard(book: popularBooks[index]);
-                    },
-                  ),
+                    const SizedBox(height: 10),
+
+                    // Books Grid for Class
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.68,
+                      ),
+                      itemCount: popularBooks.length > 4 ? 4 : popularBooks.length,
+                      itemBuilder: (context, index) {
+                        return BookCard(book: popularBooks[index]);
+                      },
+                    ),
+                  ] else ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.touch_app_rounded,
+                            size: 36,
+                            color: AppColors.primaryContainer.withValues(alpha: 0.7),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Select a class above',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap any class from 1 to 12 to display official KPK textbooks and study guides.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 20),
                 ],
@@ -258,41 +277,12 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Complete syllabus & model papers for Class 9 & 10 now fully available offline with past paper solutions.',
+            'Complete syllabus & model papers for all grades now fully available offline with past paper solutions.',
             style: TextStyle(
               fontSize: 12,
               height: 1.4,
               color: AppColors.onPrimaryContainer.withValues(alpha: 0.9),
             ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  minimumSize: const Size(0, 36),
-                ),
-                onPressed: () {
-                  if (onSwitchTab != null) onSwitchTab!(1);
-                },
-                icon: const Icon(Icons.arrow_forward_rounded, size: 15),
-                label: const Text('Explore Guides', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-              ),
-              const Row(
-                children: [
-                  Icon(Icons.cloud_done_rounded, size: 14, color: AppColors.onPrimaryContainer),
-                  SizedBox(width: 4),
-                  Text(
-                    'Free Offline Sync',
-                    style: TextStyle(fontSize: 11, color: AppColors.onPrimaryContainer, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ],
           ),
         ],
       ),
@@ -300,7 +290,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildQuickJumpSection(BuildContext context, AppState appState) {
-    final recentBook = appState.recentReads.isNotEmpty ? appState.recentReads.first : null;
+    final recentBook = appState.lastReadBook;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,13 +322,19 @@ class HomeScreen extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              // Resume reading card
+              // Resume reading card - opens exact page & sets isFromResume: true
               if (recentBook != null)
                 InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => PdfReaderScreen(book: recentBook)),
+                      MaterialPageRoute(
+                        builder: (_) => PdfReaderScreen(
+                          book: recentBook,
+                          initialPage: recentBook.lastReadPage,
+                          isFromResume: true,
+                        ),
+                      ),
                     );
                   },
                   borderRadius: BorderRadius.circular(14),
@@ -389,7 +385,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
 
-              // Offline Shelf Shortcut
+              // Offline Mode Shortcut
               InkWell(
                 onTap: () {
                   if (onSwitchTab != null) onSwitchTab!(2);
@@ -419,7 +415,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Offline Shelf',
+                            'Offline Mode',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
                           ),
                           Text(
@@ -462,7 +458,7 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // Grid of classes
+        // Grid of classes (none selected by default)
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -480,9 +476,6 @@ class HomeScreen extends StatelessWidget {
             return InkWell(
               onTap: () {
                 appState.setSelectedClass(classNum);
-                if (onSwitchTab != null) {
-                  onSwitchTab!(1); // Go to library with that class
-                }
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -533,4 +526,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-

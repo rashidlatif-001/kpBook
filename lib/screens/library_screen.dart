@@ -15,11 +15,12 @@ class LibraryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final books = appState.booksForSelectedClass;
+    final className = appState.hasSelectedClass ? 'Class ${appState.selectedClass}' : 'All Classes';
 
     return Scaffold(
       appBar: CustomAppBar(
-        tag: 'Class ${appState.selectedClass}',
-        title: 'Class ${appState.selectedClass} Library',
+        tag: className,
+        title: appState.hasSelectedClass ? 'Class ${appState.selectedClass} Library' : 'Textbook Library',
         subtitle: 'Official KPK Textbook Board Collection',
         showBackButton: true,
         onBackPressed: () {
@@ -43,7 +44,9 @@ class LibraryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Class ${appState.selectedClass} Curriculum',
+                      appState.hasSelectedClass
+                          ? 'Class ${appState.selectedClass} Curriculum'
+                          : 'Select a Class to View Content',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -51,7 +54,9 @@ class LibraryScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${books.length} Textbooks Available',
+                      appState.hasSelectedClass
+                          ? '${books.length} ${appState.selectedLibraryTab} Available'
+                          : 'Classes 1 through 12',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.onSurfaceVariant,
@@ -77,7 +82,7 @@ class LibraryScreen extends StatelessWidget {
                         const Icon(Icons.school_rounded, size: 16, color: AppColors.primaryContainer),
                         const SizedBox(width: 6),
                         Text(
-                          'Class ${appState.selectedClass}',
+                          appState.hasSelectedClass ? 'Class ${appState.selectedClass}' : 'Select Class',
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -109,62 +114,96 @@ class LibraryScreen extends StatelessWidget {
             ),
           ),
 
-          // Subject Group Filter Tabs (All, Science, Compulsory, Arts)
+          // Content Type Tabs: Only 'Books' and 'Guides'
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: AppColors.surface,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildTabChip(context, appState, 'All', 'All Subjects'),
-                  const SizedBox(width: 8),
-                  _buildTabChip(context, appState, 'Science', 'Science Group'),
-                  const SizedBox(width: 8),
-                  _buildTabChip(context, appState, 'Compulsory', 'Compulsory'),
-                  const SizedBox(width: 8),
-                  _buildTabChip(context, appState, 'Arts', 'Arts / Humanities'),
-                ],
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildTypeSegment(
+                    context: context,
+                    appState: appState,
+                    key: 'Books',
+                    label: 'Books',
+                    icon: Icons.menu_book_rounded,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildTypeSegment(
+                    context: context,
+                    appState: appState,
+                    key: 'Guides',
+                    label: 'Guides',
+                    icon: Icons.auto_stories_rounded,
+                  ),
+                ),
+              ],
             ),
           ),
 
           const Divider(height: 1, color: AppColors.cardBorder),
 
-          // Books Grid
+          // Content Grid
           Expanded(
-            child: books.isEmpty
+            child: !appState.hasSelectedClass
                 ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.menu_book_rounded, size: 48, color: AppColors.outlineVariant),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No books found in ${appState.selectedLibraryTab} group',
-                          style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: () => appState.setSelectedLibraryTab('All'),
-                          child: const Text('Show All Subjects'),
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.school_outlined, size: 48, color: AppColors.primaryContainer),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Please select a class',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Choose a class from the top selector or home screen to view its official textbooks and guides.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.tonal(
+                            onPressed: () {
+                              if (onSwitchTab != null) onSwitchTab!(0);
+                            },
+                            child: const Text('Go to Class Selection'),
+                          ),
+                        ],
+                      ),
                     ),
                   )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.64,
-                    ),
-                    itemCount: books.length,
-                    itemBuilder: (context, index) {
-                      return BookCard(book: books[index]);
-                    },
-                  ),
+                : (books.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.menu_book_rounded, size: 48, color: AppColors.outlineVariant),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No ${appState.selectedLibraryTab.toLowerCase()} found for Class ${appState.selectedClass}.',
+                              style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 14,
+                          childAspectRatio: 0.64,
+                        ),
+                        itemCount: books.length,
+                        itemBuilder: (context, index) {
+                          return BookCard(book: books[index]);
+                        },
+                      )),
           ),
         ],
       ),
@@ -183,33 +222,58 @@ class LibraryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTabChip(BuildContext context, AppState appState, String tabKey, String label) {
-    final isSelected = appState.selectedLibraryTab.toLowerCase() == tabKey.toLowerCase();
+  Widget _buildTypeSegment({
+    required BuildContext context,
+    required AppState appState,
+    required String key,
+    required String label,
+    required IconData icon,
+  }) {
+    final isSelected = appState.selectedLibraryTab.toLowerCase() == key.toLowerCase();
 
     return InkWell(
-      onTap: () => appState.setSelectedLibraryTab(tabKey),
-      borderRadius: BorderRadius.circular(999),
+      onTap: () => appState.setSelectedLibraryTab(key),
+      borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.surfaceContainerLow : AppColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(999),
+          color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primaryContainer : AppColors.cardBorder,
-            width: isSelected ? 1.5 : 1,
+            width: 1.2,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? AppColors.primaryContainer : AppColors.onSurfaceVariant,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? Colors.white : AppColors.onSurface,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-

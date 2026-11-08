@@ -131,10 +131,26 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text('Email Verification / تصدیق'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
+        title: const Text('Email Verification'),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+              ),
+            ),
+          ),
         ),
       ),
       body: SafeArea(

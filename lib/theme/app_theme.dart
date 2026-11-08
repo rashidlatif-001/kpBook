@@ -6,7 +6,6 @@ import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
-    // Under automated test environments without network access, use system fonts
     final bool isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
     if (isTestEnv) {
       return ThemeData(
@@ -95,6 +94,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.surface,
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
@@ -136,18 +136,67 @@ class AppTheme {
           side: const BorderSide(color: AppColors.cardBorder, width: 1),
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondary,
-          foregroundColor: AppColors.onSecondary,
-          elevation: 0,
-          shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          textStyle: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    const bgDark = Color(0xFF101613);
+    const surfaceDark = Color(0xFF17201C);
+    const cardDark = Color(0xFF1E2823);
+    const borderDark = Color(0xFF2C3932);
+    const textLight = Color(0xFFE8ECE9);
+    const textDim = Color(0xFFA5B4AB);
+
+    final bool isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (isTestEnv) {
+      return ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: bgDark,
+      );
+    }
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: bgDark,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.dark,
+        primary: Color(0xFF48D385),
+        onPrimary: Color(0xFF00391A),
+        primaryContainer: Color(0xFF005228),
+        onPrimaryContainer: Color(0xFF9DF5B6),
+        secondary: Color(0xFF57DF93),
+        onSecondary: Color(0xFF00381D),
+        secondaryContainer: Color(0xFF00522D),
+        onSecondaryContainer: Color(0xFF88F8B3),
+        tertiary: Color(0xFFFFD06F),
+        onTertiary: Color(0xFF402E00),
+        tertiaryContainer: Color(0xFF5B4200),
+        onTertiaryContainer: Color(0xFFFFDEA0),
+        error: Color(0xFFFFB4AB),
+        onError: Color(0xFF690005),
+        errorContainer: Color(0xFF93000A),
+        onErrorContainer: Color(0xFFFFDAD6),
+        surface: surfaceDark,
+        onSurface: textLight,
+        onSurfaceVariant: textDim,
+        outline: Color(0xFF8B9B90),
+        outlineVariant: borderDark,
+      ),
+      cardTheme: CardThemeData(
+        color: cardDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: borderDark, width: 1),
         ),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(color: textLight),
       ),
     );
   }

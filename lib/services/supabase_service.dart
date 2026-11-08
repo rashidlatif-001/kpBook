@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File;
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,7 +9,6 @@ class SupabaseService {
 
   /// Initializes the Supabase client.
   static Future<void> initialize() async {
-    // Skip remote initialization during automated widget/unit test runs
     final bool isTestEnv =
         !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
     if (isTestEnv) {
@@ -53,6 +52,14 @@ class SupabaseService {
 
   /// Current user's email
   static String? get userEmail => currentUser?.email;
+
+  /// Current user's avatar URL from user metadata
+  static String? get userAvatarUrl {
+    final user = currentUser;
+    if (user == null) return null;
+    final metadata = user.userMetadata;
+    return metadata?['avatar_url'] as String?;
+  }
 
   /// Current user's full name from metadata
   static String get userName {
@@ -125,7 +132,6 @@ class SupabaseService {
       password: password,
     );
 
-    // Record login activity in background
     if (response.session != null || response.user != null) {
       recordLoginActivity();
     }
@@ -161,13 +167,109 @@ class SupabaseService {
     }
   }
 
+  /// Update user full name in Supabase auth and profiles table
+  static Future<void> updateUserName(String newName) async {
+    final supa = client;
+    final user = currentUser;
+    if (supa == null || user == null) {
+      throw Exception('User is not signed in.');
+    }
+
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) {
+      throw Exception('Name cannot be empty.');
+    }
+
+    // 1. Update Auth user metadata
+    await supa.auth.updateUser(
+      UserAttributes(data: {'full_name': trimmed}),
+    );
+
+    // 2. Update profiles table
+    try {
+      await supa.from('profiles').update({'full_name': trimmed}).eq('id', user.id);
+    } catch (e) {
+      debugPrint('Profile table update note: $e');
+    }
+  }
+
+  /// Update user password
+  static Future<void> updatePassword(String newPassword) async {
+    final supa = client;
+    if (supa == null || currentUser == null) {
+      throw Exception('User is not signed in.');
+    }
+
+    if (newPassword.length < 6) {
+      throw Exception('Password must be at least 6 characters.');
+    }
+
+    await supa.auth.updateUser(
+      UserAttributes(password: newPassword),
+    );
+  }
+
   /// Send password reset email
   static Future<void> sendPasswordReset(String email) async {
     final supa = client;
     if (supa == null) {
       throw Exception('Supabase client is not initialized.');
     }
-    await supa.auth.resetPasswordForEmail(email.trim());
+    final trimmed = email.trim();
+    if (trimmed.isEmpty) {
+      throw Exception('Please enter an email address.');
+    }
+    await supa.auth.resetPasswordForEmail(trimmed);
+  }
+
+  /// Upload or update profile avatar image
+  static Future<String?> uploadProfileImage(File imageFile) async {
+    final supa = client;
+    final user = currentUser;
+    if (supa == null || user == null) return null;
+
+    try {
+      final ext = imageFile.path.split('.').last;
+      final fileName = '${user.id}_avatar.$ext';
+      final storagePath = 'avatars/$fileName';
+
+      // Upload file to Supabase storage bucket
+      await supa.storage.from('avatars').upload(
+            storagePath,
+            imageFile,
+            fileOptions: const FileOptions(upsert: true),
+          );
+
+      final publicUrl = supa.storage.from('avatars').getPublicUrl(storagePath);
+
+      // Save public URL in user metadata
+      await supa.auth.updateUser(
+        UserAttributes(data: {'avatar_url': publicUrl}),
+      );
+
+      return publicUrl;
+    } catch (e) {
+      debugPrint('Avatar upload note (falling back to local): $e');
+      return null;
+    }
+  }
+
+  /// Fetch broadcast updates published from admin dashboard
+  static Future<List<Map<String, dynamic>>> fetchAppUpdates() async {
+    final supa = client;
+    if (supa == null) return [];
+
+    try {
+      final data = await supa
+          .from('app_updates')
+          .select()
+          .order('created_at', ascending: false)
+          .limit(20);
+      return List<Map<String, dynamic>>.from(data);
+    } catch (e) {
+      debugPrint('Notice fetching updates: $e');
+      return [];
+    }
   }
 
   /// Sign out current user
@@ -175,21 +277,5 @@ class SupabaseService {
     final supa = client;
     if (supa == null) return;
     await supa.auth.signOut();
-  }
-
-  // ==========================================
-  // STORAGE HELPERS
-  // ==========================================
-
-  /// Helper to get public URL for a textbook PDF from Supabase Storage bucket 'books'.
-  static String? getBookPdfUrl(String fileName, {String bucket = 'books'}) {
-    try {
-      final supaClient = client;
-      if (supaClient == null) return null;
-      return supaClient.storage.from(bucket).getPublicUrl(fileName);
-    } catch (e) {
-      debugPrint('Error getting book public URL: $e');
-      return null;
-    }
   }
 }

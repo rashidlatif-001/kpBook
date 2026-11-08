@@ -1,16 +1,290 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 import 'auth/login_screen.dart';
-import 'connect_with_us_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   final Function(int)? onSwitchTab;
 
   const SettingsScreen({super.key, this.onSwitchTab});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source, AppState appState) async {
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (picked != null) {
+        appState.setProfileImagePath(picked.path);
+        // Upload to remote Supabase storage
+        await SupabaseService.uploadProfileImage(File(picked.path));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile image updated successfully!'),
+              backgroundColor: AppColors.secondary,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showImageSourceSheet(BuildContext context, AppState appState) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Change Profile Photo',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_outlined, color: AppColors.primaryContainer),
+                  title: const Text('Take Photo from Camera'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickImage(ImageSource.camera, appState);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined, color: AppColors.primaryContainer),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickImage(ImageSource.gallery, appState);
+                  },
+                ),
+                if (appState.profileImagePath != null)
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline, color: AppColors.error),
+                    title: const Text('Remove Photo', style: TextStyle(color: AppColors.error)),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      appState.setProfileImagePath(null);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditNameDialog(BuildContext context) {
+    final nameCtrl = TextEditingController(text: SupabaseService.userName);
+    final messenger = ScaffoldMessenger.of(context);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Edit Profile Name'),
+          content: TextField(
+            controller: nameCtrl,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(
+              labelText: 'Full Name',
+              hintText: 'Enter your name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final newName = nameCtrl.text.trim();
+                if (newName.isEmpty) return;
+                Navigator.pop(ctx);
+                try {
+                  await SupabaseService.updateUserName(newName);
+                  if (mounted) {
+                    setState(() {});
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Name updated successfully!'),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+                    );
+                  }
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final newPassCtrl = TextEditingController();
+    final confirmPassCtrl = TextEditingController();
+    final messenger = ScaffoldMessenger.of(context);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Change Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: newPassCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  hintText: 'Minimum 6 characters',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmPassCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final pass = newPassCtrl.text;
+                final confirm = confirmPassCtrl.text;
+                if (pass.length < 6) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Password must be at least 6 characters')),
+                  );
+                  return;
+                }
+                if (pass != confirm) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Passwords do not match')),
+                  );
+                  return;
+                }
+                Navigator.pop(ctx);
+                try {
+                  await SupabaseService.updatePassword(pass);
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Password changed successfully!'),
+                        backgroundColor: AppColors.secondary,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+                    );
+                  }
+                }
+              },
+              child: const Text('Update Password'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _confirmClearCache(BuildContext context, AppState appState) {
+    final messenger = ScaffoldMessenger.of(context);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: AppColors.error),
+              SizedBox(width: 8),
+              Text('Clear Cache & Downloads?'),
+            ],
+          ),
+          content: const Text(
+            'Are you sure you want to clear all temporary reader files and delete all downloaded textbooks? You can re-download them anytime when online.',
+            style: TextStyle(fontSize: 13, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final double freedMB = await appState.clearAllCacheAndDownloads();
+                if (mounted) {
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Cache and downloads cleared successfully (${freedMB.toStringAsFixed(1)} MB freed).'),
+                      backgroundColor: AppColors.secondary,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Clear All'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,42 +301,21 @@ class SettingsScreen extends StatelessWidget {
         onBackPressed: () {
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
-          } else if (onSwitchTab != null) {
-            onSwitchTab!(0); // Return to Home screen
+          } else if (widget.onSwitchTab != null) {
+            widget.onSwitchTab!(0); // Return to Home screen
           }
         },
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // User Profile & Authentication Section
-          _buildUserAccountSection(context),
+          // 1. User Profile Section with photo upload, name edit & password change
+          _buildUserAccountSection(context, appState),
 
           const SizedBox(height: 24),
 
-          // Language Selection Section
-          _buildSectionHeader('LANGUAGE / زبان / ژبه'),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Column(
-              children: [
-                _buildLanguageTile(context, appState, 'en', 'English', 'Default'),
-                const Divider(height: 1, color: AppColors.cardBorder),
-                _buildLanguageTile(context, appState, 'ur', 'اردو (Urdu)', 'قومی زبان'),
-                const Divider(height: 1, color: AppColors.cardBorder),
-                _buildLanguageTile(context, appState, 'ps', 'پښتو (Pashto)', 'سیمه ییزه ژبه'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Display & Reading
-          _buildSectionHeader('DISPLAY & READING'),
+          // 2. Display & Night Mode (Low Data Saver removed as requested)
+          _buildSectionHeader('DISPLAY'),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLowest,
@@ -74,21 +327,11 @@ class SettingsScreen extends StatelessWidget {
                 SwitchListTile(
                   secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryContainer),
                   title: const Text('Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Reduces eye strain during night study', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+                  subtitle: const Text('High contrast dark theme for night reading', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                   value: appState.isDarkMode,
                   activeThumbColor: AppColors.secondary,
                   activeTrackColor: AppColors.secondaryContainer,
                   onChanged: (val) => appState.toggleDarkMode(val),
-                ),
-                const Divider(height: 1, color: AppColors.cardBorder),
-                SwitchListTile(
-                  secondary: const Icon(Icons.data_saver_on_outlined, color: AppColors.primaryContainer),
-                  title: const Text('Low Data Saver', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Optimizes PDF compression for 2G/3G networks', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                  value: appState.lowDataMode,
-                  activeThumbColor: AppColors.secondary,
-                  activeTrackColor: AppColors.secondaryContainer,
-                  onChanged: (val) => appState.toggleLowData(val),
                 ),
               ],
             ),
@@ -96,8 +339,8 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Offline Storage & Cache
-          _buildSectionHeader('OFFLINE STORAGE MANAGEMENT'),
+          // 3. Offline Storage & Cache (Fully functional with confirmation popup)
+          _buildSectionHeader('STORAGE & CACHE'),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLowest,
@@ -108,15 +351,14 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.cleaning_services_outlined, color: AppColors.primaryContainer),
-                  title: const Text('Clear Temporary Cache', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Frees 12.4 MB of temporary reader files', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+                  title: const Text('Clear Temporary Cache & Downloads', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: Text(
+                    'Frees ${appState.totalStorageUsedFormatted} of cached files and saved textbooks',
+                    style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                  ),
                   trailing: TextButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Temporary cache cleared (12.4 MB freed).')),
-                      );
-                    },
-                    child: const Text('Clear', style: TextStyle(fontWeight: FontWeight.w700)),
+                    onPressed: () => _confirmClearCache(context, appState),
+                    child: const Text('Clear', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.error)),
                   ),
                 ),
               ],
@@ -125,35 +367,35 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Information & Contact
-          _buildSectionHeader('ABOUT & CONTACT'),
+          // 4. Curriculum Edition Information (About & Contact Us removed as requested)
           Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: Column(
+            child: const Row(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.contact_support_outlined, color: AppColors.primaryContainer),
-                  title: const Text('Connect With Us & App Information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Helpline, KPTBB address, developer info', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                  trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.outline),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ConnectWithUsScreen()),
-                    );
-                  },
+                Icon(Icons.verified_outlined, color: AppColors.secondary, size: 24),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Official Curriculum 2024–25',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Khyber Pakhtunkhwa Textbook Board • Peshawar',
+                        style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ),
-                const Divider(height: 1, color: AppColors.cardBorder),
-                const ListTile(
-                  leading: Icon(Icons.verified_outlined, color: AppColors.secondary),
-                  title: Text('Official Curriculum Edition', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: Text('Curriculum 2024–25 (KPK Textbook Board)', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                  trailing: Text('v1.0.0', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
-                ),
+                Text('v1.0.2', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
               ],
             ),
           ),
@@ -179,24 +421,11 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageTile(BuildContext context, AppState appState, String code, String name, String sub) {
-    final isSelected = appState.currentLanguage == code;
-
-    return ListTile(
-      dense: true,
-      onTap: () => appState.setLanguage(code),
-      title: Text(name, style: TextStyle(fontSize: 14, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
-      subtitle: Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-      trailing: isSelected
-          ? const Icon(Icons.check_circle_rounded, color: AppColors.secondary, size: 20)
-          : null,
-    );
-  }
-
-  Widget _buildUserAccountSection(BuildContext context) {
+  Widget _buildUserAccountSection(BuildContext context, AppState appState) {
     final bool isLoggedIn = SupabaseService.isAuthenticated;
     final String name = SupabaseService.userName;
-    final String email = SupabaseService.userEmail ?? 'Not logged in (Guest Mode)';
+    final String email = SupabaseService.userEmail ?? 'Signed in User';
+    final avatarPath = appState.profileImagePath;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -212,90 +441,160 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: AppColors.primaryContainer.withValues(alpha: 0.12),
-            child: Icon(
-              isLoggedIn ? Icons.person_rounded : Icons.person_outline_rounded,
-              color: AppColors.primaryContainer,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isLoggedIn ? name : 'Guest Student / مہمان',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
+          Row(
+            children: [
+              // Avatar with camera icon overlay
+              Stack(
+                children: [
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primaryContainer.withValues(alpha: 0.12),
+                      border: Border.all(color: AppColors.primaryContainer.withValues(alpha: 0.4), width: 1.5),
+                    ),
+                    child: ClipOval(
+                      child: avatarPath != null && avatarPath.isNotEmpty
+                          ? (avatarPath.startsWith('http')
+                              ? Image.network(
+                                  avatarPath,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => _buildFallbackAvatar(name),
+                                )
+                              : Image.file(
+                                  File(avatarPath),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => _buildFallbackAvatar(name),
+                                ))
+                          : _buildFallbackAvatar(name),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (isLoggedIn)
-            IconButton(
-              icon: const Icon(Icons.logout_rounded, color: AppColors.error),
-              tooltip: 'Log Out / لاگ آؤٹ',
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Log Out / لاگ آؤٹ'),
-                    content: const Text('Are you sure you want to log out of KPK E-Textbooks?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: () => _showImageSourceSheet(context, appState),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primaryContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.camera_alt_rounded, size: 12, color: Colors.white),
                       ),
-                      FilledButton(
-                        style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Log Out'),
-                      ),
-                    ],
+                    ),
                   ),
-                );
+                ],
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
 
-                if (confirm == true) {
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: AppColors.cardBorder),
+          const SizedBox(height: 8),
+
+          // Profile Actions (Edit Name, Change Password, Sign Out)
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.cardBorder),
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => _showEditNameDialog(context),
+                  icon: const Icon(Icons.edit_outlined, size: 14),
+                  label: const Text('Edit Name', style: TextStyle(fontSize: 12)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.cardBorder),
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => _showChangePasswordDialog(context),
+                  icon: const Icon(Icons.lock_reset_outlined, size: 14),
+                  label: const Text('Password', style: TextStyle(fontSize: 12)),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.cardBorder),
+                foregroundColor: isLoggedIn ? AppColors.error : AppColors.primaryContainer,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () async {
+                if (isLoggedIn) {
                   await SupabaseService.signOut();
-                  if (!context.mounted) return;
+                }
+                if (context.mounted) {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
                     (route) => false,
                   );
                 }
               },
-            )
-          else
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
-              },
-              child: const Text(
-                'Sign In',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryContainer),
+              icon: Icon(isLoggedIn ? Icons.logout_rounded : Icons.login_rounded, size: 16),
+              label: Text(
+                isLoggedIn ? 'Sign Out of Account' : 'Sign In',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               ),
             ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackAvatar(String name) {
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'S';
+    return Center(
+      child: Text(
+        initial,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          color: AppColors.primaryContainer,
+        ),
       ),
     );
   }

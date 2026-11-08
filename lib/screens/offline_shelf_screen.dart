@@ -18,8 +18,8 @@ class OfflineShelfScreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         tag: 'Offline',
-        title: 'Offline Study Shelf',
-        subtitle: 'Saved Textbooks • Zero Internet Required',
+        title: 'Offline Mode',
+        subtitle: 'Saved Textbooks & Guides • Zero Internet Required',
         showBackButton: true,
         onBackPressed: () {
           if (Navigator.canPop(context)) {
@@ -31,7 +31,7 @@ class OfflineShelfScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Storage & Village Mode Summary Header
+          // Storage & Offline Mode Summary Header
           Container(
             padding: const EdgeInsets.all(16),
             color: AppColors.surfaceContainerLow,
@@ -58,13 +58,13 @@ class OfflineShelfScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Village Offline Mode',
+                                  'Offline Mode',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                                 ),
                                 Text(
-                                  '${offlineBooks.length} books ready for uninterrupted study',
+                                  '${offlineBooks.length} items saved in app-private storage',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
@@ -76,6 +76,7 @@ class OfflineShelfScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    // Real calculated storage from downloaded files
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -83,14 +84,14 @@ class OfflineShelfScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(color: AppColors.cardBorder),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.sd_storage_rounded, size: 14, color: AppColors.primaryContainer),
-                          SizedBox(width: 4),
+                          const Icon(Icons.sd_storage_rounded, size: 14, color: AppColors.primaryContainer),
+                          const SizedBox(width: 4),
                           Text(
-                            '71.5 MB Used',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryContainer),
+                            appState.totalStorageUsedFormatted,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryContainer),
                           ),
                         ],
                       ),
@@ -118,26 +119,36 @@ class OfflineShelfScreen extends StatelessWidget {
                               color: AppColors.surfaceContainerLow,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.cloud_download_outlined, size: 48, color: AppColors.primaryContainer),
+                            child: const Icon(
+                              Icons.cloud_download_outlined,
+                              size: 48,
+                              color: AppColors.outlineVariant,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'No Offline Books Yet',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                            'No Offline Books Saved',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           const Text(
-                            'Download your textbooks once, then study anywhere without an internet connection.',
+                            'Download any textbook or guide while connected to read anytime without internet.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.onSurfaceVariant,
+                            ),
                           ),
-                          const SizedBox(height: 20),
-                          ElevatedButton.icon(
+                          const SizedBox(height: 16),
+                          FilledButton.tonal(
                             onPressed: () {
                               if (onSwitchTab != null) onSwitchTab!(1);
                             },
-                            icon: const Icon(Icons.library_books_rounded, size: 18),
-                            label: const Text('Browse Official Library'),
+                            child: const Text('Browse Textbooks to Download'),
                           ),
                         ],
                       ),
@@ -147,7 +158,10 @@ class OfflineShelfScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     itemCount: offlineBooks.length,
                     itemBuilder: (context, index) {
-                      return BookCard(book: offlineBooks[index], isHorizontal: true);
+                      return BookCard(
+                        book: offlineBooks[index],
+                        isHorizontal: true,
+                      );
                     },
                   ),
           ),
@@ -156,4 +170,3 @@ class OfflineShelfScreen extends StatelessWidget {
     );
   }
 }
-

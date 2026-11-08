@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67778740795",
+    "project_id": "kpbooks-dbdcb",
+    "storage_bucket": "kpbooks-dbdcb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67778740795:android:e483ae506b52170e58921e",
+        "android_client_info": {
+          "package_name": "pk.gov.kp.textbook.kp_book"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9SQeMr8yaUkzXRAKwGd7RosUVeDmpEEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

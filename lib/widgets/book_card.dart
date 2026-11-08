@@ -107,26 +107,7 @@ class BookCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Top badges: Curriculum & Bookmark
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.35),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            book.curriculumYear,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Top badge: Bookmark
                       Positioned(
                         top: 4,
                         right: 4,
@@ -143,25 +124,7 @@ class BookCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Subject Tag
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainer,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    book.group.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.4,
-                      color: AppColors.primaryContainer,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                // Title
+                // Title (Subject-type label removed as requested)
                 Text(
                   book.title,
                   maxLines: 1,
@@ -199,11 +162,11 @@ class BookCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          book.fileSize,
-                          style: const TextStyle(
+                          book.isDownloaded ? 'Saved' : book.fileSize,
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
+                            color: book.isDownloaded ? AppColors.secondary : AppColors.outline,
                           ),
                         ),
                       ],
@@ -244,49 +207,32 @@ class BookCard extends StatelessWidget {
               children: [
                 // Cover
                 Container(
-                  width: 72,
-                  height: 96,
+                  width: 60,
+                  height: 75,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                       colors: [book.coverGradientStart, book.coverGradientEnd],
                     ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(book.icon, size: 28, color: Colors.white),
-                      const SizedBox(height: 4),
-                      Text(
-                        'CLASS ${book.classNumber}',
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  child: Center(
+                    child: Icon(book.icon, color: Colors.white, size: 28),
                   ),
                 ),
                 const SizedBox(width: 14),
-                // Details
+                // Details (Subject-type label removed as requested)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainer,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              book.group.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primaryContainer,
-                              ),
+                          Text(
+                            'Class ${book.classNumber}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryContainer,
                             ),
                           ),
                           const Spacer(),
@@ -369,56 +315,38 @@ class BookCard extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => PdfReaderScreen(book: book)),
+            MaterialPageRoute(
+              builder: (_) => PdfReaderScreen(
+                book: book,
+                initialPage: book.lastReadPage > 1 ? book.lastReadPage : 1,
+              ),
+            ),
           );
         },
-        borderRadius: BorderRadius.circular(999),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: AppColors.primaryContainer,
-            borderRadius: BorderRadius.circular(999),
+            color: AppColors.secondaryContainer,
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.auto_stories_rounded, size: 14, color: Colors.white),
-              SizedBox(width: 4),
-              Text(
-                'Read',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
-              ),
-            ],
+          child: const Text(
+            'Read',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSecondaryContainer,
+            ),
           ),
         ),
       );
     }
 
-    return InkWell(
-      onTap: () => appState.startDownload(book),
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.secondaryContainer,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.download_rounded, size: 14, color: AppColors.onSecondaryContainer),
-            SizedBox(width: 3),
-            Text(
-              'Download',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSecondaryContainer,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return IconButton(
+      iconSize: 22,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      icon: const Icon(Icons.download_for_offline_rounded, color: AppColors.primaryContainer),
+      onPressed: () => appState.startDownload(book),
     );
   }
 }

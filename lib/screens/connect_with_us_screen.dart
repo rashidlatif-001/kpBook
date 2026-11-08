@@ -14,9 +14,25 @@ class ConnectWithUsScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.cardBorder),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+              ),
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -162,7 +178,7 @@ class ConnectWithUsScreen extends StatelessWidget {
 
             // Tech Specs
             const Text(
-              'Pakhtunkhwa Ilm • Flutter & Dart Native Edition\nVersion 1.0.1 (Build 2)',
+              'Pakhtunkhwa Ilm • Flutter & Dart Native Edition\nVersion 1.0.2 (Build 3)',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 11, color: AppColors.outline),
             ),

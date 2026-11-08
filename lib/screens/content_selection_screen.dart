@@ -4,6 +4,7 @@ import '../models/book_model.dart';
 import '../providers/app_state.dart';
 import '../theme/app_colors.dart';
 import 'pdf_reader_screen.dart';
+import 'offline_shelf_screen.dart';
 
 class ContentSelectionScreen extends StatelessWidget {
   final Book book;
@@ -23,23 +24,56 @@ class ContentSelectionScreen extends StatelessWidget {
             pinned: true,
             backgroundColor: book.coverGradientStart,
             foregroundColor: Colors.white,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => Navigator.pop(context),
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 19),
+                  ),
+                ),
+              ),
             ),
             actions: [
+              // Download Manager / Offline Mode trigger
               IconButton(
+                tooltip: 'Offline Mode',
+                icon: const Icon(Icons.downloading_rounded, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OfflineShelfScreen()),
+                  );
+                },
+              ),
+              // Bookmark save/unsave
+              IconButton(
+                tooltip: book.isBookmarked ? 'Saved' : 'Save Book',
                 icon: Icon(
                   book.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
                   color: book.isBookmarked ? AppColors.onTertiaryContainer : Colors.white,
                 ),
                 onPressed: () => appState.toggleBookmark(book),
               ),
+              // Share App only (Books cannot be shared outside app)
               IconButton(
-                icon: const Icon(Icons.share_rounded),
+                tooltip: 'Share App',
+                icon: const Icon(Icons.share_rounded, color: Colors.white),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Sharing link for ${book.title}')),
+                    const SnackBar(
+                      content: Text('Sharing KPK E-Textbooks App link. Textbooks are protected for in-app reading.'),
+                    ),
                   );
                 },
               ),
@@ -84,7 +118,7 @@ class ContentSelectionScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
-                              'CLASS ${book.classNumber} • ${book.group.toUpperCase()}',
+                              'CLASS ${book.classNumber} • ${book.isGuide ? 'GUIDE' : 'OFFICIAL BOOK'}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
@@ -124,7 +158,7 @@ class ContentSelectionScreen extends StatelessWidget {
             ),
           ),
 
-          // Action Toolbar (Read Now / Download Button, Stats)
+          // Action Toolbar (File Size, Curriculum, and Status removed)
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -132,32 +166,59 @@ class ContentSelectionScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStatItem('Pages', '${book.pagesCount}'),
-                      _buildDivider(),
-                      _buildStatItem('File Size', book.fileSize),
-                      _buildDivider(),
-                      _buildStatItem('Curriculum', book.curriculumYear),
-                      _buildDivider(),
-                      _buildStatItem(
-                        'Status',
-                        book.isDownloaded ? 'Offline' : 'Online',
-                        color: book.isDownloaded ? AppColors.secondary : AppColors.outline,
+                      Row(
+                        children: [
+                          const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Total Book Content: ${book.pagesCount} Pages',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                        ],
                       ),
+                      if (book.isDownloaded)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondaryContainer,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.offline_pin_rounded, size: 13, color: AppColors.onSecondaryContainer),
+                              SizedBox(width: 4),
+                              Text(
+                                'Saved Offline',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSecondaryContainer,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // Big Read CTA
+                  // Dark Resume Reading / Start Reading CTA Button
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryContainer,
+                            backgroundColor: const Color(0xFF1E2621), // Dark button as requested
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
+                            elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: () {
@@ -167,6 +228,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                 builder: (_) => PdfReaderScreen(
                                   book: book,
                                   initialPage: book.lastReadPage > 1 ? book.lastReadPage : 1,
+                                  isFromResume: false, // Save icon remains clickable from listing
                                 ),
                               ),
                             );
@@ -238,7 +300,7 @@ class ContentSelectionScreen extends StatelessWidget {
             ),
           ),
 
-          // Chapter List
+          // Chapter List (plain numbering 1, 2 without tick marks, correct page numbers)
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             sliver: SliverList(
@@ -264,6 +326,7 @@ class ContentSelectionScreen extends StatelessWidget {
                               builder: (_) => PdfReaderScreen(
                                 book: book,
                                 initialPage: chapter.pageStart,
+                                isFromResume: false,
                               ),
                             ),
                           );
@@ -275,26 +338,24 @@ class ContentSelectionScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
+                                  // Plain numbering (tick mark removed as requested)
                                   Container(
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: chapter.isCompleted
-                                          ? AppColors.secondaryContainer
-                                          : AppColors.surfaceContainer,
+                                      color: AppColors.surfaceContainerLow,
                                       borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.cardBorder),
                                     ),
                                     child: Center(
-                                      child: chapter.isCompleted
-                                          ? const Icon(Icons.check_rounded, size: 18, color: AppColors.onSecondaryContainer)
-                                          : Text(
-                                              '${chapter.number}',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w800,
-                                                color: AppColors.primaryContainer,
-                                              ),
-                                            ),
+                                      child: Text(
+                                        '${chapter.number}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.primaryContainer,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -324,6 +385,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                       ],
                                     ),
                                   ),
+                                  // Accurate page numbering
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
@@ -348,15 +410,15 @@ class ContentSelectionScreen extends StatelessWidget {
                                   runSpacing: 4,
                                   children: chapter.keyTopics.map((topic) {
                                     return Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: AppColors.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(4),
+                                        color: AppColors.surfaceContainerLow,
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         topic,
                                         style: const TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 11,
                                           color: AppColors.onSurfaceVariant,
                                         ),
                                       ),
@@ -375,37 +437,9 @@ class ContentSelectionScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
     );
   }
-
-  Widget _buildStatItem(String label, String value, {Color? color}) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: color ?? AppColors.onSurface,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 10, color: AppColors.outline),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      width: 1,
-      height: 24,
-      color: AppColors.cardBorder,
-    );
-  }
 }
-

@@ -9,11 +9,13 @@ enum ReaderTheme { light, sepia, dark }
 class PdfReaderScreen extends StatefulWidget {
   final Book book;
   final int initialPage;
+  final bool isFromResume;
 
   const PdfReaderScreen({
     super.key,
     required this.book,
     this.initialPage = 1,
+    this.isFromResume = false,
   });
 
   @override
@@ -121,9 +123,27 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   ),
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface),
-                        onPressed: () => Navigator.pop(context),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: Material(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColors.cardBorder),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+                            ),
+                          ),
+                        ),
                       ),
                       Expanded(
                         child: Column(
@@ -158,13 +178,20 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                           const PopupMenuItem(value: ReaderTheme.dark, child: Text('🌙 Night Study Mode')),
                         ],
                       ),
-                      // Bookmark
+                      // Bookmark (non-clickable when opened through Resume as requested)
                       IconButton(
                         icon: Icon(
                           widget.book.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                          color: widget.book.isBookmarked ? AppColors.onTertiaryContainer : AppColors.onSurface,
+                          color: widget.book.isBookmarked
+                              ? AppColors.onTertiaryContainer
+                              : (widget.isFromResume ? AppColors.outline : AppColors.onSurface),
                         ),
-                        onPressed: () => appState.toggleBookmark(widget.book),
+                        tooltip: widget.isFromResume
+                            ? (widget.book.isBookmarked ? 'Saved (View Only from Resume)' : 'Unsaved (View Only from Resume)')
+                            : (widget.book.isBookmarked ? 'Remove Bookmark' : 'Bookmark Book'),
+                        onPressed: widget.isFromResume
+                            ? null
+                            : () => appState.toggleBookmark(widget.book),
                       ),
                       // TOC Drawer
                       Builder(
