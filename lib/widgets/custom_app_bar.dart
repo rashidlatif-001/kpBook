@@ -6,6 +6,7 @@ import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
 import '../screens/download_manager_screen.dart';
 import '../screens/notifications_screen.dart';
+import '../screens/menu_screen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -15,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showDownloadManager;
   final bool showBackButton;
   final bool showAvatar;
+  final bool showMenu;
   final VoidCallback? onBackPressed;
 
   const CustomAppBar({
@@ -26,6 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showDownloadManager = true,
     this.showBackButton = false,
     this.showAvatar = true,
+    this.showMenu = true,
     this.onBackPressed,
   });
 
@@ -289,6 +292,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                   ],
                 ),
+
+              // 6. Navigation Menu Button
+              if (showMenu) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: 'Menu',
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(7),
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.menu_rounded,
+                    color: AppColors.onSurface,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MenuScreen()),
+                    );
+                  },
+                ),
+              ],
             ],
           ),
         ),

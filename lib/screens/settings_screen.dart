@@ -7,6 +7,7 @@ import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 import 'auth/login_screen.dart';
+import 'menu_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Function(int)? onSwitchTab;
@@ -367,7 +368,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // 4. Curriculum Edition Information (About & Contact Us removed as requested)
+          // 4. Navigation Menu & Community
+          _buildSectionHeader('COMMUNITY & RESOURCES'),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.menu_book_rounded, color: AppColors.primaryContainer),
+              title: const Text('Navigation Menu & Community', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              subtitle: const Text('Connect with us, academic resources, app actions & policies', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.outline),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MenuScreen()),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // 5. Curriculum Edition Information (About & Contact Us removed as requested)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -395,7 +420,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-                Text('v1.0.4', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
+                Text('v1.0.5', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
               ],
             ),
           ),

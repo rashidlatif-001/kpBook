@@ -5,6 +5,7 @@ import 'package:kp_book/main.dart';
 import 'package:kp_book/providers/app_state.dart';
 import 'package:kp_book/widgets/custom_app_bar.dart';
 import 'package:kp_book/widgets/offline_sync_banner.dart';
+import 'package:kp_book/screens/menu_screen.dart';
 
 void main() {
   testWidgets('KPK E-Textbooks app smoke test', (WidgetTester tester) async {
@@ -165,6 +166,42 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await tester.pump();
       expect(backPressed, isTrue);
+    });
+
+    testWidgets('MenuScreen renders all 4 sections and navigation options', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MenuScreen(),
+        ),
+      );
+
+      // Verify Screen Header
+      expect(find.text('Menu'), findsOneWidget);
+
+      // Section 1: Connect With Us
+      expect(find.text('Connect With Us'), findsOneWidget);
+      expect(find.text('Join our community for updates and academic resources'), findsOneWidget);
+      expect(find.text('Facebook'), findsOneWidget);
+      expect(find.text('WhatsApp\nChannel'), findsOneWidget);
+
+      // Section 2: Academic Resources
+      expect(find.text('Academic Resources'), findsOneWidget);
+      expect(find.text('Enhance your learning experience'), findsOneWidget);
+      expect(find.text('Contact Me'), findsOneWidget);
+
+      // Section 3: App Actions
+      expect(find.text('App Actions'), findsOneWidget);
+      expect(find.text('Manage your app experience'), findsOneWidget);
+      expect(find.text('Share App'), findsOneWidget);
+      expect(find.text('Rate App'), findsOneWidget);
+      expect(find.text('More App'), findsOneWidget);
+      expect(find.text('Send Feedback'), findsOneWidget);
+
+      // Section 4: Legal & Policies
+      expect(find.text('Legal & Policies'), findsOneWidget);
+      expect(find.text('Important information'), findsOneWidget);
+      expect(find.text('Privacy Policy'), findsOneWidget);
+      expect(find.text('Disclaimer'), findsOneWidget);
     });
   });
 }
