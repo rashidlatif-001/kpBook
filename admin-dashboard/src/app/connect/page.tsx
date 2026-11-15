@@ -102,16 +102,16 @@ export default function PublicConnectPage() {
           </div>
           <div className="flex items-center space-x-2">
             <Link
+              href="/terms"
+              className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-emerald-300"
+            >
+              Terms of Service
+            </Link>
+            <Link
               href="/privacy"
               className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-emerald-300"
             >
               Privacy Policy
-            </Link>
-            <Link
-              href="/login"
-              className="text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 px-3.5 py-1.5 rounded-lg shadow-xs"
-            >
-              Admin Sign In
             </Link>
           </div>
         </div>

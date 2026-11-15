@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, Shield, Lock, Eye, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { BookOpen, Shield, Lock, Eye, CheckCircle2 } from 'lucide-react';
 
 export const metadata = {
   title: 'Privacy Policy | KPK E-Textbooks (Pakhtunkhwa Ilm)',
@@ -22,13 +22,20 @@ export default function PrivacyPolicyPage() {
               <p className="text-xs text-slate-500">Khyber Pakhtunkhwa Textbook Board • Government of KP</p>
             </div>
           </div>
-          <Link
-            href="/login"
-            className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center space-x-1 border border-emerald-200 bg-emerald-50 px-3 py-1.5 rounded-lg"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Admin Portal</span>
-          </Link>
+          <div className="flex items-center space-x-2">
+            <Link
+              href="/connect"
+              className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-emerald-300"
+            >
+              Contact & Info
+            </Link>
+            <Link
+              href="/terms"
+              className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-emerald-300"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </header>
 
