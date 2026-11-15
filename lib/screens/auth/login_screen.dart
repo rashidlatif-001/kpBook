@@ -147,8 +147,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.session != null || response.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Welcome! Google Sign-In successful. خوش آمدید'),
+          SnackBar(
+            content: const Text('Welcome! Google Sign-In successful. خوش آمدید'),
             backgroundColor: AppColors.secondary,
           ),
         );
@@ -197,7 +197,6 @@ class _LoginScreenState extends State<LoginScreen> {
           initialEmail: _emailController.text.trim(),
         ),
       ),
-    );
     );
 
     if (result != null && result.isNotEmpty && mounted) {
@@ -600,7 +599,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 elevation: 0,
                               ),
                               child: _isGoogleLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 22,
                                       height: 22,
                                       child: CircularProgressIndicator(
@@ -610,17 +609,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     )
                                   : Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         _buildGoogleLogo(),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          _isLoginMode
-                                              ? 'Continue with Google (گوگل سے لاگ ان)'
-                                              : 'Sign Up with Google (گوگل سے نیا اکاؤنٹ)',
-                                          style: TextStyle(
-                                            fontSize: 13.5,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.onSurface,
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          child: Text(
+                                            _isLoginMode
+                                                ? 'Continue with Google'
+                                                : 'Sign Up with Google',
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: 13.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.onSurface,
+                                            ),
                                           ),
                                         ),
                                       ],
