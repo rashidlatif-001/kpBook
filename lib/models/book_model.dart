@@ -59,4 +59,24 @@ class Book {
   }
 
   bool get isGuide => type == BookItemType.guide;
+
+  int get currentUnitNumber {
+    for (final c in chapters) {
+      if (lastReadPage >= c.pageStart && lastReadPage <= c.pageEnd) {
+        return c.number;
+      }
+    }
+    return chapters.isNotEmpty ? chapters.first.number : 1;
+  }
+
+  Chapter? get currentUnit {
+    for (final c in chapters) {
+      if (lastReadPage >= c.pageStart && lastReadPage <= c.pageEnd) {
+        return c;
+      }
+    }
+    return chapters.isNotEmpty ? chapters.first : null;
+  }
+
+  bool get hasStartedReading => lastReadPage > 1;
 }

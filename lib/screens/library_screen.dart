@@ -18,6 +18,7 @@ class LibraryScreen extends StatelessWidget {
     final className = appState.hasSelectedClass ? 'Class ${appState.selectedClass}' : 'All Classes';
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: CustomAppBar(
         tag: className,
         title: appState.hasSelectedClass ? 'Class ${appState.selectedClass} Library' : 'Textbook Library',
@@ -47,7 +48,7 @@ class LibraryScreen extends StatelessWidget {
                       appState.hasSelectedClass
                           ? 'Class ${appState.selectedClass} Curriculum'
                           : 'Select a Class to View Content',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: AppColors.onSurface,
@@ -57,7 +58,7 @@ class LibraryScreen extends StatelessWidget {
                       appState.hasSelectedClass
                           ? '${books.length} ${appState.selectedLibraryTab} Available'
                           : 'Classes 1 through 12',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.onSurfaceVariant,
                       ),
@@ -79,18 +80,18 @@ class LibraryScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.school_rounded, size: 16, color: AppColors.primaryContainer),
+                        Icon(Icons.school_rounded, size: 16, color: AppColors.primaryContainer),
                         const SizedBox(width: 6),
                         Text(
                           appState.hasSelectedClass ? 'Class ${appState.selectedClass}' : 'Select Class',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryContainer,
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.arrow_drop_down_rounded, size: 20, color: AppColors.outline),
+                        Icon(Icons.arrow_drop_down_rounded, size: 20, color: AppColors.outline),
                       ],
                     ),
                   ),
@@ -143,7 +144,7 @@ class LibraryScreen extends StatelessWidget {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.cardBorder),
+          Divider(height: 1, color: AppColors.cardBorder),
 
           // Content Grid
           Expanded(
@@ -154,14 +155,14 @@ class LibraryScreen extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.school_outlined, size: 48, color: AppColors.primaryContainer),
+                          Icon(Icons.school_outlined, size: 48, color: AppColors.primaryContainer),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'Please select a class',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
+                          Text(
                             'Choose a class from the top selector or home screen to view its official textbooks and guides.',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
@@ -182,11 +183,11 @@ class LibraryScreen extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.menu_book_rounded, size: 48, color: AppColors.outlineVariant),
+                            Icon(Icons.menu_book_rounded, size: 48, color: AppColors.outlineVariant),
                             const SizedBox(height: 12),
                             Text(
                               'No ${appState.selectedLibraryTab.toLowerCase()} found for Class ${appState.selectedClass}.',
-                              style: const TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
+                              style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
                             ),
                           ],
                         ),

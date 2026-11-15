@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile image updated successfully!'),
-              backgroundColor: AppColors.secondary,
+              backgroundColor: AppColors.lightSecondary,
             ),
           );
         }
@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to pick image: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.lightError,
           ),
         );
       }
@@ -74,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
                 ListTile(
-                  leading: const Icon(Icons.camera_alt_outlined, color: AppColors.primaryContainer),
+                  leading: Icon(Icons.camera_alt_outlined, color: AppColors.primaryContainer),
                   title: const Text('Take Photo from Camera'),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -82,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library_outlined, color: AppColors.primaryContainer),
+                  leading: Icon(Icons.photo_library_outlined, color: AppColors.primaryContainer),
                   title: const Text('Choose from Gallery'),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -91,8 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (appState.profileImagePath != null)
                   ListTile(
-                    leading: const Icon(Icons.delete_outline, color: AppColors.error),
-                    title: const Text('Remove Photo', style: TextStyle(color: AppColors.error)),
+                    leading: Icon(Icons.delete_outline, color: AppColors.error),
+                    title: Text('Remove Photo', style: TextStyle(color: AppColors.error)),
                     onTap: () {
                       Navigator.pop(ctx);
                       appState.setProfileImagePath(null);
@@ -141,14 +141,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Name updated successfully!'),
-                        backgroundColor: AppColors.secondary,
+                        backgroundColor: AppColors.lightSecondary,
                       ),
                     );
                   }
                 } catch (e) {
                   if (mounted) {
                     messenger.showSnackBar(
-                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.lightError),
                     );
                   }
                 }
@@ -222,14 +222,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Password changed successfully!'),
-                        backgroundColor: AppColors.secondary,
+                        backgroundColor: AppColors.lightSecondary,
                       ),
                     );
                   }
                 } catch (e) {
                   if (mounted) {
                     messenger.showSnackBar(
-                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
+                      SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.lightError),
                     );
                   }
                 }
@@ -249,11 +249,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: AppColors.error),
-              SizedBox(width: 8),
-              Text('Clear Cache & Downloads?'),
+              const SizedBox(width: 8),
+              const Text('Clear Cache & Downloads?'),
             ],
           ),
           content: const Text(
@@ -274,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text('Cache and downloads cleared successfully (${freedMB.toStringAsFixed(1)} MB freed).'),
-                      backgroundColor: AppColors.secondary,
+                      backgroundColor: AppColors.lightSecondary,
                     ),
                   );
                 }
@@ -292,6 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final appState = Provider.of<AppState>(context);
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: CustomAppBar(
         tag: 'Settings',
         title: 'Settings & Preferences',
@@ -315,7 +316,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // 2. Display & Night Mode (Low Data Saver removed as requested)
+          // 2. Display & Night Mode
           _buildSectionHeader('DISPLAY'),
           Container(
             decoration: BoxDecoration(
@@ -326,9 +327,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primaryContainer),
-                  title: const Text('Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('High contrast dark theme for night reading', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+                  secondary: Icon(Icons.dark_mode_outlined, color: AppColors.primaryContainer),
+                  title: Text('Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                  subtitle: Text('High contrast dark theme for night reading', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                   value: appState.isDarkMode,
                   activeThumbColor: AppColors.secondary,
                   activeTrackColor: AppColors.secondaryContainer,
@@ -340,7 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // 3. Offline Storage & Cache (Fully functional with confirmation popup)
+          // 3. Offline Storage & Cache
           _buildSectionHeader('STORAGE & CACHE'),
           Container(
             decoration: BoxDecoration(
@@ -351,15 +352,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.cleaning_services_outlined, color: AppColors.primaryContainer),
-                  title: const Text('Clear Temporary Cache & Downloads', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  leading: Icon(Icons.cleaning_services_outlined, color: AppColors.primaryContainer),
+                  title: Text('Clear Temporary Cache & Downloads', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
                   subtitle: Text(
                     'Frees ${appState.totalStorageUsedFormatted} of cached files and saved textbooks',
-                    style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                    style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                   ),
                   trailing: TextButton(
                     onPressed: () => _confirmClearCache(context, appState),
-                    child: const Text('Clear', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.error)),
+                    child: Text('Clear', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.error)),
                   ),
                 ),
               ],
@@ -377,10 +378,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               border: Border.all(color: AppColors.cardBorder),
             ),
             child: ListTile(
-              leading: const Icon(Icons.menu_book_rounded, color: AppColors.primaryContainer),
-              title: const Text('Navigation Menu & Community', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-              subtitle: const Text('Connect with us, academic resources, app actions & policies', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
-              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.outline),
+              leading: Icon(Icons.menu_book_rounded, color: AppColors.primaryContainer),
+              title: Text('Navigation Menu & Community', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+              subtitle: Text('Connect with us, academic resources, app actions & policies', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.outline),
               onTap: () {
                 Navigator.push(
                   context,
@@ -392,7 +393,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 24),
 
-          // 5. Curriculum Edition Information (About & Contact Us removed as requested)
+          // 5. Curriculum Edition Information
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -400,10 +401,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.verified_outlined, color: AppColors.secondary, size: 24),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +413,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         'Official Curriculum 2024–25',
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         'Khyber Pakhtunkhwa Textbook Board • Peshawar',
                         style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
@@ -436,7 +437,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.8,
@@ -504,7 +505,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: () => _showImageSourceSheet(context, appState),
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.primaryContainer,
                           shape: BoxShape.circle,
                         ),
@@ -521,7 +522,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.onSurface,
@@ -530,7 +531,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 3),
                     Text(
                       email,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.onSurfaceVariant,
                       ),
@@ -543,7 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           const SizedBox(height: 14),
-          const Divider(height: 1, color: AppColors.cardBorder),
+          Divider(height: 1, color: AppColors.cardBorder),
           const SizedBox(height: 8),
 
           // Profile Actions (Edit Name, Change Password, Sign Out)
@@ -552,7 +553,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.cardBorder),
+                    side: BorderSide(color: AppColors.cardBorder),
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -565,7 +566,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.cardBorder),
+                    side: BorderSide(color: AppColors.cardBorder),
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -583,7 +584,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: double.infinity,
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.cardBorder),
+                side: BorderSide(color: AppColors.cardBorder),
                 foregroundColor: isLoggedIn ? AppColors.error : AppColors.primaryContainer,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -615,7 +616,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Center(
       child: Text(
         initial,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w800,
           color: AppColors.primaryContainer,

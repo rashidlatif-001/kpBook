@@ -14,8 +14,9 @@ class DownloadManagerScreen extends StatelessWidget {
     final completedDownloads = appState.downloadedBooks;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Download Manager',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -36,7 +37,7 @@ class DownloadManagerScreen extends StatelessWidget {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+                child: Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
               ),
             ),
           ),
@@ -58,7 +59,7 @@ class DownloadManagerScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -66,7 +67,7 @@ class DownloadManagerScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                       ),
                       Text(
-                        '71.5 MB / 32 GB',
+                        appState.totalStorageUsedFormatted,
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryContainer),
                       ),
                     ],
@@ -96,27 +97,27 @@ class DownloadManagerScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
                           Icon(Icons.circle, size: 8, color: AppColors.secondary),
-                          SizedBox(width: 4),
-                          Text('E-Books (71.5 MB)', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+                          const SizedBox(width: 4),
+                          Text('E-Books (${appState.totalStorageUsedFormatted})', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                         ],
                       ),
                       Row(
                         children: [
                           Icon(Icons.circle, size: 8, color: AppColors.outlineVariant),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text('System Files (8.4 GB)', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                         ],
                       ),
                       Row(
                         children: [
                           Icon(Icons.circle, size: 8, color: AppColors.outline),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text('Free Space (23.5 GB)', style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
                         ],
                       ),
@@ -143,13 +144,13 @@ class DownloadManagerScreen extends StatelessWidget {
                     color: AppColors.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.wifi_rounded, color: AppColors.primaryContainer, size: 20),
+                  child: Icon(Icons.wifi_rounded, color: AppColors.primaryContainer, size: 20),
                 ),
-                title: const Text(
+                title: Text(
                   'Download via Wi-Fi only',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface),
                 ),
-                subtitle: const Text(
+                subtitle: Text(
                   'Prevents mobile data consumption',
                   style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                 ),
@@ -164,7 +165,7 @@ class DownloadManagerScreen extends StatelessWidget {
 
             // Active Downloads
             if (activeDownloads.isNotEmpty) ...[
-              const Text(
+              Text(
                 'ACTIVE DOWNLOADS',
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: AppColors.onSurfaceVariant),
               ),
@@ -201,22 +202,24 @@ class DownloadManagerScreen extends StatelessWidget {
                                   book.title,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                                 ),
                                 Text(
-                                  'Class ${book.classNumber} • ${(book.downloadProgress * 100).toInt()}% • 1.4 MB/s',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                                  'Class ${book.classNumber} • ${(book.downloadProgress * 100).toInt()}% (${book.chapters.length} Units)',
+                                  style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.pause_circle_outline_rounded, color: AppColors.outline),
+                            icon: Icon(Icons.pause_circle_outline_rounded, color: AppColors.outline),
                             onPressed: () => appState.pauseDownload(book),
+                            tooltip: 'Pause',
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close_rounded, color: AppColors.error),
+                            icon: Icon(Icons.close_rounded, color: AppColors.error),
                             onPressed: () => appState.deleteDownload(book),
+                            tooltip: 'Cancel',
                           ),
                         ],
                       ),
@@ -241,13 +244,13 @@ class DownloadManagerScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'COMPLETED DOWNLOADS',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: AppColors.onSurfaceVariant),
                 ),
                 Text(
                   '${completedDownloads.length} Books',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.outline),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.outline),
                 ),
               ],
             ),
@@ -262,7 +265,7 @@ class DownloadManagerScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.cardBorder),
                 ),
-                child: const Text('No completed downloads yet.', style: TextStyle(color: AppColors.onSurfaceVariant)),
+                child: Text('No completed downloads yet.', style: TextStyle(color: AppColors.onSurfaceVariant)),
               )
             else
               ...completedDownloads.map((book) {
@@ -296,11 +299,11 @@ class DownloadManagerScreen extends StatelessWidget {
                               book.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                             ),
                             Text(
-                              '${book.fileSize} • Class ${book.classNumber} • Verified Offline',
-                              style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                              '${book.fileSize} • Class ${book.classNumber} • Verified Offline (${book.chapters.length} Units)',
+                              style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -315,13 +318,18 @@ class DownloadManagerScreen extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => PdfReaderScreen(book: book)),
+                            MaterialPageRoute(
+                              builder: (_) => PdfReaderScreen(
+                                book: book,
+                                initialPage: book.lastReadPage > 1 ? book.lastReadPage : 1,
+                              ),
+                            ),
                           );
                         },
                         child: const Text('Read', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: AppColors.outline, size: 20),
+                        icon: Icon(Icons.delete_outline_rounded, color: AppColors.outline, size: 20),
                         tooltip: 'Delete',
                         onPressed: () => appState.deleteDownload(book),
                       ),

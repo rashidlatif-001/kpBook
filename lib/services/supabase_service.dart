@@ -263,6 +263,40 @@ class SupabaseService {
     await supa.auth.resetPasswordForEmail(trimmed);
   }
 
+  /// Verify password recovery OTP and update password
+  static Future<void> resetPasswordWithOtp({
+    required String email,
+    required String token,
+    required String newPassword,
+  }) async {
+    final supa = client;
+    if (supa == null) {
+      throw Exception('Supabase client is not initialized.');
+    }
+    if (newPassword.length < 6) {
+      throw Exception('Password must be at least 6 characters.');
+    }
+
+    // 1. Verify the recovery token / OTP with OtpType.recovery
+    final response = await supa.auth.verifyOTP(
+      email: email.trim(),
+      token: token.trim(),
+      type: OtpType.recovery,
+    );
+
+    if (response.session == null && response.user == null) {
+      throw Exception('Invalid or expired verification code.');
+    }
+
+    // 2. Set the new password
+    await supa.auth.updateUser(
+      UserAttributes(password: newPassword),
+    );
+
+    // 3. Sign out the recovery session so the user logs in fresh
+    await supa.auth.signOut();
+  }
+
   /// Upload or update profile avatar image
   static Future<String?> uploadProfileImage(File imageFile) async {
     final supa = client;

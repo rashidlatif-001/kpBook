@@ -115,7 +115,7 @@ class BookCard extends StatelessWidget {
                           iconSize: 20,
                           icon: Icon(
                             book.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                            color: book.isBookmarked ? AppColors.onTertiaryContainer : Colors.white,
+                            color: book.isBookmarked ? AppColors.lightOnTertiaryContainer : Colors.white,
                           ),
                           onPressed: () => appState.toggleBookmark(book),
                         ),
@@ -124,12 +124,12 @@ class BookCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Title (Subject-type label removed as requested)
+                // Title
                 Text(
                   book.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface,
@@ -142,7 +142,7 @@ class BookCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textDirection: TextDirection.rtl,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
@@ -220,7 +220,7 @@ class BookCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 14),
-                // Details (Subject-type label removed as requested)
+                // Details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,7 +229,7 @@ class BookCard extends StatelessWidget {
                         children: [
                           Text(
                             'Class ${book.classNumber}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primaryContainer,
@@ -238,7 +238,7 @@ class BookCard extends StatelessWidget {
                           const Spacer(),
                           Text(
                             book.fileSize,
-                            style: const TextStyle(fontSize: 11, color: AppColors.outline),
+                            style: TextStyle(fontSize: 11, color: AppColors.outline),
                           ),
                         ],
                       ),
@@ -247,13 +247,13 @@ class BookCard extends StatelessWidget {
                         book.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                       ),
                       if (book.titleUrdu.isNotEmpty)
                         Text(
                           book.titleUrdu,
                           textDirection: TextDirection.rtl,
-                          style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+                          style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
                         ),
                       const SizedBox(height: 8),
                       Row(
@@ -303,7 +303,7 @@ class BookCard extends StatelessWidget {
             ),
             Text(
               '${(book.downloadProgress * 100).toInt()}%',
-              style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.secondary),
+              style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.secondary),
             ),
           ],
         ),
@@ -329,7 +329,7 @@ class BookCard extends StatelessWidget {
             color: AppColors.secondaryContainer,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Text(
+          child: Text(
             'Read',
             style: TextStyle(
               fontSize: 11,
@@ -345,7 +345,7 @@ class BookCard extends StatelessWidget {
       iconSize: 22,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
-      icon: const Icon(Icons.download_for_offline_rounded, color: AppColors.primaryContainer),
+      icon: Icon(Icons.download_for_offline_rounded, color: AppColors.primaryContainer),
       onPressed: () => appState.startDownload(book),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kp_book/main.dart';
 import 'package:kp_book/providers/app_state.dart';
 import 'package:kp_book/widgets/custom_app_bar.dart';
@@ -8,6 +9,10 @@ import 'package:kp_book/widgets/offline_sync_banner.dart';
 import 'package:kp_book/screens/menu_screen.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('KPK E-Textbooks app smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       MultiProvider(

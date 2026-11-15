@@ -66,7 +66,7 @@ class MenuScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Help us improve KPK E-Textbooks. Share your suggestions, bugs, or feedback below:',
               style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
             ),
@@ -81,7 +81,7 @@ class MenuScreen extends StatelessWidget {
                 fillColor: AppColors.surfaceContainerLow,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.cardBorder),
+                  borderSide: BorderSide(color: AppColors.cardBorder),
                 ),
               ),
             ),
@@ -153,7 +153,7 @@ class MenuScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Last updated: November 2026\n\n'
                 '1. Information We Collect\n'
                 'KPK E-Textbooks is designed to provide access to Khyber Pakhtunkhwa educational curriculum. When creating an account, we collect your name and email address securely via Supabase Authentication.\n\n'
@@ -221,7 +221,7 @@ class MenuScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 '1. Educational Use Only\n'
                 'This application is provided strictly for educational purposes to assist students and educators across Khyber Pakhtunkhwa.\n\n'
                 '2. Copyright & Intellectual Property\n'

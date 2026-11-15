@@ -55,6 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
         titleSpacing: 0,
         backgroundColor: AppColors.surface,
@@ -73,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+                child: Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
               ),
             ),
           ),
@@ -93,11 +94,11 @@ class _SearchScreenState extends State<SearchScreen> {
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Search textbooks, guides, subjects...',
-                hintStyle: const TextStyle(fontSize: 13, color: AppColors.outline),
-                prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.outline),
+                hintStyle: TextStyle(fontSize: 13, color: AppColors.outline),
+                prefixIcon: Icon(Icons.search_rounded, size: 20, color: AppColors.outline),
                 suffixIcon: _activeQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 18, color: AppColors.outline),
+                        icon: Icon(Icons.clear_rounded, size: 18, color: AppColors.outline),
                         onPressed: () {
                           _searchCtrl.clear();
                           _onSearchChanged('');
@@ -116,7 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
           // Filter Controls: Class Filter and Type Filter (Books or Guides)
           _buildFilterBar(),
 
-          const Divider(height: 1, color: AppColors.cardBorder),
+          Divider(height: 1, color: AppColors.cardBorder),
 
           // Search results
           Expanded(
@@ -136,9 +137,9 @@ class _SearchScreenState extends State<SearchScreen> {
           // 1. Class Filter Row
           Row(
             children: [
-              const Icon(Icons.school_outlined, size: 16, color: AppColors.primaryContainer),
+              Icon(Icons.school_outlined, size: 16, color: AppColors.primaryContainer),
               const SizedBox(width: 6),
-              const Text(
+              Text(
                 'Class:',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurface),
               ),
@@ -163,9 +164,9 @@ class _SearchScreenState extends State<SearchScreen> {
           // 2. Type Filter Row (Books or Guides)
           Row(
             children: [
-              const Icon(Icons.category_outlined, size: 16, color: AppColors.secondary),
+              Icon(Icons.category_outlined, size: 16, color: AppColors.secondary),
               const SizedBox(width: 6),
-              const Text(
+              Text(
                 'Type:',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurface),
               ),
@@ -241,14 +242,14 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search_off_rounded, size: 56, color: AppColors.outlineVariant),
+            Icon(Icons.search_off_rounded, size: 56, color: AppColors.outlineVariant),
             const SizedBox(height: 12),
             Text(
               'No textbooks or guides match your filters.',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.onSurface),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Try selecting another class or clearing your search term.',
               style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
             ),
@@ -270,7 +271,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           'POPULAR SEARCHES',
           style: TextStyle(
             fontSize: 11,
@@ -285,10 +286,10 @@ class _SearchScreenState extends State<SearchScreen> {
           runSpacing: 8,
           children: _popularSuggestions.map((tag) {
             return ActionChip(
-              avatar: const Icon(Icons.trending_up_rounded, size: 14, color: AppColors.primaryContainer),
-              label: Text(tag, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+              avatar: Icon(Icons.trending_up_rounded, size: 14, color: AppColors.primaryContainer),
+              label: Text(tag, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
               backgroundColor: AppColors.surfaceContainerLowest,
-              side: const BorderSide(color: AppColors.cardBorder),
+              side: BorderSide(color: AppColors.cardBorder),
               onPressed: () => _applySuggestion(tag),
             );
           }).toList(),

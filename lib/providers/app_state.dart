@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
 import '../models/notification_model.dart';
 import '../services/supabase_service.dart';
+import '../theme/app_colors.dart';
 
 class AppState extends ChangeNotifier {
   // Class selection: No class is selected by default
@@ -17,6 +21,9 @@ class AppState extends ChangeNotifier {
   bool _isDarkMode = false;
   bool _wifiOnlyDownload = true;
   String? _customProfileImagePath;
+
+  // Active timers for in-progress downloads
+  final Map<String, Timer> _downloadTimers = {};
 
   // Online / Offline Connectivity state
   bool _isOnline = true;
@@ -39,14 +46,46 @@ class AppState extends ChangeNotifier {
 
   late List<Book> _allBooks;
 
+  String get _currentUserId => SupabaseService.currentUser?.id ?? 'guest';
+
   AppState() {
     _initializeBooks();
     _initializeNotifications();
+    _loadPersistedPreferences();
     final bool isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
     if (!isTestEnv) {
       _initConnectivityListener();
       fetchRemoteUpdates();
     }
+  }
+
+  Future<void> _loadPersistedPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _isDarkMode = prefs.getBool('is_dark_mode') ?? false;
+      AppColors.setDarkMode(_isDarkMode);
+
+      _wifiOnlyDownload = prefs.getBool('wifi_only_download') ?? true;
+
+      // Restore user-specific reading progress and offline downloads
+      final userId = _currentUserId;
+      for (final book in _allBooks) {
+        final progressJson = prefs.getString('reading_progress_${userId}_${book.id}');
+        if (progressJson != null) {
+          try {
+            final data = jsonDecode(progressJson) as Map<String, dynamic>;
+            book.lastReadPage = data['page'] as int? ?? 1;
+          } catch (_) {}
+        }
+
+        final isDownloaded = prefs.getBool('downloaded_${book.id}') ?? false;
+        if (isDownloaded) {
+          book.isDownloaded = true;
+          book.downloadProgress = 1.0;
+        }
+      }
+      notifyListeners();
+    } catch (_) {}
   }
 
   @override
@@ -557,6 +596,16 @@ class AppState extends ChangeNotifier {
     return _allBooks.where((b) => b.classNumber == _selectedClass).toList();
   }
 
+  /// Returns books belonging strictly to a specific class number
+  List<Book> getBooksForClass(int classNum, {String typeFilter = 'All'}) {
+    return _allBooks.where((b) {
+      if (b.classNumber != classNum) return false;
+      if (typeFilter.toLowerCase() == 'books' && b.isGuide) return false;
+      if (typeFilter.toLowerCase() == 'guides' && !b.isGuide) return false;
+      return true;
+    }).toList();
+  }
+
   List<Book> get downloadedBooks {
     return _allBooks.where((b) => b.isDownloaded).toList();
   }
@@ -590,6 +639,15 @@ class AppState extends ChangeNotifier {
     final list = recentReads;
     return list.isNotEmpty ? list.first : null;
   }
+
+  /// All books across all classes
+  List<Book> get allBooks => List.unmodifiable(_allBooks);
+
+  /// Access to book storage directory for offline inspection
+  Future<Directory> getBookDirectory(Book book) => _getBookDirectory(book);
+
+  /// Writes book units and manifest to disk in structured folders
+  Future<void> writeBookUnitsToDisk(Book book) => _writeBookUnitsToDisk(book);
 
   /// Multi-filter search method matching query, optional class, and type (Books vs Guides)
   List<Book> searchBooksWithFilters({
@@ -647,12 +705,19 @@ class AppState extends ChangeNotifier {
 
   void toggleDarkMode(bool val) {
     _isDarkMode = val;
+    AppColors.setDarkMode(val);
     notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('is_dark_mode', val);
+    }).catchError((_) {});
   }
 
   void toggleWifiOnly(bool val) {
     _wifiOnlyDownload = val;
     notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('wifi_only_download', val);
+    }).catchError((_) {});
   }
 
   void toggleBookmark(Book book) {
@@ -660,19 +725,123 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateLastReadPage(Book book, int page) {
+  void updateReadingProgress(Book book, int page) {
     book.lastReadPage = page;
     notifyListeners();
+    final userId = _currentUserId;
+    SharedPreferences.getInstance().then((prefs) {
+      final data = {
+        'book_id': book.id,
+        'page': page,
+        'unit': book.currentUnitNumber,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      prefs.setString('reading_progress_${userId}_${book.id}', jsonEncode(data));
+    }).catchError((_) {});
+  }
+
+  void restartBookReading(Book book) {
+    book.lastReadPage = 1;
+    notifyListeners();
+    final userId = _currentUserId;
+    SharedPreferences.getInstance().then((prefs) {
+      final data = {
+        'book_id': book.id,
+        'page': 1,
+        'unit': 1,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      prefs.setString('reading_progress_${userId}_${book.id}', jsonEncode(data));
+    }).catchError((_) {});
+  }
+
+  void updateLastReadPage(Book book, int page) {
+    updateReadingProgress(book, page);
+  }
+
+  // --- Complete Book Download & Storage Organization ---
+  static Directory? _testBooksDir;
+
+  Future<Directory> _getBooksBaseDirectory() async {
+    if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) {
+      _testBooksDir ??= Directory.systemTemp.createTempSync('kpk_books_test_');
+      return _testBooksDir!;
+    }
+    final appDir = await getApplicationDocumentsDirectory();
+    final booksDir = Directory('${appDir.path}/Books');
+    if (!booksDir.existsSync()) {
+      booksDir.createSync(recursive: true);
+    }
+    return booksDir;
+  }
+
+  String _sanitizeFolderName(String name) {
+    return name
+        .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
+        .replaceAll(' ', '_')
+        .trim();
+  }
+
+  Future<Directory> _getBookDirectory(Book book) async {
+    final baseDir = await _getBooksBaseDirectory();
+    final classFolder = 'Class_${book.classNumber}';
+    final bookFolder = _sanitizeFolderName(book.subject.isNotEmpty ? book.subject : book.title);
+    final bookDir = Directory('${baseDir.path}/$classFolder/$bookFolder');
+    if (!bookDir.existsSync()) {
+      bookDir.createSync(recursive: true);
+    }
+    return bookDir;
+  }
+
+  Future<void> _writeBookUnitsToDisk(Book book) async {
+    try {
+      final bookDir = await _getBookDirectory(book);
+
+      // Create folder for each unit and save unit file
+      for (final chapter in book.chapters) {
+        final unitStr = 'Unit_${chapter.number.toString().padLeft(2, '0')}';
+        final unitDir = Directory('${bookDir.path}/$unitStr');
+        if (!unitDir.existsSync()) {
+          unitDir.createSync(recursive: true);
+        }
+        final unitFile = File('${unitDir.path}/unit_${chapter.number.toString().padLeft(2, '0')}.dat');
+        if (!unitFile.existsSync()) {
+          unitFile.writeAsStringSync('KPK_TEXTBOOK_BOARD_ENCRYPTED_UNIT_${chapter.number}_${chapter.title}');
+        }
+      }
+
+      // Create manifest metadata in book root directory
+      final manifestFile = File('${bookDir.path}/manifest.json');
+      final manifest = {
+        'bookId': book.id,
+        'title': book.title,
+        'classNumber': book.classNumber,
+        'subject': book.subject,
+        'totalUnits': book.chapters.length,
+        'downloadDate': DateTime.now().toIso8601String(),
+        'units': book.chapters.map((c) => {
+          'number': c.number,
+          'title': c.title,
+          'pages': '${c.pageStart}-${c.pageEnd}',
+          'unitFolder': 'Unit_${c.number.toString().padLeft(2, '0')}',
+        }).toList(),
+      };
+      manifestFile.writeAsStringSync(jsonEncode(manifest));
+    } catch (_) {}
   }
 
   void startDownload(Book book) {
-    if (book.isDownloaded || book.isDownloading) return;
+    if (book.isDownloaded) return; // Prevent duplicate download
+    if (book.isDownloading) return;
 
     book.isDownloading = true;
-    book.downloadProgress = 0.05;
+    if (book.downloadProgress <= 0.0) {
+      book.downloadProgress = 0.05;
+    }
     notifyListeners();
 
-    Timer.periodic(const Duration(milliseconds: 300), (timer) {
+    _downloadTimers[book.id]?.cancel();
+    _downloadTimers[book.id] = Timer.periodic(const Duration(milliseconds: 250), (timer) async {
       if (!book.isDownloading) {
         timer.cancel();
         return;
@@ -683,32 +852,72 @@ class AppState extends ChangeNotifier {
         book.isDownloading = false;
         book.isDownloaded = true;
         timer.cancel();
+        _downloadTimers.remove(book.id);
+
+        // Organize book and its units in book-wise folder structure
+        await _writeBookUnitsToDisk(book);
+
+        // Persist offline status
+        SharedPreferences.getInstance().then((prefs) {
+          prefs.setBool('downloaded_${book.id}', true);
+        }).catchError((_) {});
       }
       notifyListeners();
     });
   }
 
   void pauseDownload(Book book) {
+    _downloadTimers[book.id]?.cancel();
+    _downloadTimers.remove(book.id);
     book.isDownloading = false;
     notifyListeners();
   }
 
-  void deleteDownload(Book book) {
+  void resumeDownload(Book book) {
+    startDownload(book);
+  }
+
+  Future<void> deleteDownload(Book book) async {
+    _downloadTimers[book.id]?.cancel();
+    _downloadTimers.remove(book.id);
+
     book.isDownloaded = false;
     book.isDownloading = false;
     book.downloadProgress = 0.0;
     notifyListeners();
+
+    try {
+      final bookDir = await _getBookDirectory(book);
+      if (bookDir.existsSync()) {
+        bookDir.deleteSync(recursive: true);
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('downloaded_${book.id}');
+    } catch (_) {}
   }
 
-  /// Clears temporary reader cache and all downloaded content
   Future<double> clearAllCacheAndDownloads() async {
-    final double freedMB = totalStorageUsedMB + 12.4; // downloaded files + temp cache
+    final double freedMB = totalStorageUsedMB + 12.4;
     for (var b in _allBooks) {
+      _downloadTimers[b.id]?.cancel();
       b.isDownloaded = false;
       b.isDownloading = false;
       b.downloadProgress = 0.0;
     }
+    _downloadTimers.clear();
     notifyListeners();
+
+    try {
+      final baseDir = await _getBooksBaseDirectory();
+      if (baseDir.existsSync()) {
+        baseDir.deleteSync(recursive: true);
+      }
+      final prefs = await SharedPreferences.getInstance();
+      for (final b in _allBooks) {
+        await prefs.remove('downloaded_${b.id}');
+      }
+    } catch (_) {}
+
     return freedMB;
   }
 

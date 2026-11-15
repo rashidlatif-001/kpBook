@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 24),
                       // Title
-                      const Text(
+                      Text(
                         'KPK E-Textbooks',
                         style: TextStyle(
                           fontSize: 28,
@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 6),
                       // Subtitle in English & Urdu
-                      const Text(
+                      Text(
                         'خیبر پختونخوا ای-ٹیکسٹ بکس',
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
@@ -137,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: AppColors.cardBorder, width: 1),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Govt. of Khyber Pakhtunkhwa • Curriculum 2024–25',
                           style: TextStyle(
                             fontSize: 12,
@@ -156,7 +156,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 opacity: _fadeAnim,
                 child: Column(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(

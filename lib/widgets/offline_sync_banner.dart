@@ -10,18 +10,19 @@ class OfflineSyncBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final isOnline = appState.isOnline;
+    final isDark = appState.isDarkMode;
 
     final bgColor = isOnline
-        ? const Color(0xFFE8F5E9)
+        ? (isDark ? const Color(0xFF132A1C) : const Color(0xFFE8F5E9))
         : AppColors.surfaceContainerLow;
     final borderColor = isOnline
-        ? const Color(0xFFC8E6C9)
+        ? (isDark ? const Color(0xFF1E442D) : const Color(0xFFC8E6C9))
         : AppColors.cardBorder;
     final iconColor = isOnline
-        ? const Color(0xFF2E7D32)
+        ? (isDark ? const Color(0xFF88F8B3) : const Color(0xFF2E7D32))
         : AppColors.onSurfaceVariant;
     final textColor = isOnline
-        ? const Color(0xFF1B5E20)
+        ? (isDark ? const Color(0xFFE8ECE9) : const Color(0xFF1B5E20))
         : AppColors.onSurface;
 
     return Container(
@@ -39,7 +40,7 @@ class OfflineSyncBanner extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: isOnline
-                  ? const Color(0xFFC8E6C9)
+                  ? (isDark ? const Color(0xFF1A3826) : const Color(0xFFC8E6C9))
                   : AppColors.secondaryContainer,
               borderRadius: BorderRadius.circular(6),
             ),
@@ -65,7 +66,9 @@ class OfflineSyncBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
             decoration: BoxDecoration(
-              color: isOnline ? Colors.white : AppColors.surfaceContainerLowest,
+              color: isOnline
+                  ? (isDark ? const Color(0xFF1A3826) : Colors.white)
+                  : AppColors.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(color: borderColor, width: 0.8),
             ),
@@ -86,7 +89,9 @@ class OfflineSyncBanner extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: isOnline ? const Color(0xFF2E7D32) : AppColors.onSurfaceVariant,
+                    color: isOnline
+                        ? (isDark ? const Color(0xFF88F8B3) : const Color(0xFF2E7D32))
+                        : AppColors.onSurfaceVariant,
                   ),
                 ),
               ],

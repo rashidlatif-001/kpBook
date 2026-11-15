@@ -36,7 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Center(
       child: Text(
         initial,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w800,
           color: AppColors.primaryContainer,
@@ -94,7 +94,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.98),
-        border: const Border(
+        border: Border(
           bottom: BorderSide(color: AppColors.cardBorder, width: 0.8),
         ),
       ),
@@ -105,7 +105,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 1. Back Button with visible background color & properly sized icon
+              // 1. Back Button
               if (showBackButton) ...[
                 Material(
                   color: Colors.transparent,
@@ -136,7 +136,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ],
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_rounded,
                         color: AppColors.onSurface,
                         size: 19,
@@ -147,13 +147,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 const SizedBox(width: 10),
               ],
 
-              // 2. User Profile Image / Avatar (replaces the old top logo)
+              // 2. User Profile Image / Avatar
               if (showAvatar) ...[
                 _buildProfileAvatar(context, appState),
                 const SizedBox(width: 10),
               ],
 
-              // 3. Title & Subtitle (realigned to sit correctly alongside back button & avatar)
+              // 3. Title & Subtitle
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -168,7 +168,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15.0,
                               fontWeight: FontWeight.w700,
                               letterSpacing: -0.3,
@@ -190,7 +190,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 tag.toUpperCase(),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
@@ -208,7 +208,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10.5,
                           color: AppColors.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
@@ -226,7 +226,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.all(7),
                   constraints: const BoxConstraints(),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.downloading_rounded,
                     color: AppColors.primaryContainer,
                     size: 22,
@@ -252,7 +252,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       visualDensity: VisualDensity.compact,
                       padding: const EdgeInsets.all(7),
                       constraints: const BoxConstraints(),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.notifications_none_rounded,
                         color: AppColors.onSurfaceVariant,
                         size: 22,
@@ -270,7 +270,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         right: 2,
                         child: Container(
                           padding: const EdgeInsets.all(2.5),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
                           ),
@@ -301,7 +301,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.all(7),
                   constraints: const BoxConstraints(),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.menu_rounded,
                     color: AppColors.onSurface,
                     size: 24,

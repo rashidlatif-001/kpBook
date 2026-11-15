@@ -14,8 +14,10 @@ class ContentSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final bool hasProgress = book.hasStartedReading;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       body: CustomScrollView(
         slivers: [
           // App Bar with book gradient header
@@ -45,9 +47,9 @@ class ContentSelectionScreen extends StatelessWidget {
               ),
             ),
             actions: [
-              // Download Manager / Offline Mode trigger
+              // Offline Shelf Shortcut
               IconButton(
-                tooltip: 'Offline Mode',
+                tooltip: 'Offline Shelf',
                 icon: const Icon(Icons.downloading_rounded, color: Colors.white),
                 onPressed: () {
                   Navigator.push(
@@ -61,11 +63,11 @@ class ContentSelectionScreen extends StatelessWidget {
                 tooltip: book.isBookmarked ? 'Saved' : 'Save Book',
                 icon: Icon(
                   book.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                  color: book.isBookmarked ? AppColors.onTertiaryContainer : Colors.white,
+                  color: book.isBookmarked ? AppColors.lightOnTertiaryContainer : Colors.white,
                 ),
                 onPressed: () => appState.toggleBookmark(book),
               ),
-              // Share App only (Books cannot be shared outside app)
+              // Share App link
               IconButton(
                 tooltip: 'Share App',
                 icon: const Icon(Icons.share_rounded, color: Colors.white),
@@ -158,7 +160,7 @@ class ContentSelectionScreen extends StatelessWidget {
             ),
           ),
 
-          // Action Toolbar (File Size, Curriculum, and Status removed)
+          // Action Toolbar with Start/Resume Reading and Download
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -170,11 +172,11 @@ class ContentSelectionScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
+                          Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
                           const SizedBox(width: 6),
                           Text(
-                            'Total Book Content: ${book.pagesCount} Pages',
-                            style: const TextStyle(
+                            '${book.chapters.length} Units • ${book.pagesCount} Pages',
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.onSurface,
@@ -189,13 +191,13 @@ class ContentSelectionScreen extends StatelessWidget {
                             color: AppColors.secondaryContainer,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.offline_pin_rounded, size: 13, color: AppColors.onSecondaryContainer),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
-                                'Saved Offline',
+                                'Saved Offline (${book.chapters.length} Units)',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -204,43 +206,114 @@ class ContentSelectionScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                        )
+                      else if (hasProgress)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.cardBorder),
+                          ),
+                          child: Text(
+                            'Last read: Pg ${book.lastReadPage}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryContainer,
+                            ),
+                          ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 14),
 
-                  // Dark Resume Reading / Start Reading CTA Button
+                  // Start Reading / Resume Reading Button
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E2621), // Dark button as requested
+                            backgroundColor: const Color(0xFF1E2621),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             elevation: 2,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: () {
+                            // First visit starts from beginning (page 1), next visit resumes from last read page
+                            final startPage = hasProgress ? book.lastReadPage : 1;
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => PdfReaderScreen(
                                   book: book,
-                                  initialPage: book.lastReadPage > 1 ? book.lastReadPage : 1,
-                                  isFromResume: false, // Save icon remains clickable from listing
+                                  initialPage: startPage,
+                                  isFromResume: hasProgress,
                                 ),
                               ),
                             );
                           },
                           icon: const Icon(Icons.auto_stories_rounded, size: 20),
                           label: Text(
-                            book.lastReadPage > 1 ? 'Resume Reading (Pg ${book.lastReadPage})' : 'Start Reading Textbook',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            hasProgress
+                                ? 'Start Reading Textbook (Resume Pg ${book.lastReadPage})'
+                                : 'Start Reading Textbook',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
+
+                      // Optional Restart from Beginning Button (only when user has previously read)
+                      if (hasProgress)
+                        IconButton.filledTonal(
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surfaceContainerLow,
+                            foregroundColor: AppColors.onSurface,
+                            padding: const EdgeInsets.all(12),
+                          ),
+                          tooltip: 'Restart from Beginning',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Restart Book?'),
+                                content: const Text(
+                                  'Do you want to reset your reading position to Page 1?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      appState.restartBookReading(book);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PdfReaderScreen(
+                                            book: book,
+                                            initialPage: 1,
+                                            isFromResume: false,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Restart'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.replay_rounded),
+                        ),
+
+                      const SizedBox(width: 4),
+
+                      // Download Button
                       if (!book.isDownloaded)
                         IconButton.filledTonal(
                           style: IconButton.styleFrom(
@@ -248,15 +321,25 @@ class ContentSelectionScreen extends StatelessWidget {
                             foregroundColor: AppColors.onSecondaryContainer,
                             padding: const EdgeInsets.all(12),
                           ),
-                          onPressed: () => appState.startDownload(book),
+                          onPressed: () {
+                            if (book.isDownloading) {
+                              appState.pauseDownload(book);
+                            } else {
+                              appState.startDownload(book);
+                            }
+                          },
                           icon: book.isDownloading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
+                                  child: CircularProgressIndicator(
+                                    value: book.downloadProgress > 0 ? book.downloadProgress : null,
+                                    strokeWidth: 2,
+                                    color: AppColors.secondary,
+                                  ),
                                 )
                               : const Icon(Icons.download_rounded),
-                          tooltip: 'Download Offline',
+                          tooltip: book.isDownloading ? 'Downloading... (Tap to Pause)' : 'Download Complete Book',
                         )
                       else
                         IconButton.filledTonal(
@@ -267,7 +350,7 @@ class ContentSelectionScreen extends StatelessWidget {
                           ),
                           onPressed: () => appState.deleteDownload(book),
                           icon: const Icon(Icons.delete_outline_rounded),
-                          tooltip: 'Remove Download',
+                          tooltip: 'Remove Downloaded Book',
                         ),
                     ],
                   ),
@@ -276,9 +359,10 @@ class ContentSelectionScreen extends StatelessWidget {
             ),
           ),
 
-          const SliverToBoxAdapter(
+          // Header for Table of Contents / Units
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
               child: Row(
                 children: [
                   Text(
@@ -290,7 +374,7 @@ class ContentSelectionScreen extends StatelessWidget {
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Text(
                     'Tap unit to read',
                     style: TextStyle(fontSize: 11, color: AppColors.outline),
@@ -300,19 +384,26 @@ class ContentSelectionScreen extends StatelessWidget {
             ),
           ),
 
-          // Chapter List (plain numbering 1, 2 without tick marks, correct page numbers)
+          // Sequential Unit-Wise Textbook Chapters
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final chapter = book.chapters[index];
+                  final bool isCurrentUnit = hasProgress &&
+                      book.lastReadPage >= chapter.pageStart &&
+                      book.lastReadPage <= chapter.pageEnd;
+
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.cardBorder, width: 1),
+                      border: Border.all(
+                        color: isCurrentUnit ? AppColors.primaryContainer : AppColors.cardBorder,
+                        width: isCurrentUnit ? 1.5 : 1,
+                      ),
                     ),
                     child: Material(
                       color: Colors.transparent,
@@ -320,13 +411,15 @@ class ContentSelectionScreen extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () {
+                          // Select Unit -> Start Reading Unit
+                          final targetPage = isCurrentUnit ? book.lastReadPage : chapter.pageStart;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => PdfReaderScreen(
                                 book: book,
-                                initialPage: chapter.pageStart,
-                                isFromResume: false,
+                                initialPage: targetPage,
+                                isFromResume: isCurrentUnit,
                               ),
                             ),
                           );
@@ -338,22 +431,24 @@ class ContentSelectionScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  // Plain numbering (tick mark removed as requested)
+                                  // Unit number badge
                                   Container(
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: AppColors.surfaceContainerLow,
+                                      color: isCurrentUnit
+                                          ? AppColors.primaryContainer
+                                          : AppColors.surfaceContainerLow,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(color: AppColors.cardBorder),
                                     ),
                                     child: Center(
                                       child: Text(
                                         '${chapter.number}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w800,
-                                          color: AppColors.primaryContainer,
+                                          color: isCurrentUnit ? Colors.white : AppColors.primaryContainer,
                                         ),
                                       ),
                                     ),
@@ -365,7 +460,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                       children: [
                                         Text(
                                           'Unit ${chapter.number}: ${chapter.title}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.onSurface,
@@ -376,7 +471,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                           Text(
                                             chapter.titleUrdu,
                                             textDirection: TextDirection.rtl,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
                                               color: AppColors.onSurfaceVariant,
                                             ),
@@ -385,7 +480,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  // Accurate page numbering
+                                  // Page range badge
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
@@ -394,7 +489,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                     ),
                                     child: Text(
                                       'Pg ${chapter.pageStart}–${chapter.pageEnd}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.outline,
@@ -417,7 +512,7 @@ class ContentSelectionScreen extends StatelessWidget {
                                       ),
                                       child: Text(
                                         topic,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           color: AppColors.onSurfaceVariant,
                                         ),

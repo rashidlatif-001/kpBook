@@ -4,7 +4,7 @@ import '../providers/app_state.dart';
 import '../theme/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/offline_sync_banner.dart';
-import '../widgets/book_card.dart';
+import 'class_screen.dart';
 import 'search_screen.dart';
 import 'pdf_reader_screen.dart';
 
@@ -16,9 +16,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final popularBooks = appState.booksForSelectedClass;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: const CustomAppBar(tag: 'Home'),
       body: SingleChildScrollView(
         child: Column(
@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                                 color: AppColors.onSurface,
                               ),
                             ),
-                            SizedBox(height: 3),
+                            const SizedBox(height: 3),
                             Text(
                               'Ready to learn today? What would you like to study?',
                               style: TextStyle(
@@ -67,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                           color: AppColors.secondaryContainer.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.auto_stories_rounded,
                           color: AppColors.onSecondaryContainer,
                           size: 22,
@@ -102,10 +102,10 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(Icons.search_rounded, color: AppColors.outline, size: 22),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
                             'Search classes, books, subjects, or notes...',
                             style: TextStyle(
@@ -121,93 +121,20 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 18),
 
-                  // Featured Exam Preparation Banner (Explore Guides & Free Offline Sync removed)
+                  // Featured Exam Preparation Banner
                   _buildExamBanner(context, appState),
 
                   const SizedBox(height: 20),
 
-                  // Quick Study Shortcuts (Resume reading reopen exact page)
+                  // Quick Study Shortcuts (Resume reading automatically from last read page)
                   _buildQuickJumpSection(context, appState),
 
                   const SizedBox(height: 24),
 
-                  // Class Selection (1 to 12) - Unselected by default
+                  // Class Selection (1 to 12) - Directly opens ClassScreen
                   _buildClassSelectionSection(context, appState),
 
                   const SizedBox(height: 24),
-
-                  // Official Textbooks for Selected Class (View All link removed)
-                  if (appState.hasSelectedClass) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Class ${appState.selectedClass} Official Textbooks',
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Books Grid for Class
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.68,
-                      ),
-                      itemCount: popularBooks.length > 4 ? 4 : popularBooks.length,
-                      itemBuilder: (context, index) {
-                        return BookCard(book: popularBooks[index]);
-                      },
-                    ),
-                  ] else ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.cardBorder),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.touch_app_rounded,
-                            size: 36,
-                            color: AppColors.primaryContainer.withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Select a class above',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Tap any class from 1 to 12 to display official KPK textbooks and study guides.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -246,20 +173,20 @@ class HomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.secondaryContainer,
+              color: AppColors.lightSecondaryContainer,
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.verified_rounded, size: 13, color: AppColors.onSecondaryContainer),
+                Icon(Icons.verified_rounded, size: 13, color: AppColors.lightOnSecondaryContainer),
                 SizedBox(width: 4),
                 Text(
                   'Curriculum 2024–25',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.onSecondaryContainer,
+                    color: AppColors.lightOnSecondaryContainer,
                   ),
                 ),
               ],
@@ -281,7 +208,7 @@ class HomeScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               height: 1.4,
-              color: AppColors.onPrimaryContainer.withValues(alpha: 0.9),
+              color: AppColors.lightOnPrimaryContainer.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -295,7 +222,7 @@ class HomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -322,7 +249,7 @@ class HomeScreen extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              // Resume reading card - opens exact page & sets isFromResume: true
+              // Resume reading card - opens exact page
               if (recentBook != null)
                 InkWell(
                   onTap: () {
@@ -355,7 +282,7 @@ class HomeScreen extends StatelessWidget {
                             color: AppColors.primaryFixed,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.bolt_rounded, color: AppColors.onPrimaryFixed, size: 22),
+                          child: Icon(Icons.bolt_rounded, color: AppColors.onPrimaryFixed, size: 22),
                         ),
                         const SizedBox(width: 10),
                         Column(
@@ -363,20 +290,20 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Text(
-                                  'Resume',
+                                Text(
+                                  'Resume (Unit ${recentBook.currentUnitNumber})',
                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '• Pg ${recentBook.lastReadPage}',
-                                  style: const TextStyle(fontSize: 11, color: AppColors.outline),
+                                  style: TextStyle(fontSize: 11, color: AppColors.outline),
                                 ),
                               ],
                             ),
                             Text(
                               recentBook.subject,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface),
                             ),
                           ],
                         ),
@@ -408,19 +335,19 @@ class HomeScreen extends StatelessWidget {
                           color: AppColors.secondaryContainer,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.download_done_rounded, color: AppColors.onSecondaryContainer, size: 20),
+                        child: Icon(Icons.download_done_rounded, color: AppColors.onSecondaryContainer, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Offline Mode',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
                           ),
                           Text(
                             '${appState.downloadedBooks.length} books saved',
-                            style: const TextStyle(fontSize: 11, color: AppColors.outline),
+                            style: TextStyle(fontSize: 11, color: AppColors.outline),
                           ),
                         ],
                       ),
@@ -439,7 +366,7 @@ class HomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -456,9 +383,14 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
+        Text(
+          'Tap any class to explore its complete collection of official textbooks and guides.',
+          style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+        ),
+        const SizedBox(height: 14),
 
-        // Grid of classes (none selected by default)
+        // Grid of classes (1 to 12)
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -476,6 +408,13 @@ class HomeScreen extends StatelessWidget {
             return InkWell(
               onTap: () {
                 appState.setSelectedClass(classNum);
+                // Directly navigate to ClassScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClassScreen(classNumber: classNum),
+                  ),
+                );
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(

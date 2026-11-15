@@ -16,6 +16,7 @@ class OfflineShelfScreen extends StatelessWidget {
     final offlineBooks = appState.downloadedBooks;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: CustomAppBar(
         tag: 'Offline',
         title: 'Offline Mode',
@@ -50,14 +51,14 @@ class OfflineShelfScreen extends StatelessWidget {
                               color: AppColors.secondaryContainer,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.offline_pin_rounded, color: AppColors.onSecondaryContainer, size: 20),
+                            child: Icon(Icons.offline_pin_rounded, color: AppColors.onSecondaryContainer, size: 20),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Offline Mode',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -67,7 +68,7 @@ class OfflineShelfScreen extends StatelessWidget {
                                   '${offlineBooks.length} items saved in app-private storage',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                                  style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                                 ),
                               ],
                             ),
@@ -87,11 +88,11 @@ class OfflineShelfScreen extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.sd_storage_rounded, size: 14, color: AppColors.primaryContainer),
+                          Icon(Icons.sd_storage_rounded, size: 14, color: AppColors.primaryContainer),
                           const SizedBox(width: 4),
                           Text(
                             appState.totalStorageUsedFormatted,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryContainer),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryContainer),
                           ),
                         ],
                       ),
@@ -102,7 +103,7 @@ class OfflineShelfScreen extends StatelessWidget {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.cardBorder),
+          Divider(height: 1, color: AppColors.cardBorder),
 
           // Content
           Expanded(
@@ -119,14 +120,14 @@ class OfflineShelfScreen extends StatelessWidget {
                               color: AppColors.surfaceContainerLow,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.cloud_download_outlined,
                               size: 48,
                               color: AppColors.outlineVariant,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'No Offline Books Saved',
                             style: TextStyle(
                               fontSize: 16,
@@ -135,7 +136,7 @@ class OfflineShelfScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
+                          Text(
                             'Download any textbook or guide while connected to read anytime without internet.',
                             textAlign: TextAlign.center,
                             style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_model.dart';
+import '../models/chapter_model.dart';
 import '../providers/app_state.dart';
 import '../theme/app_colors.dart';
 
@@ -31,6 +32,15 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
+    // Set initial theme according to app state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = Provider.of<AppState>(context, listen: false);
+      if (appState.isDarkMode) {
+        setState(() {
+          _readerTheme = ReaderTheme.dark;
+        });
+      }
+    });
   }
 
   void _changePage(int newPage) {
@@ -38,7 +48,44 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
       setState(() {
         _currentPage = newPage;
       });
-      Provider.of<AppState>(context, listen: false).updateLastReadPage(widget.book, newPage);
+      Provider.of<AppState>(context, listen: false).updateReadingProgress(widget.book, newPage);
+    }
+  }
+
+  Chapter get _currentChapter {
+    for (final c in widget.book.chapters) {
+      if (_currentPage >= c.pageStart && _currentPage <= c.pageEnd) {
+        return c;
+      }
+    }
+    return widget.book.chapters.isNotEmpty
+        ? widget.book.chapters.first
+        : Chapter(number: 1, title: widget.book.subject, pageStart: 1, pageEnd: widget.book.pagesCount);
+  }
+
+  int get _currentChapterIndex {
+    for (int i = 0; i < widget.book.chapters.length; i++) {
+      final c = widget.book.chapters[i];
+      if (_currentPage >= c.pageStart && _currentPage <= c.pageEnd) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  void _goToPreviousUnit() {
+    final idx = _currentChapterIndex;
+    if (idx > 0) {
+      final prev = widget.book.chapters[idx - 1];
+      _changePage(prev.pageStart);
+    }
+  }
+
+  void _goToNextUnit() {
+    final idx = _currentChapterIndex;
+    if (idx < widget.book.chapters.length - 1) {
+      final next = widget.book.chapters[idx + 1];
+      _changePage(next.pageStart);
     }
   }
 
@@ -67,6 +114,8 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final curCh = _currentChapter;
+    final curIdx = _currentChapterIndex;
 
     return Scaffold(
       backgroundColor: _readerTheme == ReaderTheme.dark ? const Color(0xFF121815) : const Color(0xFFE8ECE9),
@@ -100,7 +149,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                         ),
                       ],
                     ),
-                    child: _buildTextbookPageContent(),
+                    child: _buildTextbookPageContent(curCh),
                   ),
                 ),
               ),
@@ -116,7 +165,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceContainerLowest.withValues(alpha: 0.95),
-                    border: const Border(bottom: BorderSide(color: AppColors.cardBorder)),
+                    border: Border(bottom: BorderSide(color: AppColors.cardBorder)),
                     boxShadow: [
                       BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
                     ],
@@ -140,7 +189,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                                 border: Border.all(color: AppColors.cardBorder),
                               ),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
+                              child: Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
                             ),
                           ),
                         ),
@@ -154,18 +203,20 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                               widget.book.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                             ),
                             Text(
-                              'Page $_currentPage of ${widget.book.pagesCount} • KPK Textbook Board',
-                              style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                              'Unit ${curCh.number}: ${curCh.title} • Pg $_currentPage of ${widget.book.pagesCount}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                             ),
                           ],
                         ),
                       ),
                       // Theme Switcher (Light / Sepia / Dark)
                       PopupMenuButton<ReaderTheme>(
-                        icon: const Icon(Icons.palette_outlined, color: AppColors.onSurface),
+                        icon: Icon(Icons.palette_outlined, color: AppColors.onSurface),
                         tooltip: 'Display Mode',
                         onSelected: (theme) {
                           setState(() {
@@ -178,25 +229,21 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                           const PopupMenuItem(value: ReaderTheme.dark, child: Text('🌙 Night Study Mode')),
                         ],
                       ),
-                      // Bookmark (non-clickable when opened through Resume as requested)
+                      // Bookmark
                       IconButton(
                         icon: Icon(
                           widget.book.isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
                           color: widget.book.isBookmarked
-                              ? AppColors.onTertiaryContainer
-                              : (widget.isFromResume ? AppColors.outline : AppColors.onSurface),
+                              ? AppColors.lightOnTertiaryContainer
+                              : AppColors.onSurface,
                         ),
-                        tooltip: widget.isFromResume
-                            ? (widget.book.isBookmarked ? 'Saved (View Only from Resume)' : 'Unsaved (View Only from Resume)')
-                            : (widget.book.isBookmarked ? 'Remove Bookmark' : 'Bookmark Book'),
-                        onPressed: widget.isFromResume
-                            ? null
-                            : () => appState.toggleBookmark(widget.book),
+                        tooltip: widget.book.isBookmarked ? 'Remove Bookmark' : 'Bookmark Book',
+                        onPressed: () => appState.toggleBookmark(widget.book),
                       ),
                       // TOC Drawer
                       Builder(
                         builder: (ctx) => IconButton(
-                          icon: const Icon(Icons.format_list_bulleted_rounded, color: AppColors.onSurface),
+                          icon: Icon(Icons.format_list_bulleted_rounded, color: AppColors.onSurface),
                           tooltip: 'Table of Contents',
                           onPressed: () => Scaffold.of(ctx).openEndDrawer(),
                         ),
@@ -206,7 +253,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                 ),
               ),
 
-            // Bottom Navigation & Page Slider
+            // Bottom Navigation & Unit Switchers
             if (_showControls)
               Positioned(
                 bottom: 0,
@@ -216,7 +263,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceContainerLowest.withValues(alpha: 0.96),
-                    border: const Border(top: BorderSide(color: AppColors.cardBorder)),
+                    border: Border(top: BorderSide(color: AppColors.cardBorder)),
                     boxShadow: [
                       BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
                     ],
@@ -224,6 +271,38 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Unit quick navigation bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton.icon(
+                            onPressed: curIdx > 0 ? _goToPreviousUnit : null,
+                            icon: const Icon(Icons.arrow_back_ios_rounded, size: 12),
+                            label: const Text('Prev Unit', style: TextStyle(fontSize: 12)),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Unit ${curCh.number} of ${widget.book.chapters.length}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryContainer,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: curIdx < widget.book.chapters.length - 1 ? _goToNextUnit : null,
+                            label: const Text('Next Unit', style: TextStyle(fontSize: 12)),
+                            icon: const Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                          ),
+                        ],
+                      ),
+                      // Page slider
                       Row(
                         children: [
                           IconButton(
@@ -252,8 +331,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Unit ${_getCurrentChapterNumber()}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryContainer),
+                            'Unit ${curCh.number}: ${curCh.title}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryContainer),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -263,12 +344,12 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                             ),
                             child: Text(
                               '$_currentPage / ${widget.book.pagesCount}',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.onSurface),
                             ),
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.verified_rounded, size: 12, color: AppColors.secondary),
+                              Icon(Icons.verified_rounded, size: 12, color: AppColors.secondary),
                               const SizedBox(width: 4),
                               Text(
                                 'Official PDF',
@@ -288,16 +369,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     );
   }
 
-  int _getCurrentChapterNumber() {
-    for (final c in widget.book.chapters) {
-      if (_currentPage >= c.pageStart && _currentPage <= c.pageEnd) {
-        return c.number;
-      }
-    }
-    return 1;
-  }
+  Widget _buildTextbookPageContent(Chapter curCh) {
+    final int pageInChapter = _currentPage - curCh.pageStart + 1;
+    final int totalPagesInChapter = curCh.pageEnd - curCh.pageStart + 1;
 
-  Widget _buildTextbookPageContent() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,11 +382,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'KPK TEXTBOOK BOARD, PESHAWAR',
+                'KPK TEXTBOOK BOARD • PESHAWAR',
                 style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: _textColor.withValues(alpha: 0.6)),
               ),
               Text(
-                'PAGE $_currentPage',
+                'PAGE $_currentPage OF ${widget.book.pagesCount}',
                 style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: _textColor.withValues(alpha: 0.6)),
               ),
             ],
@@ -330,11 +405,24 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
+                Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
                 const SizedBox(width: 8),
-                Text(
-                  'Unit 3: Dynamics (Newton’s Laws of Motion)',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _textColor),
+                Expanded(
+                  child: Text(
+                    'Unit ${curCh.number}: ${curCh.title}',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _textColor),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'Unit Page $pageInChapter / $totalPagesInChapter',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _textColor.withValues(alpha: 0.8)),
+                  ),
                 ),
               ],
             ),
@@ -344,36 +432,38 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
 
           // Main Heading
           Text(
-            '3.2 Newton’s Second Law of Motion',
+            '${curCh.number}.$pageInChapter ${curCh.title}',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: _textColor, letterSpacing: -0.2),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'نیوٹن کا قانون حرکت دوم',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primaryContainer.withValues(alpha: 0.9)),
-          ),
+          if (curCh.titleUrdu.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              curCh.titleUrdu,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primaryContainer.withValues(alpha: 0.9)),
+            ),
+          ],
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
-          // Formal Definition Box
+          // Core Textbook Learning Objectives (SLOs)
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLow.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(8),
-              border: const Border(left: BorderSide(color: AppColors.secondary, width: 4)),
+              border: Border(left: BorderSide(color: AppColors.secondary, width: 4)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'LAW STATEMENT',
+                Text(
+                  'STUDENT LEARNING OBJECTIVES (SLO)',
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.secondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'When a net external force acts on a body, it produces an acceleration in the body in the direction of the force. The magnitude of this acceleration is directly proportional to the applied force and inversely proportional to the mass of the body.',
+                  'By the end of this section, students will understand the fundamental core concepts of ${curCh.title}, analyze practical board problem-solving methods, and apply theoretical principles in KPK examinations.',
                   style: TextStyle(fontSize: 13, height: 1.5, fontWeight: FontWeight.w600, color: _textColor),
                 ),
               ],
@@ -382,68 +472,84 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
 
           const SizedBox(height: 16),
 
-          // Mathematical Derivation
-          Text(
-            'Mathematical Formulation:',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _textColor),
-          ),
-          const SizedBox(height: 6),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Text(
-                'F = m × a',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: AppColors.primaryContainer),
-              ),
+          // Topics Coverage
+          if (curCh.keyTopics.isNotEmpty) ...[
+            Text(
+              'Key Topics in Unit ${curCh.number}:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: _textColor),
             ),
-          ),
+            const SizedBox(height: 8),
+            ...curCh.keyTopics.map((topic) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.check_circle_rounded, size: 16, color: AppColors.secondary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        topic,
+                        style: TextStyle(fontSize: 13, height: 1.4, color: _textColor),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 12),
+          ],
 
-          const SizedBox(height: 14),
-
-          Text(
-            'Where:\n• F is the net force measured in Newtons (N)\n• m is the mass of the object measured in kilograms (kg)\n• a is the acceleration produced measured in m/s²',
-            style: TextStyle(fontSize: 12, height: 1.6, color: _textColor.withValues(alpha: 0.9)),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Real World Example
+          // Textbook Reading Passage
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainer,
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.cardBorder),
             ),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.lightbulb_outline_rounded, size: 20, color: AppColors.tertiary),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Key Takeaway for Exam:',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '1 Newton is that force which produces an acceleration of 1 m/s² in a body of mass 1 kg. (1 N = 1 kg·m/s²). Often asked as a short question in KPK Board examinations.',
-                        style: TextStyle(fontSize: 11, height: 1.4, color: AppColors.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
+                Text(
+                  'Section ${curCh.number}.$pageInChapter: Conceptual Overview',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryContainer),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'This official digital textbook edition is published by Khyber Pakhtunkhwa Textbook Board for Class ${widget.book.classNumber}. Every unit is designed to follow modern curriculum benchmarks with solved exercises, model board questions, and chapter-wise revisions.',
+                  style: TextStyle(fontSize: 13, height: 1.5, color: _textColor.withValues(alpha: 0.9)),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 40),
+
+          const SizedBox(height: 20),
+
+          // Unit Navigation Shortcut inside reading body
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (_currentChapterIndex > 0)
+                OutlinedButton.icon(
+                  onPressed: _goToPreviousUnit,
+                  icon: const Icon(Icons.arrow_back_rounded, size: 16),
+                  label: Text('Unit $_currentChapterIndex'),
+                )
+              else
+                const SizedBox.shrink(),
+              if (_currentChapterIndex < widget.book.chapters.length - 1)
+                FilledButton.tonalIcon(
+                  onPressed: _goToNextUnit,
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                  label: Text('Next: Unit ${_currentChapterIndex + 2}'),
+                )
+              else
+                const SizedBox.shrink(),
+            ],
+          ),
+
+          const SizedBox(height: 50),
         ],
       ),
     );
@@ -451,6 +557,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
 
   Widget _buildTocDrawer() {
     return Drawer(
+      backgroundColor: AppColors.surface,
       child: SafeArea(
         child: Column(
           children: [
@@ -459,21 +566,21 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
               color: AppColors.surfaceContainerLow,
               child: Row(
                 children: [
-                  const Icon(Icons.toc_rounded, color: AppColors.primaryContainer),
+                  Icon(Icons.toc_rounded, color: AppColors.primaryContainer),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Table of Contents',
+                        Text(
+                          'Table of Contents / Units',
                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                         ),
                         Text(
                           widget.book.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                          style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -484,7 +591,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             Expanded(
               child: ListView.separated(
                 itemCount: widget.book.chapters.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.cardBorder),
+                separatorBuilder: (context, index) => Divider(height: 1, color: AppColors.cardBorder),
                 itemBuilder: (context, index) {
                   final ch = widget.book.chapters[index];
                   final isCurrent = _currentPage >= ch.pageStart && _currentPage <= ch.pageEnd;
@@ -503,11 +610,18 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                     ),
                     title: Text(
                       'Unit ${ch.number}: ${ch.title}',
-                      style: TextStyle(fontSize: 12, fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500),
+                      style: TextStyle(fontSize: 12, fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500, color: AppColors.onSurface),
                     ),
+                    subtitle: ch.titleUrdu.isNotEmpty
+                        ? Text(
+                            ch.titleUrdu,
+                            textDirection: TextDirection.rtl,
+                            style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                          )
+                        : null,
                     trailing: Text(
                       'Pg ${ch.pageStart}',
-                      style: const TextStyle(fontSize: 11, color: AppColors.outline),
+                      style: TextStyle(fontSize: 11, color: AppColors.outline),
                     ),
                     onTap: () {
                       _changePage(ch.pageStart);

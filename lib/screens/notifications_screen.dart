@@ -3,23 +3,9 @@ import 'package:provider/provider.dart';
 import '../models/notification_model.dart';
 import '../providers/app_state.dart';
 import '../theme/app_colors.dart';
-import 'content_selection_screen.dart';
 
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
-
-  @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
-}
-
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AppState>(context, listen: false).fetchRemoteUpdates();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +13,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final allNotifs = appState.notifications;
 
     return Scaffold(
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
+        title: Text(
+          'Board Announcements',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+        ),
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Material(
@@ -43,38 +34,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   border: Border.all(color: AppColors.cardBorder),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: AppColors.onSurface,
-                  size: 19,
-                ),
+                child: Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 19),
               ),
             ),
           ),
-        ),
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Notification',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-            ),
-            Text(
-              'Alerts',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
-            ),
-          ],
         ),
         actions: [
           if (appState.unreadNotificationCount > 0)
             TextButton.icon(
               onPressed: () => appState.markAllNotificationsAsRead(),
-              icon: const Icon(Icons.done_all_rounded, size: 16, color: AppColors.primaryContainer),
-              label: const Text(
+              icon: Icon(Icons.done_all_rounded, size: 16, color: AppColors.primaryContainer),
+              label: Text(
                 'Mark All Read',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryContainer),
               ),
@@ -90,19 +60,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.surfaceContainerLow,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.notifications_none_rounded, size: 48, color: AppColors.outline),
+                      child: Icon(Icons.notifications_none_rounded, size: 48, color: AppColors.outline),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'No Notifications Yet',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Official board notices, alerts, and textbook updates will appear here.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
@@ -111,149 +81,153 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               ),
             )
-          : RefreshIndicator(
-              onRefresh: () async {
-                await appState.fetchRemoteUpdates();
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: allNotifs.length,
+              itemBuilder: (context, index) {
+                final notif = allNotifs[index];
+                return Dismissible(
+                  key: Key(notif.id),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) {
+                    appState.deleteNotification(notif.id);
+                  },
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.error,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+                  ),
+                  child: _buildNotificationCard(context, notif, appState),
+                );
               },
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                itemCount: allNotifs.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final notif = allNotifs[index];
-                  return _buildNotificationCard(context, appState, notif);
-                },
-              ),
             ),
     );
   }
 
-  Widget _buildNotificationCard(BuildContext context, AppState appState, NotificationItem notif) {
-    return InkWell(
-      onTap: () {
-        appState.markNotificationAsRead(notif.id);
-        if (notif.relatedClass != null) {
-          appState.setSelectedClass(notif.relatedClass);
-          final matchingBook = appState.booksForSelectedClass.isNotEmpty
-              ? appState.booksForSelectedClass.first
-              : null;
-          if (matchingBook != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ContentSelectionScreen(book: matchingBook)),
-            );
-          }
-        }
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: notif.isRead ? AppColors.surfaceContainerLowest : AppColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: notif.isRead ? AppColors.cardBorder : AppColors.primaryContainer.withValues(alpha: 0.5),
-            width: notif.isRead ? 1 : 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+  Widget _buildNotificationCard(BuildContext context, NotificationItem notif, AppState appState) {
+    Color typeColor;
+    IconData typeIcon;
+
+    switch (notif.type) {
+      case NotificationType.exam:
+        typeColor = const Color(0xFFD32F2F);
+        typeIcon = Icons.assignment_late_outlined;
+        break;
+      case NotificationType.curriculum:
+        typeColor = AppColors.primary;
+        typeIcon = Icons.auto_stories_outlined;
+        break;
+      case NotificationType.newBook:
+        typeColor = AppColors.secondary;
+        typeIcon = Icons.menu_book_rounded;
+        break;
+      case NotificationType.systemNotice:
+        typeColor = const Color(0xFFF57C00);
+        typeIcon = Icons.info_outline_rounded;
+        break;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: notif.isRead ? AppColors.surfaceContainerLowest : AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: notif.isRead ? AppColors.cardBorder : AppColors.secondary.withValues(alpha: 0.5),
+          width: notif.isRead ? 1 : 1.5,
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: notif.isRead
-                    ? AppColors.surfaceContainer
-                    : AppColors.primaryContainer.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _getNotifIcon(notif.type),
-                size: 20,
-                color: notif.isRead ? AppColors.outline : AppColors.primaryContainer,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            appState.markNotificationAsRead(notif.id);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Icon Box
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: typeColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(typeIcon, color: typeColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          notif.title,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: notif.isRead ? FontWeight.w600 : FontWeight.w800,
-                            color: AppColors.onSurface,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              notif.title,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: notif.isRead ? FontWeight.w600 : FontWeight.w800,
+                                color: AppColors.onSurface,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (!notif.isRead) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      if (!notif.isRead) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    notif.message,
-                    style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                      const SizedBox(height: 4),
                       Text(
-                        notif.timestamp,
-                        style: const TextStyle(fontSize: 10, color: AppColors.outline, fontWeight: FontWeight.w500),
+                        notif.message,
+                        style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
                       ),
-                      if (notif.actionLabel.isNotEmpty)
-                        Text(
-                          notif.actionLabel,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryContainer,
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            notif.timestamp,
+                            style: TextStyle(fontSize: 10, color: AppColors.outline, fontWeight: FontWeight.w500),
                           ),
-                        ),
+                          if (notif.actionLabel.isNotEmpty)
+                            Text(
+                              notif.actionLabel,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryContainer,
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
-  }
-
-  IconData _getNotifIcon(NotificationType type) {
-    switch (type) {
-      case NotificationType.curriculum:
-        return Icons.edit_note_rounded;
-      case NotificationType.exam:
-        return Icons.assignment_turned_in_rounded;
-      case NotificationType.newBook:
-        return Icons.auto_stories_rounded;
-      case NotificationType.systemNotice:
-        return Icons.campaign_rounded;
-    }
   }
 }
