@@ -6,7 +6,6 @@ import '../theme/app_colors.dart';
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
 
-  static const Color appBarColor = Color(0xFF42231E);
   static const Color fbColor = Color(0xFF1877F2);
   static const Color waColor = Color(0xFF25D366);
   static const Color shareColor = Color(0xFF2563EB);
@@ -54,12 +53,16 @@ class MenuScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.send_rounded, color: feedbackColor),
-            SizedBox(width: 10),
-            Text('Send Feedback', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Icon(Icons.send_rounded, color: feedbackColor),
+            const SizedBox(width: 10),
+            Text(
+              'Send Feedback',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+            ),
           ],
         ),
         content: Column(
@@ -74,12 +77,17 @@ class MenuScreen extends StatelessWidget {
             TextField(
               controller: textController,
               maxLines: 4,
+              style: TextStyle(color: AppColors.onSurface, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'Enter your message...',
-                hintStyle: const TextStyle(fontSize: 13),
+                hintStyle: TextStyle(fontSize: 13, color: AppColors.outline),
                 filled: true,
                 fillColor: AppColors.surfaceContainerLow,
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.cardBorder),
+                ),
+                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: AppColors.cardBorder),
                 ),
@@ -90,10 +98,10 @@ class MenuScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: AppColors.outline)),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
+          FilledButton(
+            style: FilledButton.styleFrom(
               backgroundColor: feedbackColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -118,6 +126,7 @@ class MenuScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -137,18 +146,18 @@ class MenuScreen extends StatelessWidget {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.cardBorder,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ),
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.lock_rounded, color: privacyColor, size: 24),
-                  SizedBox(width: 10),
+                  const Icon(Icons.lock_rounded, color: privacyColor, size: 24),
+                  const SizedBox(width: 10),
                   Text(
                     'Privacy Policy',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface),
                   ),
                 ],
               ),
@@ -163,14 +172,15 @@ class MenuScreen extends StatelessWidget {
                 'We do not sell or monetize personal student data. Anonymized session metrics help ensure servers and book downloads remain reliable.\n\n'
                 '4. Contact & Inquiries\n'
                 'If you have questions regarding this Privacy Policy, please contact our support team at info@kptbb.gov.pk.',
-                style: TextStyle(fontSize: 14, height: 1.5, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 13, height: 1.5, color: AppColors.onSurfaceVariant),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: appBarColor,
-                  foregroundColor: Colors.white,
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primaryContainer,
+                  foregroundColor: AppColors.onPrimaryContainer,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Close'),
@@ -186,6 +196,7 @@ class MenuScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surfaceContainerLowest,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -205,18 +216,18 @@ class MenuScreen extends StatelessWidget {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.cardBorder,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ),
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.bolt_rounded, color: disclaimerColor, size: 24),
-                  SizedBox(width: 10),
+                  const Icon(Icons.bolt_rounded, color: disclaimerColor, size: 24),
+                  const SizedBox(width: 10),
                   Text(
                     'Disclaimer',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.onSurface),
                   ),
                 ],
               ),
@@ -230,14 +241,15 @@ class MenuScreen extends StatelessWidget {
                 'Textbooks and guides provided within this application may not be sold, republished, or redistributed for commercial gain.\n\n'
                 '4. Content Accuracy\n'
                 'While all reasonable efforts are made to keep digital editions aligned with official print releases, users should cross-reference official syllabus announcements for examination guidelines.',
-                style: TextStyle(fontSize: 14, height: 1.5, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 13, height: 1.5, color: AppColors.onSurfaceVariant),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: appBarColor,
-                  foregroundColor: Colors.white,
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primaryContainer,
+                  foregroundColor: AppColors.onPrimaryContainer,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Close'),
@@ -252,27 +264,52 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: appBarColor,
+        backgroundColor: AppColors.surfaceContainerLowest,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Center(
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(Icons.arrow_back_rounded, color: AppColors.onSurface, size: 20),
+                ),
+              ),
+            ),
+          ),
         ),
-        title: const Text(
+        title: Text(
           'Menu',
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
+            color: AppColors.onSurface,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 0.8, color: AppColors.cardBorder),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Section 1: Connect With Us
             _buildSectionCard(
@@ -292,7 +329,7 @@ class MenuScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _buildCommunityButton(
                       label: 'WhatsApp\nChannel',
@@ -413,41 +450,32 @@ class MenuScreen extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFECEEF1), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF3F221D),
-              letterSpacing: -0.2,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF6B7280),
+            style: TextStyle(
+              fontSize: 11,
+              color: AppColors.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           content,
         ],
       ),
@@ -461,30 +489,42 @@ class MenuScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: color,
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          height: 48,
+          height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.25)),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white, size: 20),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: Colors.white, size: 18),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   label,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.left,
                   maxLines: 2,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColors.onSurface,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    height: 1.1,
+                    height: 1.15,
                   ),
                 ),
               ),
@@ -509,29 +549,30 @@ class MenuScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: iconColor,
-                borderRadius: BorderRadius.circular(12),
+                color: iconColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: iconColor.withValues(alpha: 0.2)),
               ),
-              child: Icon(icon, color: Colors.white, size: 22),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: TextStyle(
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
+                  color: AppColors.onSurface,
                 ),
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_rounded,
-              color: Color(0xFF9CA3AF),
-              size: 20,
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: AppColors.outline,
+              size: 14,
             ),
           ],
         ),
@@ -540,14 +581,10 @@ class MenuScreen extends StatelessWidget {
   }
 
   Widget _buildItemDivider() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 2),
-      child: Divider(
-        height: 1,
-        thickness: 0.8,
-        color: Color(0xFFF3F4F6),
-      ),
+    return Divider(
+      height: 12,
+      thickness: 0.8,
+      color: AppColors.cardBorder.withValues(alpha: 0.5),
     );
   }
 }
-

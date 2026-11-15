@@ -391,41 +391,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
-
-          // 5. Curriculum Edition Information
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.verified_outlined, color: AppColors.secondary, size: 24),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Official Curriculum 2024–25',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Khyber Pakhtunkhwa Textbook Board • Peshawar',
-                        style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                ),
-                Text('v1.0.8', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.outline)),
-              ],
-            ),
-          ),
-
           const SizedBox(height: 30),
         ],
       ),

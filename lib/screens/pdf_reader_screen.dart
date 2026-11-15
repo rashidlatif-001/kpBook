@@ -100,14 +100,69 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     }
   }
 
+  Color get _canvasCardBg {
+    switch (_readerTheme) {
+      case ReaderTheme.light:
+        return const Color(0xFFF4F6F5);
+      case ReaderTheme.sepia:
+        return const Color(0xFFF0E5CE);
+      case ReaderTheme.dark:
+        return const Color(0xFF26322B);
+    }
+  }
+
+  Color get _canvasCardBgSubtle {
+    switch (_readerTheme) {
+      case ReaderTheme.light:
+        return const Color(0xFFFAFBFA);
+      case ReaderTheme.sepia:
+        return const Color(0xFFF7EBD3);
+      case ReaderTheme.dark:
+        return const Color(0xFF2B3830);
+    }
+  }
+
+  Color get _canvasBorder {
+    switch (_readerTheme) {
+      case ReaderTheme.light:
+        return const Color(0xFFE0E5E2);
+      case ReaderTheme.sepia:
+        return const Color(0xFFDFCBB1);
+      case ReaderTheme.dark:
+        return const Color(0xFF38473E);
+    }
+  }
+
   Color get _textColor {
     switch (_readerTheme) {
       case ReaderTheme.light:
         return const Color(0xFF17231D);
       case ReaderTheme.sepia:
-        return const Color(0xFF3F301D);
+        return const Color(0xFF3E2723);
       case ReaderTheme.dark:
         return const Color(0xFFE8F5E9);
+    }
+  }
+
+  Color get _textMuted {
+    switch (_readerTheme) {
+      case ReaderTheme.light:
+        return const Color(0xFF5A6660);
+      case ReaderTheme.sepia:
+        return const Color(0xFF6D4C41);
+      case ReaderTheme.dark:
+        return const Color(0xFFA5D6A7);
+    }
+  }
+
+  Color get _accentColor {
+    switch (_readerTheme) {
+      case ReaderTheme.light:
+        return const Color(0xFF005129);
+      case ReaderTheme.sepia:
+        return const Color(0xFF5D4037);
+      case ReaderTheme.dark:
+        return const Color(0xFF4CAF50);
     }
   }
 
@@ -118,7 +173,11 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     final curIdx = _currentChapterIndex;
 
     return Scaffold(
-      backgroundColor: _readerTheme == ReaderTheme.dark ? const Color(0xFF121815) : const Color(0xFFE8ECE9),
+      backgroundColor: _readerTheme == ReaderTheme.dark
+          ? const Color(0xFF121815)
+          : (_readerTheme == ReaderTheme.sepia
+              ? const Color(0xFFEAD8BA)
+              : const Color(0xFFE8ECE9)),
       endDrawer: _buildTocDrawer(),
       body: SafeArea(
         child: Stack(
@@ -383,29 +442,38 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             children: [
               Text(
                 'KPK TEXTBOOK BOARD • PESHAWAR',
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: _textColor.withValues(alpha: 0.6)),
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
+                  color: _textMuted,
+                ),
               ),
               Text(
                 'PAGE $_currentPage OF ${widget.book.pagesCount}',
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: _textColor.withValues(alpha: 0.6)),
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: _textMuted,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Divider(color: _textColor.withValues(alpha: 0.15)),
+          Divider(color: _canvasBorder),
           const SizedBox(height: 12),
 
           // Chapter Header Banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primaryContainer.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.primaryContainer.withValues(alpha: 0.3)),
+              color: _canvasCardBgSubtle,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _canvasBorder),
             ),
             child: Row(
               children: [
-                Icon(Icons.menu_book_rounded, size: 16, color: AppColors.primaryContainer),
+                Icon(Icons.menu_book_rounded, size: 16, color: _accentColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -416,12 +484,12 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
+                    color: _canvasCardBg,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     'Unit Page $pageInChapter / $totalPagesInChapter',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _textColor.withValues(alpha: 0.8)),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _textMuted),
                   ),
                 ),
               ],
@@ -440,7 +508,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             Text(
               curCh.titleUrdu,
               textDirection: TextDirection.rtl,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primaryContainer.withValues(alpha: 0.9)),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _accentColor),
             ),
           ],
 
@@ -450,16 +518,16 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow.withValues(alpha: 0.7),
+              color: _canvasCardBg,
               borderRadius: BorderRadius.circular(8),
-              border: Border(left: BorderSide(color: AppColors.secondary, width: 4)),
+              border: Border(left: BorderSide(color: _accentColor, width: 4)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'STUDENT LEARNING OBJECTIVES (SLO)',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.secondary),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: _accentColor),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -485,7 +553,7 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.check_circle_rounded, size: 16, color: AppColors.secondary),
+                    Icon(Icons.check_circle_rounded, size: 16, color: _accentColor),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -504,21 +572,21 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
+              color: _canvasCardBgSubtle,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.cardBorder),
+              border: Border.all(color: _canvasBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Section ${curCh.number}.$pageInChapter: Conceptual Overview',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryContainer),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _accentColor),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'This official digital textbook edition is published by Khyber Pakhtunkhwa Textbook Board for Class ${widget.book.classNumber}. Every unit is designed to follow modern curriculum benchmarks with solved exercises, model board questions, and chapter-wise revisions.',
-                  style: TextStyle(fontSize: 13, height: 1.5, color: _textColor.withValues(alpha: 0.9)),
+                  style: TextStyle(fontSize: 13, height: 1.5, color: _textColor.withValues(alpha: 0.95)),
                 ),
               ],
             ),
@@ -533,6 +601,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
               if (_currentChapterIndex > 0)
                 OutlinedButton.icon(
                   onPressed: _goToPreviousUnit,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _accentColor,
+                    side: BorderSide(color: _canvasBorder),
+                  ),
                   icon: const Icon(Icons.arrow_back_rounded, size: 16),
                   label: Text('Unit $_currentChapterIndex'),
                 )
@@ -541,6 +613,10 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
               if (_currentChapterIndex < widget.book.chapters.length - 1)
                 FilledButton.tonalIcon(
                   onPressed: _goToNextUnit,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _canvasCardBg,
+                    foregroundColor: _accentColor,
+                  ),
                   icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                   label: Text('Next: Unit ${_currentChapterIndex + 2}'),
                 )

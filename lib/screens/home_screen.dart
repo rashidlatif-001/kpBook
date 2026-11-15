@@ -245,13 +245,12 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
+        if (recentBook != null)
+          Row(
             children: [
               // Resume reading card - opens exact page
-              if (recentBook != null)
-                InkWell(
+              Expanded(
+                child: InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -266,8 +265,7 @@ class HomeScreen extends StatelessWidget {
                   },
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(14),
@@ -276,88 +274,168 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 36,
-                          height: 36,
+                          width: 34,
+                          height: 34,
                           decoration: BoxDecoration(
                             color: AppColors.primaryFixed,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(Icons.bolt_rounded, color: AppColors.onPrimaryFixed, size: 22),
+                          child: Icon(Icons.bolt_rounded, color: AppColors.onPrimaryFixed, size: 20),
                         ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Resume (Unit ${recentBook.currentUnitNumber})',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Resume U${recentBook.currentUnitNumber} • P.${recentBook.lastReadPage}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '• Pg ${recentBook.lastReadPage}',
-                                  style: TextStyle(fontSize: 11, color: AppColors.outline),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                recentBook.subject,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.onSurface,
                                 ),
-                              ],
-                            ),
-                            Text(
-                              recentBook.subject,
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
+              ),
+
+              const SizedBox(width: 8),
 
               // Offline Mode Shortcut
-              InkWell(
-                onTap: () {
-                  if (onSwitchTab != null) onSwitchTab!(2);
-                },
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLowest,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.cardBorder, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryContainer,
-                          borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (onSwitchTab != null) onSwitchTab!(2);
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.cardBorder, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.download_done_rounded, color: AppColors.onSecondaryContainer, size: 18),
                         ),
-                        child: Icon(Icons.download_done_rounded, color: AppColors.onSecondaryContainer, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Offline Mode',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Offline Mode',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                '${appState.downloadedBooks.length} saved',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.onSurface,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            '${appState.downloadedBooks.length} books saved',
-                            style: TextStyle(fontSize: 11, color: AppColors.outline),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ],
+          )
+        else
+          // Full-width card when no recent book
+          InkWell(
+            onTap: () {
+              if (onSwitchTab != null) onSwitchTab!(2);
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.cardBorder, width: 1),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.download_done_rounded, color: AppColors.onSecondaryContainer, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Offline Mode',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                        Text(
+                          '${appState.downloadedBooks.length} books saved for offline studying',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.outline),
+                ],
+              ),
+            ),
           ),
-        ),
       ],
     );
   }
