@@ -10,11 +10,13 @@ const COOKIE_NAME = process.env.ADMIN_SESSION_COOKIE || 'kpk_admin_session';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow static assets, API auth/sync routes, and favicon
+  // Allow static assets, public legal pages, API auth/sync routes, and favicon
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/auth/login') ||
     pathname.startsWith('/api/sync/flutter-event') ||
+    pathname === '/privacy' ||
+    pathname === '/terms' ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();
