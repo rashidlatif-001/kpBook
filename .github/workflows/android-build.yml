@@ -51,6 +51,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Release APK to Firebase App Distribution
+        continue-on-error: true
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}

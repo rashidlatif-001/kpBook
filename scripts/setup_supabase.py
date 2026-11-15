@@ -45,12 +45,13 @@ def run_migration():
                 'active',
                 new.created_at,
                 new.last_sign_in_at,
-                'supabase'
+                COALESCE(new.raw_app_meta_data->>'provider', 'supabase')
             )
             ON CONFLICT (id) DO UPDATE SET
                 email = EXCLUDED.email,
                 full_name = COALESCE(new.raw_user_meta_data->>'full_name', public.profiles.full_name),
-                last_login_at = COALESCE(new.last_sign_in_at, public.profiles.last_login_at);
+                last_login_at = COALESCE(new.last_sign_in_at, public.profiles.last_login_at),
+                auth_provider = COALESCE(new.raw_app_meta_data->>'provider', public.profiles.auth_provider);
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql SECURITY DEFINER

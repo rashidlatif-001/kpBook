@@ -1,11 +1,14 @@
 import 'dart:io' show Platform, File;
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SupabaseService {
   static const String supabaseUrl = 'https://tsqypxgfaajwqcgtfdkq.supabase.co';
   static const String publishableKey =
       'sb_publishable_RQ8BvygKqcRAxmndpRt_OQ_PMtfMF6x';
+  static const String webClientId =
+      '67778740795-in6rah0ub1tao7j17ge97oi7lfs85ehs.apps.googleusercontent.com';
 
   /// Initializes the Supabase client.
   static Future<void> initialize() async {
@@ -130,6 +133,44 @@ class SupabaseService {
     final response = await supa.auth.signInWithPassword(
       email: email.trim(),
       password: password,
+    );
+
+    if (response.session != null || response.user != null) {
+      recordLoginActivity();
+    }
+
+    return response;
+  }
+
+  /// Sign in with Google using native Google Sign-In and exchange ID token with Supabase
+  static Future<AuthResponse?> signInWithGoogle() async {
+    final supa = client;
+    if (supa == null) {
+      throw Exception('Supabase client is not initialized.');
+    }
+
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      serverClientId: webClientId,
+    );
+
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      // User dismissed or canceled the account picker
+      return null;
+    }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final String? idToken = googleAuth.idToken;
+    final String? accessToken = googleAuth.accessToken;
+
+    if (idToken == null) {
+      throw Exception('No ID Token received from Google. Please try again.');
+    }
+
+    final response = await supa.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
     );
 
     if (response.session != null || response.user != null) {
@@ -272,9 +313,15 @@ class SupabaseService {
     }
   }
 
-  /// Sign out current user
+  /// Sign out current user from Supabase and Google
   static Future<void> signOut() async {
     final supa = client;
+    try {
+      final googleSignIn = GoogleSignIn();
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+      }
+    } catch (_) {}
     if (supa == null) return;
     await supa.auth.signOut();
   }

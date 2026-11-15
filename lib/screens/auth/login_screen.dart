@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String? _errorMessage;
 
   final _formKey = GlobalKey<FormState>();
@@ -124,6 +125,66 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await SupabaseService.signInWithGoogle();
+      if (!mounted) return;
+
+      if (response == null) {
+        // User dismissed the account selection dialog
+        return;
+      }
+
+      if (response.session != null || response.user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Welcome! Google Sign-In successful. خوش آمدید'),
+            backgroundColor: AppColors.secondary,
+          ),
+        );
+
+        // Direct persistent navigation to MainShell Dashboard
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainShell()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      String userFriendlyError;
+      if (msg.contains('socket') ||
+          msg.contains('failed host lookup') ||
+          msg.contains('network') ||
+          msg.contains('clientexception')) {
+        userFriendlyError =
+            'Internet connection error. Please check your data or Wi-Fi.\nانٹرنیٹ کنکشن چیک کریں۔';
+      } else if (msg.contains('canceled') ||
+          msg.contains('cancelled') ||
+          msg.contains('sign_in_canceled')) {
+        userFriendlyError = 'Google Sign-In was cancelled.';
+      } else {
+        userFriendlyError =
+            e.toString().replaceAll('Exception: ', '').replaceAll('AuthException: ', '');
+      }
+      setState(() {
+        _errorMessage = userFriendlyError;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGoogleLoading = false;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -526,7 +587,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         backgroundColor: AppColors.primaryContainer,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: _isLoading
+                      child: (_isLoading && !_isGoogleLoading)
                           ? const SizedBox(
                               width: 22,
                               height: 22,
@@ -538,6 +599,69 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
+
+                  const SizedBox(height: 18),
+
+                  // Divider with "OR / یا"
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.cardBorder, thickness: 1)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: Text(
+                          'OR / یا',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurfaceVariant.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.cardBorder, thickness: 1)),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // Continue with Google Button (Available in both Login and Register modes)
+                  SizedBox(
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _handleGoogleSignIn,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.surfaceContainerLowest,
+                        side: const BorderSide(color: AppColors.cardBorder, width: 1.2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 0,
+                      ),
+                      child: _isGoogleLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primaryContainer,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildGoogleLogo(),
+                                const SizedBox(width: 12),
+                                Text(
+                                  _isLoginMode
+                                      ? 'Continue with Google (گوگل سے لاگ ان)'
+                                      : 'Sign Up with Google (گوگل سے نیا اکاؤنٹ)',
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.onSurface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -546,4 +670,72 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Widget _buildGoogleLogo() {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(
+        painter: _GoogleLogoPainter(),
+      ),
+    );
+  }
+}
+
+/// Pixel-perfect 4-color Google "G" vector painter
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final double cx = w / 2;
+    final double cy = h / 2;
+    final double r = w / 2;
+    final double strokeWidth = w * 0.22;
+
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: r - strokeWidth / 2);
+
+    final bluePaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final greenPaint = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final yellowPaint = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final redPaint = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    // Red arc (Top)
+    canvas.drawArc(rect, -2.356, 1.57, false, redPaint);
+    // Yellow arc (Left)
+    canvas.drawArc(rect, -3.927, 1.57, false, yellowPaint);
+    // Green arc (Bottom)
+    canvas.drawArc(rect, 0.785, 1.57, false, greenPaint);
+    // Blue arc (Right)
+    canvas.drawArc(rect, -0.785, 1.57, false, bluePaint);
+
+    // Blue horizontal crossbar
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    final barRect = Rect.fromLTWH(cx - w * 0.05, cy - strokeWidth / 2, w * 0.55, strokeWidth);
+    canvas.drawRect(barRect, barPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
