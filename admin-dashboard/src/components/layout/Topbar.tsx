@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bell, RefreshCw, CheckCircle2, ShieldCheck, Database, X } from 'lucide-react';
+import { Bell, RefreshCw, CheckCircle2, ShieldCheck, Database, X, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -24,6 +24,14 @@ export function Topbar({ title, description }: TopbarProps) {
       setShowSyncedToast(true);
       setTimeout(() => setShowSyncedToast(false), 2500);
     }, 700);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (_) {}
+    router.push('/login');
+    router.refresh();
   };
 
   return (
@@ -110,6 +118,16 @@ export function Topbar({ title, description }: TopbarProps) {
             </div>
           )}
         </div>
+
+        {/* Prominent Header Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+          title="Sign out of Administrator Session"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
       </div>
     </header>
   );

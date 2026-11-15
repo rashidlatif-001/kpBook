@@ -2,6 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { getCurrentAdmin } from '@/lib/auth';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { InactivityWatcher } from '@/components/layout/InactivityWatcher';
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +16,9 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {/* 30-Second Inactivity Auto-Logout Watcher */}
+      <InactivityWatcher timeoutSeconds={30} />
+
       {/* Sidebar */}
       <Sidebar
         adminName={admin.full_name}

@@ -22,7 +22,7 @@ interface SidebarProps {
   adminRole?: string;
 }
 
-export function Sidebar({ adminName = 'KPK Admin', adminEmail = 'admin@kpbooks.gov.pk', adminRole = 'Super Admin' }: SidebarProps) {
+export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl360software@gmail.com', adminRole = 'Super Admin' }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = React.useState(false);

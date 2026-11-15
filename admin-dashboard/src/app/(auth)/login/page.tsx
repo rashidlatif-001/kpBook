@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-  BookOpen,
   Lock,
   Mail,
   ShieldCheck,
@@ -19,12 +18,58 @@ import {
   CheckCircle2,
   KeyRound,
   ArrowLeft,
+  Clock,
 } from 'lucide-react';
 
-export default function LoginPage() {
-  const router = useRouter();
+const lightThemes = [
+  {
+    name: 'Golden Amber',
+    bulb: '#fbbf24',
+    glow: 'rgba(251, 191, 36, 0.55)',
+    beam: 'radial-gradient(circle at 0% 20%, rgba(254, 243, 199, 0.45) 0%, rgba(251, 191, 36, 0.22) 28%, rgba(245, 158, 11, 0.08) 55%, transparent 85%)',
+    cardBorder: 'border-amber-400/40',
+    cardShadow: 'shadow-[0_25px_60px_-15px_rgba(245,158,11,0.3),0_0_40px_rgba(251,191,36,0.1)]',
+    indicator: 'bg-amber-400',
+    textAccent: 'text-amber-400',
+  },
+  {
+    name: 'Emerald Aurora',
+    bulb: '#34d399',
+    glow: 'rgba(52, 211, 153, 0.55)',
+    beam: 'radial-gradient(circle at 0% 20%, rgba(209, 250, 229, 0.45) 0%, rgba(52, 211, 153, 0.22) 28%, rgba(16, 185, 129, 0.08) 55%, transparent 85%)',
+    cardBorder: 'border-emerald-400/40',
+    cardShadow: 'shadow-[0_25px_60px_-15px_rgba(16,185,129,0.3),0_0_40px_rgba(52,211,153,0.1)]',
+    indicator: 'bg-emerald-400',
+    textAccent: 'text-emerald-400',
+  },
+  {
+    name: 'Electric Cyan',
+    bulb: '#38bdf8',
+    glow: 'rgba(56, 189, 248, 0.55)',
+    beam: 'radial-gradient(circle at 0% 20%, rgba(224, 242, 254, 0.45) 0%, rgba(56, 189, 248, 0.22) 28%, rgba(14, 165, 233, 0.08) 55%, transparent 85%)',
+    cardBorder: 'border-cyan-400/40',
+    cardShadow: 'shadow-[0_25px_60px_-15px_rgba(14,165,233,0.3),0_0_40px_rgba(56,189,248,0.1)]',
+    indicator: 'bg-cyan-400',
+    textAccent: 'text-cyan-400',
+  },
+  {
+    name: 'Royal Violet',
+    bulb: '#c084fc',
+    glow: 'rgba(192, 132, 252, 0.55)',
+    beam: 'radial-gradient(circle at 0% 20%, rgba(243, 232, 255, 0.45) 0%, rgba(192, 132, 252, 0.22) 28%, rgba(168, 85, 247, 0.08) 55%, transparent 85%)',
+    cardBorder: 'border-purple-400/40',
+    cardShadow: 'shadow-[0_25px_60px_-15px_rgba(168,85,247,0.3),0_0_40px_rgba(192,132,252,0.1)]',
+    indicator: 'bg-purple-400',
+    textAccent: 'text-purple-400',
+  },
+];
 
-  // Authentication State
+function LoginFormContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isAutoLogout = searchParams.get('reason') === 'inactivity';
+
+  // Authentication State (Empty by default)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +77,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
-  const [otpHint, setOtpHint] = useState<string | null>(null);
 
   // OTP State
   const [step, setStep] = useState<'credentials' | 'otp'>('credentials');
@@ -40,10 +84,22 @@ export default function LoginPage() {
   const [resendCooldown, setResendCooldown] = useState(60);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Lamp & Sound State
-  const [isLampOn, setIsLampOn] = useState(true);
+  // Lamp & Sound State (Starts OFF by default so light must be on to show login)
+  const [isLampOn, setIsLampOn] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [colorIndex, setColorIndex] = useState(0);
+
+  const currentTheme = lightThemes[colorIndex];
+
+  // Cycle light color every 3 seconds when lamp is ON
+  useEffect(() => {
+    if (!isLampOn) return;
+    const interval = setInterval(() => {
+      setColorIndex((prev) => (prev + 1) % lightThemes.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isLampOn]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -74,7 +130,7 @@ export default function LoginPage() {
       const ctx = new AudioCtx();
       const now = ctx.currentTime;
 
-      // Mechanical Relay Switch Click
+      // Mechanical Switch Click
       const clickOsc = ctx.createOscillator();
       const clickGain = ctx.createGain();
       clickOsc.type = 'triangle';
@@ -86,7 +142,7 @@ export default function LoginPage() {
       clickOsc.start(now);
       clickOsc.stop(now + 0.05);
 
-      // Warm Incandescent Filament Hum (exact synthesis as demonstrated in JS animation)
+      // Warm Incandescent Filament Hum (from video screenshot code)
       if (turningOn) {
         const hum = ctx.createOscillator();
         const humGain = ctx.createGain();
@@ -101,7 +157,7 @@ export default function LoginPage() {
         hum.stop(now + 0.38);
       }
     } catch {
-      // AudioContext unavailable or blocked by policy
+      // AudioContext policy
     }
   };
 
@@ -115,7 +171,7 @@ export default function LoginPage() {
     }, 120);
   };
 
-  // Step 1: Submit Credentials & Request OTP
+  // Step 1: Submit Credentials & Request Email OTP
   const handleCredentialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -137,8 +193,7 @@ export default function LoginPage() {
       if (data.requireOtp) {
         setStep('otp');
         setResendCooldown(60);
-        setOtpHint(data.otpHint || null);
-        setSuccessInfo(data.message || `A 6-digit code has been sent to ${email}`);
+        setSuccessInfo(data.message || `A 6-digit code has been dispatched to ${email}. Please check your Inbox and Spam folder.`);
       } else {
         router.push('/');
         router.refresh();
@@ -151,9 +206,9 @@ export default function LoginPage() {
   };
 
   // Step 2: Submit 6-digit OTP
-  const handleOtpSubmit = async (e?: React.FormEvent, explicitOtp?: string) => {
+  const handleOtpSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const fullOtp = explicitOtp || otpDigits.join('');
+    const fullOtp = otpDigits.join('');
     if (fullOtp.length < 6) {
       setError('Please enter all 6 digits of the verification code.');
       return;
@@ -205,8 +260,7 @@ export default function LoginPage() {
       }
 
       setResendCooldown(60);
-      setOtpHint(data.otpHint || null);
-      setSuccessInfo('A new verification code has been dispatched to your email.');
+      setSuccessInfo('A new verification code has been dispatched to your email. Check your Inbox and Spam folder.');
       setOtpDigits(['', '', '', '', '', '']);
       otpInputRefs.current[0]?.focus();
     } catch (err: any) {
@@ -263,13 +317,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0a0d14] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden select-none">
-      {/* Background Gradient Grid */}
+    <div className="relative min-h-screen w-full bg-[#070a10] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden select-none">
+      {/* Background Subtle Dot Grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-20"
         style={{
           backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1px, transparent 0)',
+            'radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.12) 1px, transparent 0)',
           backgroundSize: '32px 32px',
         }}
       />
@@ -306,8 +360,11 @@ export default function LoginPage() {
                 : 'bg-slate-900/70 border-slate-800 text-slate-400 hover:text-slate-200'
             }`}
           >
-            <span className="w-2 h-2 rounded-full transition-colors" style={{ backgroundColor: isLampOn ? '#fbbf24' : '#64748b' }} />
-            <span>{isLampOn ? 'Light: ON' : 'Light: OFF'}</span>
+            <span
+              className="w-2 h-2 rounded-full transition-colors duration-700"
+              style={{ backgroundColor: isLampOn ? currentTheme.bulb : '#64748b' }}
+            />
+            <span>{isLampOn ? `Light: ON (${currentTheme.name})` : 'Light: OFF'}</span>
           </button>
         </div>
       </div>
@@ -316,13 +373,13 @@ export default function LoginPage() {
       <div className="relative z-20 w-full max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-14 py-8">
         
         {/* ========================================================= */}
-        {/* INTERACTIVE LUXO DESK LAMP & VOLUMETRIC SPOTLIGHT BEAM */}
+        {/* INTERACTIVE LUXO DESK LAMP & DYNAMIC COLOR SPOTLIGHT BEAM */}
         {/* ========================================================= */}
         <div className="relative flex flex-col items-center justify-center shrink-0 w-72 sm:w-80 lg:w-[340px] select-none">
           
-          {/* Volumetric Light Beam (Projects from lamp head onto the form card) */}
+          {/* Volumetric Light Beam (Cycles color every 3s) */}
           <div
-            className={`absolute pointer-events-none transition-all duration-500 ease-out z-10 ${
+            className={`absolute pointer-events-none transition-all duration-700 ease-out z-10 ${
               isLampOn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
             }`}
             style={{
@@ -331,10 +388,10 @@ export default function LoginPage() {
               width: '780px',
               height: '560px',
               clipPath: 'polygon(0% 12%, 100% 0%, 100% 100%, 0% 28%)',
-              background:
-                'radial-gradient(circle at 0% 20%, rgba(254, 243, 199, 0.45) 0%, rgba(251, 191, 36, 0.22) 28%, rgba(245, 158, 11, 0.08) 55%, transparent 85%)',
+              background: currentTheme.beam,
               filter: 'blur(1px)',
               mixBlendMode: 'screen',
+              transition: 'background 1.5s ease-in-out, opacity 0.5s ease',
             }}
           >
             {/* Animated Dust Particles in Beam */}
@@ -343,7 +400,7 @@ export default function LoginPage() {
 
           {/* Intense Radial Glow around Lamp Bulb */}
           <div
-            className={`absolute pointer-events-none transition-all duration-300 ease-out z-20 ${
+            className={`absolute pointer-events-none transition-all duration-700 ease-out z-20 ${
               isLampOn ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
             }`}
             style={{
@@ -352,9 +409,10 @@ export default function LoginPage() {
               width: '140px',
               height: '140px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(253,224,71,0.6) 40%, rgba(245,158,11,0.2) 70%, transparent 100%)',
+              background: `radial-gradient(circle, #ffffff 0%, ${currentTheme.glow} 45%, transparent 75%)`,
               filter: 'blur(8px)',
               transform: 'translate(-50%, -50%)',
+              transition: 'background 1.5s ease-in-out, opacity 0.5s ease',
             }}
           />
 
@@ -385,13 +443,6 @@ export default function LoginPage() {
                   <stop offset="45%" stopColor="#eab308" />
                   <stop offset="100%" stopColor="#854d0e" />
                 </linearGradient>
-                {/* Bulb Glow Gradient */}
-                <radialGradient id="bulbGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="40%" stopColor="#fef08a" />
-                  <stop offset="80%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#d97706" />
-                </radialGradient>
               </defs>
 
               {/* 1. Heavy Weighted Base */}
@@ -427,7 +478,7 @@ export default function LoginPage() {
               {/* 5. Head Neck Joint */}
               <circle cx="172" cy="128" r="10" fill="url(#brassGold)" stroke="#713f12" strokeWidth="1" />
 
-              {/* 6. Conical Lampshade Head (Angled ~25° right-down) */}
+              {/* 6. Conical Lampshade Head (Angled ~22° right-down) */}
               <g transform="rotate(22 172 128)">
                 {/* Socket cap */}
                 <rect x="160" y="80" width="24" height="26" rx="4" fill="url(#brassGold)" stroke="#713f12" strokeWidth="1" />
@@ -441,14 +492,14 @@ export default function LoginPage() {
                 {/* Metallic Lower Rim */}
                 <ellipse cx="172" cy="155" rx="52" ry="14" fill="#0f172a" stroke="url(#brassGold)" strokeWidth="2.5" />
 
-                {/* Light Bulb */}
+                {/* Light Bulb (dynamically styled with cycling color) */}
                 <ellipse
                   cx="172"
                   cy="150"
                   rx="26"
                   ry="12"
-                  fill={isLampOn ? 'url(#bulbGlow)' : '#334155'}
-                  filter={isLampOn ? 'drop-shadow(0 0 16px #fef08a)' : undefined}
+                  fill={isLampOn ? currentTheme.bulb : '#334155'}
+                  style={{ transition: 'fill 1.2s ease-in-out' }}
                 />
               </g>
 
@@ -477,28 +528,38 @@ export default function LoginPage() {
             </svg>
 
             {/* Click to Toggle Tooltip Pill */}
-            <div className="mt-2 text-center">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-slate-900/80 border border-slate-700/80 text-slate-300 shadow-md group-hover:border-amber-400/50 group-hover:text-amber-200 transition-all">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Pull cord or click lamp to toggle</span>
+            <div className="mt-3 text-center">
+              <span
+                className={`inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border shadow-md transition-all ${
+                  isLampOn
+                    ? 'bg-slate-900/80 border-slate-700/80 text-slate-300'
+                    : 'bg-amber-500/20 border-amber-400 text-amber-200 animate-pulse'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isLampOn ? 'Pull cord to turn off light' : 'Pull cord or click lamp to turn on light'}</span>
               </span>
             </div>
           </div>
         </div>
 
         {/* ========================================================= */}
-        {/* FLOATING DARK GLASSMORPHISM FORM CARD */}
+        {/* FLOATING LOGIN CARD (ONLY VISIBLE WHEN LAMP IS ON!) */}
         {/* ========================================================= */}
         <div
-          className={`relative w-full max-w-md rounded-3xl p-7 sm:p-9 transition-all duration-500 z-20 ${
+          className={`relative w-full max-w-md rounded-3xl p-7 sm:p-9 transition-all duration-700 ease-out z-20 ${
             isLampOn
-              ? 'bg-[#111726]/90 border border-amber-300/30 shadow-[0_25px_60px_-15px_rgba(245,158,11,0.25),0_0_40px_rgba(255,255,255,0.06)] backdrop-blur-xl'
-              : 'bg-[#0f1420]/80 border border-slate-800 shadow-[0_20px_40px_rgba(0,0,0,0.8)] backdrop-blur-md opacity-85'
+              ? `opacity-100 scale-100 translate-x-0 pointer-events-auto bg-[#101522]/95 border ${currentTheme.cardBorder} ${currentTheme.cardShadow} backdrop-blur-2xl`
+              : 'opacity-0 scale-95 translate-x-10 pointer-events-none'
           }`}
+          style={{ transition: 'opacity 0.6s ease, transform 0.6s ease, box-shadow 1.5s ease, border-color 1.5s ease' }}
         >
           {/* Subtle Ambient Reflected Beam Highlight */}
           {isLampOn && (
-            <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+            <div
+              className="absolute -top-10 -left-10 w-48 h-48 rounded-full blur-3xl pointer-events-none transition-colors duration-1000"
+              style={{ backgroundColor: currentTheme.glow }}
+            />
           )}
 
           {/* Form Header */}
@@ -508,7 +569,10 @@ export default function LoginPage() {
                 <ShieldCheck className="w-3 h-3" />
                 <span>Admin Portal</span>
               </span>
-              <span className="text-[11px] font-mono font-medium text-slate-500">v1.0.1 • 2026</span>
+              <div className="flex items-center space-x-1.5">
+                <span className={`w-2 h-2 rounded-full ${currentTheme.indicator} animate-ping`} />
+                <span className="text-[11px] font-mono font-medium text-slate-400">3s Dynamic Illumination</span>
+              </div>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
@@ -517,9 +581,19 @@ export default function LoginPage() {
             <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
               {step === 'credentials'
                 ? 'Sign in with your authorized administrator credentials to manage KPK E-Textbooks.'
-                : `Enter the 6-digit authentication code dispatched to ${email}.`}
+                : `Enter the 6-digit authentication code dispatched to your email.`}
             </p>
           </div>
+
+          {/* Inactivity Auto-Logout Security Notice */}
+          {isAutoLogout && (
+            <div className="mb-5 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs flex items-start space-x-2.5 animate-fadeIn">
+              <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <span className="leading-relaxed">
+                You were automatically logged out due to 30 seconds of inactivity on the dashboard.
+              </span>
+            </div>
+          )}
 
           {/* Alert Messages */}
           {error && (
@@ -551,7 +625,7 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="amrl360software@gmail.com"
+                    placeholder="Enter admin email address"
                     className="w-full pl-10 pr-3 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all font-mono"
                   />
                 </div>
@@ -619,40 +693,9 @@ export default function LoginPage() {
             </form>
           )}
 
-          {/* STEP 2: 6-DIGIT OTP VERIFICATION FORM */}
+          {/* STEP 2: 6-DIGIT OTP VERIFICATION FORM (NO CODE SHOWN ON SCREEN!) */}
           {step === 'otp' && (
             <form onSubmit={handleOtpSubmit} className="space-y-5 animate-fadeIn">
-              {/* Emergency / Dev Passcode Assistant */}
-              {otpHint && (
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg shadow-amber-950/30">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center text-amber-300 shrink-0">
-                      <KeyRound className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase font-bold text-amber-400 tracking-wider">
-                        Generated OTP Code:
-                      </span>
-                      <span className="font-mono text-base font-extrabold tracking-widest text-white">
-                        {otpHint}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const digits = otpHint.split('').slice(0, 6);
-                      setOtpDigits(digits);
-                      setTimeout(() => handleOtpSubmit(undefined, otpHint), 80);
-                    }}
-                    className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-300 text-xs font-extrabold shadow-sm cursor-pointer transition-all flex items-center justify-center space-x-1.5 shrink-0"
-                  >
-                    <span>Auto-Fill &amp; Enter</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-
               <div>
                 <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2 text-center">
                   Enter 6-Digit Email Code
@@ -677,8 +720,8 @@ export default function LoginPage() {
                     />
                   ))}
                 </div>
-                <p className="text-[10px] text-center text-slate-500 mt-2 font-mono">
-                  Master emergency code: <span className="text-amber-400/90 font-bold">360360</span>
+                <p className="text-[11px] text-center text-slate-400 mt-2.5">
+                  Please check your Inbox and Spam / Junk folder.
                 </p>
               </div>
 
@@ -743,5 +786,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#070a10]" />}>
+      <LoginFormContent />
+    </Suspense>
   );
 }

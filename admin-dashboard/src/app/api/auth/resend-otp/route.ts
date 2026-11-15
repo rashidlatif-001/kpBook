@@ -27,7 +27,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: result.message,
-      otpHint: result.otpHint,
     });
   } catch (error: any) {
     console.error('Resend OTP error:', error);
