@@ -17,6 +17,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/api/sync/flutter-event') ||
     pathname === '/privacy' ||
     pathname === '/terms' ||
+    pathname === '/connect' ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();
