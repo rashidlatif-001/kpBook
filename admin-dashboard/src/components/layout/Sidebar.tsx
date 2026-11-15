@@ -13,6 +13,7 @@ import {
   BookOpen,
   ShieldCheck,
   ChevronRight,
+  HelpCircle,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -31,6 +32,7 @@ export function Sidebar({ adminName = 'KPK Admin', adminEmail = 'admin@kpbooks.g
     { name: 'User Management', href: '/users', icon: Users },
     { name: 'Login Activity', href: '/activity', icon: Activity },
     { name: 'Analytics & Insights', href: '/analytics', icon: BarChart3 },
+    { name: 'Connect & App Info', href: '/connect', icon: HelpCircle },
     { name: 'System Settings', href: '/settings', icon: Settings },
   ];
 
