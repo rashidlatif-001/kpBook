@@ -8,6 +8,7 @@ import {
   Users,
   Activity,
   BarChart3,
+  Megaphone,
   Settings,
   LogOut,
   BookOpen,
@@ -29,6 +30,7 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
 
   const navigation = [
     { name: 'Dashboard Overview', href: '/', icon: LayoutDashboard },
+    { name: 'App Announcements', href: '/announcements', icon: Megaphone },
     { name: 'User Management', href: '/users', icon: Users },
     { name: 'Login Activity', href: '/activity', icon: Activity },
     { name: 'Analytics & Insights', href: '/analytics', icon: BarChart3 },

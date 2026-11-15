@@ -44,6 +44,14 @@ class AppState extends ChangeNotifier {
   List<NotificationItem> get notifications => _notifications;
   int get unreadNotificationCount => _notifications.where((n) => !n.isRead).length;
 
+  NotificationItem? _activeBannerNotice;
+  NotificationItem? get activeBannerNotice => _activeBannerNotice;
+
+  void setActiveBannerNotice(NotificationItem? notice) {
+    _activeBannerNotice = notice;
+    notifyListeners();
+  }
+
   late List<Book> _allBooks;
 
   String get _currentUserId => SupabaseService.currentUser?.id ?? 'guest';
@@ -128,24 +136,36 @@ class AppState extends ChangeNotifier {
     try {
       final remoteList = await SupabaseService.fetchAppUpdates();
       if (remoteList.isNotEmpty) {
-        for (final row in remoteList) {
+        for (final row in remoteList.reversed) {
           final id = row['id']?.toString() ?? UniqueKey().toString();
+          final item = NotificationItem(
+            id: id,
+            title: row['title'] ?? 'Notice',
+            message: row['message'] ?? '',
+            timestamp: row['created_at'] != null ? 'Recently' : 'Just now',
+            type: NotificationType.systemNotice,
+            actionLabel: row['action_label'] ?? 'Curriculum Notice',
+            relatedClass: row['related_class'] is int ? row['related_class'] : (row['related_class'] != null ? int.tryParse(row['related_class'].toString()) : null),
+            isRead: false,
+          );
           if (!_notifications.any((n) => n.id == id)) {
-            _notifications.insert(
-              0,
-              NotificationItem(
-                id: id,
-                title: row['title'] ?? 'Notice',
-                message: row['message'] ?? '',
-                timestamp: 'Just now',
-                type: NotificationType.systemNotice,
-                actionLabel: row['action_label'] ?? 'View Alert',
-                relatedClass: row['related_class'],
-                isRead: false,
-              ),
-            );
+            _notifications.insert(0, item);
           }
         }
+
+        // Set the most recent announcement as the active home banner
+        final latest = remoteList.first;
+        _activeBannerNotice = NotificationItem(
+          id: latest['id']?.toString() ?? 'banner_active',
+          title: latest['title'] ?? 'Notice',
+          message: latest['message'] ?? '',
+          timestamp: 'Latest',
+          type: NotificationType.systemNotice,
+          actionLabel: latest['action_label'] ?? 'Curriculum 2024–25',
+          relatedClass: latest['related_class'] is int ? latest['related_class'] : (latest['related_class'] != null ? int.tryParse(latest['related_class'].toString()) : null),
+          isRead: false,
+        );
+
         notifyListeners();
       }
     } catch (_) {}

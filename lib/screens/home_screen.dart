@@ -7,6 +7,7 @@ import '../widgets/offline_sync_banner.dart';
 import 'class_screen.dart';
 import 'search_screen.dart';
 import 'pdf_reader_screen.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int)? onSwitchTab;
@@ -20,9 +21,13 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: const CustomAppBar(tag: 'Home'),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => appState.fetchRemoteUpdates(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Online/Offline dynamic sync banner
             const OfflineSyncBanner(),
@@ -141,77 +146,137 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildExamBanner(BuildContext context, AppState appState) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+    final activeNotice = appState.activeBannerNotice;
+    final badgeText = (activeNotice != null && activeNotice.actionLabel.isNotEmpty)
+        ? activeNotice.actionLabel
+        : 'Curriculum 2024–25';
+    final titleText = (activeNotice != null && activeNotice.title.isNotEmpty)
+        ? activeNotice.title
+        : 'Mid-term Exams Preparation Guide';
+    final descText = (activeNotice != null && activeNotice.message.isNotEmpty)
+        ? activeNotice.message
+        : 'Complete syllabus & model papers for all grades now fully available offline with past paper solutions.';
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF086B3A),
-            Color(0xFF005129),
-            Color(0xFF00381B),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF005129).withValues(alpha: 0.25),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppColors.lightSecondaryContainer,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.verified_rounded, size: 13, color: AppColors.lightOnSecondaryContainer),
-                SizedBox(width: 4),
-                Text(
-                  'Curriculum 2024–25',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.lightOnSecondaryContainer,
-                  ),
-                ),
+        onTap: () {
+          if (activeNotice != null && activeNotice.relatedClass != null && activeNotice.relatedClass! > 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ClassScreen(classNumber: activeNotice.relatedClass!),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const NotificationsScreen(),
+              ),
+            );
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF086B3A),
+                Color(0xFF005129),
+                Color(0xFF00381B),
               ],
             ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF005129).withValues(alpha: 0.25),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Mid-term Exams Preparation Guide',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: -0.2,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightSecondaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.verified_rounded, size: 13, color: AppColors.lightOnSecondaryContainer),
+                        const SizedBox(width: 4),
+                        Text(
+                          badgeText,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.lightOnSecondaryContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (activeNotice != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.campaign_rounded, size: 12, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'LIVE NOTICE',
+                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                titleText,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                descText,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  color: AppColors.lightOnPrimaryContainer.withValues(alpha: 0.95),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Complete syllabus & model papers for all grades now fully available offline with past paper solutions.',
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.4,
-              color: AppColors.lightOnPrimaryContainer.withValues(alpha: 0.9),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

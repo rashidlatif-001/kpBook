@@ -11,6 +11,7 @@ import 'package:kp_book/screens/auth/login_screen.dart';
 import 'package:kp_book/screens/auth/forgot_password_screen.dart';
 import 'package:kp_book/screens/content_selection_screen.dart';
 import 'package:kp_book/screens/pdf_reader_screen.dart';
+import 'package:kp_book/models/notification_model.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -277,6 +278,61 @@ void main() {
       expect(find.text('Forgot Password?'), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
       expect(find.text('Send Recovery Code'), findsOneWidget);
+    });
+  });
+
+  group('8. Dynamic Home Banner Announcements Tests', () {
+    testWidgets('HomeScreen renders default banner when no admin notice is active', (WidgetTester tester) async {
+      final appState = AppState();
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<AppState>.value(
+          value: appState,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+
+      // Default Banner
+      expect(find.text('Mid-term Exams Preparation Guide'), findsOneWidget);
+      expect(find.text('Curriculum 2024–25'), findsOneWidget);
+      expect(find.textContaining('Complete syllabus & model papers'), findsOneWidget);
+    });
+
+    testWidgets('HomeScreen dynamically updates banner when Admin Dashboard notice is published', (WidgetTester tester) async {
+      final appState = AppState();
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<AppState>.value(
+          value: appState,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+
+      // Simulate Admin broadcasting a new urgent notice
+      appState.setActiveBannerNotice(
+        NotificationItem(
+          id: 'admin_broadcast_101',
+          title: 'Annual Board Exam 2025 Schedule Live',
+          message: 'Official SLO guidelines and solved model questions are now published for all KPK students.',
+          timestamp: 'Just now',
+          actionLabel: 'Exam Alert 2025',
+          relatedClass: 9,
+          type: NotificationType.systemNotice,
+          isRead: false,
+        ),
+      );
+
+      await tester.pump();
+
+      // Verify that the Home Banner dynamically reflects the admin notice!
+      expect(find.text('Annual Board Exam 2025 Schedule Live'), findsOneWidget);
+      expect(find.text('Exam Alert 2025'), findsOneWidget);
+      expect(find.text('LIVE NOTICE'), findsOneWidget);
+      expect(find.textContaining('Official SLO guidelines and solved model questions'), findsOneWidget);
     });
   });
 }
