@@ -55,13 +55,22 @@ export async function getCurrentAdmin(): Promise<AdminUser | null> {
   }
 }
 
+export const ALLOWED_ADMIN_EMAIL = 'amrl360software@gmail.com';
+
 export async function verifyAdminCredentials(
   email: string,
   plainPassword: string
 ): Promise<AdminUser | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+  
+  // Security policy: strictly allow only authorized administrator email
+  if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
+    return null;
+  }
+
   const users = await query<any>(
     'SELECT id, email, password_hash, full_name, role, is_active FROM public.admin_users WHERE email = $1 LIMIT 1',
-    [email.trim().toLowerCase()]
+    [normalizedEmail]
   );
 
   if (!users || users.length === 0) return null;
@@ -70,9 +79,6 @@ export async function verifyAdminCredentials(
 
   const isValid = await bcrypt.compare(plainPassword, user.password_hash);
   if (!isValid) return null;
-
-  // Update last login
-  await query('UPDATE public.admin_users SET last_login_at = now() WHERE id = $1', [user.id]);
 
   return {
     id: user.id,

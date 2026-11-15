@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { verifyAdminCredentials, createSessionToken, COOKIE_NAME } from '@/lib/auth';
+import { verifyAdminCredentials, ALLOWED_ADMIN_EMAIL } from '@/lib/auth';
+import { sendAdminOtp } from '@/lib/otp';
 
 export async function POST(request: Request) {
   try {
@@ -13,43 +14,36 @@ export async function POST(request: Request) {
       );
     }
 
-    const admin = await verifyAdminCredentials(email, password);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
+      return NextResponse.json(
+        { error: `Unauthorized email address. Only ${ALLOWED_ADMIN_EMAIL} is permitted.` },
+        { status: 403 }
+      );
+    }
+
+    const admin = await verifyAdminCredentials(normalizedEmail, password);
     if (!admin) {
       return NextResponse.json(
-        { error: 'Invalid admin credentials or inactive account' },
+        { error: 'Invalid admin credentials or account inactive' },
         { status: 401 }
       );
     }
 
-    const token = await createSessionToken(admin);
+    // Credentials valid -> generate OTP and dispatch email
+    const otpResult = await sendAdminOtp(admin.email);
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      user: {
-        id: admin.id,
-        email: admin.email,
-        name: admin.full_name,
-        role: admin.role,
-      },
+      requireOtp: true,
+      email: admin.email,
+      message: otpResult.message,
     });
-
-    response.cookies.set({
-      name: COOKIE_NAME,
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    return response;
   } catch (error: any) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
 }
-

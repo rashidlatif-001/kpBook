@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   // Allow static assets, public legal pages, API auth/sync routes, and favicon
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth/login') ||
+    pathname.startsWith('/api/auth') ||
     pathname.startsWith('/api/sync/flutter-event') ||
     pathname === '/privacy' ||
     pathname === '/terms' ||
