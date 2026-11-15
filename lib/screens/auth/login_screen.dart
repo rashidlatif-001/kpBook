@@ -137,7 +137,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await SupabaseService.signInWithGoogle();
+      final response = await SupabaseService.signInWithGoogle(
+        isRegisterMode: !_isLoginMode,
+      );
       if (!mounted) return;
 
       if (response == null) {
@@ -146,9 +148,13 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (response.session != null || response.user != null) {
+        final successMessage = _isLoginMode
+            ? 'Welcome back! Google Sign-In successful. خوش آمدید'
+            : 'Account created with Google! Welcome to KPK E-Textbooks.\nگوگل سے نیا اکاؤنٹ بن گیا ہے۔ خوش آمدید';
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Welcome! Google Sign-In successful. خوش آمدید'),
+            content: Text(successMessage),
             backgroundColor: AppColors.secondary,
           ),
         );
@@ -158,6 +164,29 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (_) => const MainShell()),
         );
       }
+    } on GoogleAuthAccountNotFoundException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoginMode = false; // Switch to Register mode
+        if (_nameController.text.isEmpty && e.displayName != null) {
+          _nameController.text = e.displayName!;
+        }
+        if (_emailController.text.isEmpty) {
+          _emailController.text = e.email;
+        }
+        _errorMessage =
+            'No account found with this Google email. Please Sign Up first.\nاس گوگل ای میل سے کوئی اکاؤنٹ نہیں ملا۔ براہ کرم پہلے سائن اپ کریں۔';
+      });
+    } on GoogleAuthAccountAlreadyExistsException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoginMode = true; // Switch to Sign In mode
+        if (_emailController.text.isEmpty) {
+          _emailController.text = e.email;
+        }
+        _errorMessage =
+            'This Google email is already registered. Please Sign In.\nیہ گوگل ای میل پہلے سے رجسٹرڈ ہے۔ براہ کرم لاگ ان کریں۔';
+      });
     } catch (e) {
       if (!mounted) return;
       final msg = e.toString().toLowerCase();

@@ -3,6 +3,25 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+/// Exception thrown when a user attempts to log in with Google, but no account exists yet
+class GoogleAuthAccountNotFoundException implements Exception {
+  final String email;
+  final String? displayName;
+  const GoogleAuthAccountNotFoundException({required this.email, this.displayName});
+
+  @override
+  String toString() => 'No account found for $email. Please sign up first.';
+}
+
+/// Exception thrown when a user attempts to register with Google, but an account already exists
+class GoogleAuthAccountAlreadyExistsException implements Exception {
+  final String email;
+  const GoogleAuthAccountAlreadyExistsException({required this.email});
+
+  @override
+  String toString() => 'Account already exists for $email. Please sign in.';
+}
+
 class SupabaseService {
   static const String supabaseUrl = 'https://tsqypxgfaajwqcgtfdkq.supabase.co';
   static const String publishableKey =
@@ -142,8 +161,42 @@ class SupabaseService {
     return response;
   }
 
-  /// Sign in with Google using native Google Sign-In and exchange ID token with Supabase
-  static Future<AuthResponse?> signInWithGoogle() async {
+  /// Check whether a user with the given email exists in the system (auth.users or profiles)
+  static Future<bool> checkUserExists(String email) async {
+    final supa = client;
+    if (supa == null) return false;
+
+    final trimmedEmail = email.trim().toLowerCase();
+    try {
+      final res = await supa.rpc('check_user_exists', params: {
+        'lookup_email': trimmedEmail,
+      });
+      if (res is bool) return res;
+      return res == true;
+    } catch (e) {
+      debugPrint('Error calling check_user_exists RPC, falling back to profiles: $e');
+      try {
+        final profile = await supa
+            .from('profiles')
+            .select('id')
+            .ilike('email', trimmedEmail)
+            .maybeSingle();
+        return profile != null;
+      } catch (e2) {
+        debugPrint('Fallback checkUserExists profiles query error: $e2');
+        rethrow;
+      }
+    }
+  }
+
+  /// Sign in or register with Google using native Google Sign-In and exchange ID token with Supabase.
+  /// When [isRegisterMode] is false (Login mode):
+  ///   Verifies that the account exists before creating a session. If not found,
+  ///   throws [GoogleAuthAccountNotFoundException] so UI can prompt to register.
+  /// When [isRegisterMode] is true (Register mode):
+  ///   Verifies that the account does not already exist. If it already exists,
+  ///   throws [GoogleAuthAccountAlreadyExistsException].
+  static Future<AuthResponse?> signInWithGoogle({bool isRegisterMode = false}) async {
     final supa = client;
     if (supa == null) {
       throw Exception('Supabase client is not initialized.');
@@ -153,10 +206,34 @@ class SupabaseService {
       serverClientId: webClientId,
     );
 
+    try {
+      await googleSignIn.signOut();
+    } catch (_) {}
+
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
     if (googleUser == null) {
       // User dismissed or canceled the account picker
       return null;
+    }
+
+    // Check if account already exists in Supabase
+    final bool exists = await checkUserExists(googleUser.email);
+
+    if (!isRegisterMode && !exists) {
+      // User is on Login tab, but account does not exist yet!
+      await googleSignIn.signOut();
+      throw GoogleAuthAccountNotFoundException(
+        email: googleUser.email,
+        displayName: googleUser.displayName,
+      );
+    }
+
+    if (isRegisterMode && exists) {
+      // User is on Register tab, but account already exists!
+      await googleSignIn.signOut();
+      throw GoogleAuthAccountAlreadyExistsException(
+        email: googleUser.email,
+      );
     }
 
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
