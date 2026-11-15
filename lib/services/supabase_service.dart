@@ -337,7 +337,10 @@ class SupabaseService {
     if (trimmed.isEmpty) {
       throw Exception('Please enter an email address.');
     }
-    await supa.auth.resetPasswordForEmail(trimmed);
+    await supa.auth.resetPasswordForEmail(
+      trimmed,
+      redirectTo: kIsWeb ? null : 'io.supabase.flutter://reset-callback',
+    );
   }
 
   /// Verify password recovery OTP and update password

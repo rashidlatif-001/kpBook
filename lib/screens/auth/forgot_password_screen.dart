@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_colors.dart';
 
@@ -23,11 +24,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   int _currentStep = 1; // 1 = Request Email, 2 = Verify Code & Set Password
   bool _isLoading = false;
+  bool _isFromLink = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String? _errorMessage;
   int _resendCountdown = 60;
   Timer? _timer;
+  StreamSubscription<AuthState>? _authSubscription;
 
   @override
   void initState() {
@@ -35,10 +38,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (widget.initialEmail != null && widget.initialEmail!.trim().isNotEmpty) {
       _emailController.text = widget.initialEmail!.trim();
     }
+    _listenToAuthRecovery();
+  }
+
+  void _listenToAuthRecovery() {
+    try {
+      final supa = SupabaseService.client;
+      if (supa == null) return;
+      _authSubscription = supa.auth.onAuthStateChange.listen((data) {
+        if (data.event == AuthChangeEvent.passwordRecovery) {
+          if (mounted) {
+            setState(() {
+              _currentStep = 2;
+              _isFromLink = true;
+              _errorMessage = null;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Recovery verified via link! Enter your new password.'),
+                backgroundColor: AppColors.lightSecondary,
+              ),
+            );
+          }
+        }
+      });
+    } catch (_) {}
   }
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _emailController.dispose();
     _otpController.dispose();
     _passwordController.dispose();
@@ -114,11 +143,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
-      await SupabaseService.resetPasswordWithOtp(
-        email: email,
-        token: otp,
-        newPassword: newPassword,
-      );
+      if (_isFromLink) {
+        final supa = SupabaseService.client;
+        if (supa == null) throw Exception('Supabase client is not initialized.');
+        await supa.auth.updateUser(UserAttributes(password: newPassword));
+        await supa.auth.signOut();
+      } else {
+        await SupabaseService.resetPasswordWithOtp(
+          email: email,
+          token: otp,
+          newPassword: newPassword,
+        );
+      }
 
       if (!mounted) return;
 
@@ -395,33 +431,59 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 24),
 
-          // OTP Code Input
-          TextFormField(
-            controller: _otpController,
-            keyboardType: TextInputType.number,
-            maxLength: 8,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 22, letterSpacing: 6, fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              labelText: 'Verification Code (OTP)',
-              hintText: '123456',
-              counterText: '',
-              prefixIcon: const Icon(Icons.pin_outlined),
-              filled: true,
-              fillColor: AppColors.surfaceContainerLowest,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+          // Verified via Link Banner OR OTP Code Input
+          if (_isFromLink) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: AppColors.secondaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.secondary.withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.verified_user_rounded, color: AppColors.secondary, size: 22),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Email verified via recovery link! Enter your new password below.',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            validator: (val) {
-              if (val == null || val.trim().isEmpty) {
-                return 'Please enter the verification code';
-              }
-              if (val.trim().length < 6) {
-                return 'Code must be at least 6 digits';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 14),
+          ] else ...[
+            // OTP Code Input
+            TextFormField(
+              controller: _otpController,
+              keyboardType: TextInputType.number,
+              maxLength: 8,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 22, letterSpacing: 6, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                labelText: 'Verification Code (OTP)',
+                hintText: '123456',
+                counterText: '',
+                prefixIcon: const Icon(Icons.pin_outlined),
+                filled: true,
+                fillColor: AppColors.surfaceContainerLowest,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              validator: (val) {
+                if (_isFromLink) return null;
+                if (val == null || val.trim().isEmpty) {
+                  return 'Please enter the verification code';
+                }
+                if (val.trim().length < 6) {
+                  return 'Code must be at least 6 digits';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 14),
+          ],
 
           // New Password Input
           TextFormField(
