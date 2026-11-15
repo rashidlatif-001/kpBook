@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       requireOtp: true,
       email: admin.email,
       message: otpResult.message,
+      otpHint: otpResult.otpHint,
     });
   } catch (error: any) {
     console.error('Login error:', error);

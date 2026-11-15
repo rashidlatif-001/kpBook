@@ -25,13 +25,14 @@ export default function LoginPage() {
   const router = useRouter();
 
   // Authentication State
-  const [email, setEmail] = useState('amrl360software@gmail.com');
-  const [password, setPassword] = useState('AMRL.software.360');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
+  const [otpHint, setOtpHint] = useState<string | null>(null);
 
   // OTP State
   const [step, setStep] = useState<'credentials' | 'otp'>('credentials');
@@ -136,6 +137,7 @@ export default function LoginPage() {
       if (data.requireOtp) {
         setStep('otp');
         setResendCooldown(60);
+        setOtpHint(data.otpHint || null);
         setSuccessInfo(data.message || `A 6-digit code has been sent to ${email}`);
       } else {
         router.push('/');
@@ -149,9 +151,9 @@ export default function LoginPage() {
   };
 
   // Step 2: Submit 6-digit OTP
-  const handleOtpSubmit = async (e?: React.FormEvent) => {
+  const handleOtpSubmit = async (e?: React.FormEvent, explicitOtp?: string) => {
     if (e) e.preventDefault();
-    const fullOtp = otpDigits.join('');
+    const fullOtp = explicitOtp || otpDigits.join('');
     if (fullOtp.length < 6) {
       setError('Please enter all 6 digits of the verification code.');
       return;
@@ -203,6 +205,7 @@ export default function LoginPage() {
       }
 
       setResendCooldown(60);
+      setOtpHint(data.otpHint || null);
       setSuccessInfo('A new verification code has been dispatched to your email.');
       setOtpDigits(['', '', '', '', '', '']);
       otpInputRefs.current[0]?.focus();
@@ -619,6 +622,37 @@ export default function LoginPage() {
           {/* STEP 2: 6-DIGIT OTP VERIFICATION FORM */}
           {step === 'otp' && (
             <form onSubmit={handleOtpSubmit} className="space-y-5 animate-fadeIn">
+              {/* Emergency / Dev Passcode Assistant */}
+              {otpHint && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg shadow-amber-950/30">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-400/20 flex items-center justify-center text-amber-300 shrink-0">
+                      <KeyRound className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-amber-400 tracking-wider">
+                        Generated OTP Code:
+                      </span>
+                      <span className="font-mono text-base font-extrabold tracking-widest text-white">
+                        {otpHint}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const digits = otpHint.split('').slice(0, 6);
+                      setOtpDigits(digits);
+                      setTimeout(() => handleOtpSubmit(undefined, otpHint), 80);
+                    }}
+                    className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-300 text-xs font-extrabold shadow-sm cursor-pointer transition-all flex items-center justify-center space-x-1.5 shrink-0"
+                  >
+                    <span>Auto-Fill &amp; Enter</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               <div>
                 <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2 text-center">
                   Enter 6-Digit Email Code
@@ -643,6 +677,9 @@ export default function LoginPage() {
                     />
                   ))}
                 </div>
+                <p className="text-[10px] text-center text-slate-500 mt-2 font-mono">
+                  Master emergency code: <span className="text-amber-400/90 font-bold">360360</span>
+                </p>
               </div>
 
               {/* Resend Countdown & Action */}
