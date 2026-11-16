@@ -8,7 +8,7 @@ interface InactivityWatcherProps {
   timeoutSeconds?: number;
 }
 
-export function InactivityWatcher({ timeoutSeconds = 30 }: InactivityWatcherProps) {
+export function InactivityWatcher({ timeoutSeconds = 120 }: InactivityWatcherProps) {
   const router = useRouter();
   const lastActivityRef = useRef<number>(Date.now());
   const [secondsRemaining, setSecondsRemaining] = useState<number>(timeoutSeconds);
@@ -33,14 +33,14 @@ export function InactivityWatcher({ timeoutSeconds = 30 }: InactivityWatcherProp
       const remaining = Math.max(0, timeoutSeconds - elapsed);
       setSecondsRemaining(remaining);
 
-      // Display subtle warning in the last 10 seconds of inactivity
-      if (remaining <= 10 && remaining > 0) {
+      // Display warning in the last 20 seconds of inactivity
+      if (remaining <= 20 && remaining > 0) {
         setShowWarning(true);
       } else {
         setShowWarning(false);
       }
 
-      // 30 seconds of inactivity reached -> trigger automatic logout!
+      // Inactivity timeout reached (default: 2 minutes) -> trigger automatic logout!
       if (remaining === 0) {
         clearInterval(interval);
         try {

@@ -64,6 +64,7 @@ class AppState extends ChangeNotifier {
     if (!isTestEnv) {
       _initConnectivityListener();
       fetchRemoteUpdates();
+      fetchRemoteBooks();
     }
   }
 
@@ -166,6 +167,32 @@ class AppState extends ChangeNotifier {
           isRead: false,
         );
 
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  /// Synchronize published digital textbooks from Supabase database
+  Future<void> fetchRemoteBooks() async {
+    try {
+      final remoteBooks = await SupabaseService.fetchPublishedBooks();
+      if (remoteBooks.isNotEmpty) {
+        for (final rBook in remoteBooks) {
+          final existingIdx = _allBooks.indexWhere((b) =>
+              b.id == rBook.id ||
+              (b.title.toLowerCase().trim() == rBook.title.toLowerCase().trim() &&
+                  b.classNumber == rBook.classNumber));
+          if (existingIdx != -1) {
+            final old = _allBooks[existingIdx];
+            _allBooks[existingIdx] = rBook.copyWith(
+              isDownloaded: old.isDownloaded,
+              lastReadPage: old.lastReadPage,
+              isBookmarked: old.isBookmarked,
+            );
+          } else {
+            _allBooks.insert(0, rBook);
+          }
+        }
         notifyListeners();
       }
     } catch (_) {}
@@ -743,6 +770,12 @@ class AppState extends ChangeNotifier {
   void toggleBookmark(Book book) {
     book.isBookmarked = !book.isBookmarked;
     notifyListeners();
+    SupabaseService.syncBookmark(
+      bookId: book.id,
+      pageNumber: book.lastReadPage,
+      isBookmarked: book.isBookmarked,
+      chapterId: book.currentUnit?.id,
+    );
   }
 
   void updateReadingProgress(Book book, int page) {
@@ -758,6 +791,12 @@ class AppState extends ChangeNotifier {
       };
       prefs.setString('reading_progress_${userId}_${book.id}', jsonEncode(data));
     }).catchError((_) {});
+
+    SupabaseService.syncReadingProgress(
+      bookId: book.id,
+      pageNumber: page,
+      chapterId: book.currentUnit?.id,
+    );
   }
 
   void restartBookReading(Book book) {

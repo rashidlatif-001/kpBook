@@ -1,3 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+scripts/extracted_assets/
+scripts/test_scanned_*.*
+admin-dashboard/public/uploads/
+
 # Miscellaneous
 *.class
 *.log

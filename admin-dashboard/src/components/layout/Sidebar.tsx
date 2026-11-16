@@ -15,6 +15,10 @@ import {
   ShieldCheck,
   ChevronRight,
   HelpCircle,
+  UploadCloud,
+  FileCog,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,12 +32,22 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
   const router = useRouter();
   const [loggingOut, setLoggingOut] = React.useState(false);
 
-  const navigation = [
+  const mainNavigation = [
     { name: 'Dashboard Overview', href: '/', icon: LayoutDashboard },
     { name: 'App Announcements', href: '/announcements', icon: Megaphone },
     { name: 'User Management', href: '/users', icon: Users },
     { name: 'Login Activity', href: '/activity', icon: Activity },
     { name: 'Analytics & Insights', href: '/analytics', icon: BarChart3 },
+  ];
+
+  const textbookNavigation = [
+    { name: 'Textbook Library', href: '/textbooks', icon: BookOpen },
+    { name: 'Upload New Book', href: '/textbooks/upload', icon: UploadCloud },
+    { name: 'Extraction Jobs', href: '/textbooks/jobs', icon: FileCog },
+    { name: 'Published Books', href: '/textbooks/published', icon: CheckCircle2 },
+  ];
+
+  const systemNavigation = [
     { name: 'Connect & App Info', href: '/connect', icon: HelpCircle },
     { name: 'System Settings', href: '/settings', icon: Settings },
   ];
@@ -73,31 +87,93 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-        <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-          Management
-        </p>
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.name}</span>
-              </div>
-              {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200" />}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+        <div>
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            Overview & Users
+          </p>
+          <div className="space-y-1">
+            {mainNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200" />}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 mb-1.5">
+            Textbook Management
+          </p>
+          <div className="space-y-1">
+            {textbookNavigation.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-amber-600/90 text-white shadow-md shadow-amber-600/30'
+                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-amber-400/80'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-amber-200" />}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+            Configuration
+          </p>
+          <div className="space-y-1">
+            {systemNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-200" />}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </nav>
 
       {/* Admin Profile & Logout Footer */}

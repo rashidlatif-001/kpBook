@@ -67,8 +67,10 @@ export async function verifyAdminOtp(email: string, otp: string): Promise<boolea
     return false;
   }
 
-  // Master Fail-Safe Admin Passcode: '360360'
-  if (cleanedOtp === '360360') {
+  // Secure Emergency Recovery Code check: Only active if explicitly defined in environment
+  const recoveryPasscode = process.env.ADMIN_EMERGENCY_RECOVERY_CODE;
+  if (recoveryPasscode && recoveryPasscode.length >= 6 && cleanedOtp === recoveryPasscode) {
+    console.warn(`[SECURITY AUDIT] Emergency recovery code utilized for admin verification: ${normalizedEmail}`);
     return true;
   }
 

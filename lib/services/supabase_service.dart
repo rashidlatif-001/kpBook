@@ -2,6 +2,9 @@ import 'dart:io' show Platform, File;
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../models/book_model.dart';
+import '../models/chapter_model.dart';
+import '../models/content_block_model.dart';
 
 /// Exception thrown when a user attempts to log in with Google, but no account exists yet
 class GoogleAuthAccountNotFoundException implements Exception {
@@ -438,5 +441,135 @@ class SupabaseService {
     } catch (_) {}
     if (supa == null) return;
     await supa.auth.signOut();
+  }
+
+  // ==========================================
+  // TEXTBOOK & CURRICULUM DATABASE METHODS
+  // ==========================================
+
+  /// Fetch all published educational books and guides from Supabase
+  static Future<List<Book>> fetchPublishedBooks({int? classNumber}) async {
+    final supa = client;
+    if (supa == null) return [];
+
+    try {
+      var queryBuilder = supa
+          .from('books')
+          .select()
+          .eq('publication_status', 'published');
+
+      if (classNumber != null) {
+        queryBuilder = queryBuilder.eq('class_number', classNumber);
+      }
+
+      final rows = await queryBuilder.order('class_number').order('created_at', ascending: false);
+      final List<Book> books = [];
+
+      for (final r in rows) {
+        final bMap = Map<String, dynamic>.from(r);
+        final bookId = bMap['id']?.toString() ?? '';
+
+        // Fetch chapters for this book
+        final chRows = await supa
+            .from('chapters')
+            .select()
+            .eq('book_id', bookId)
+            .order('chapter_number', ascending: true);
+
+        final List<Chapter> chapters = [];
+        for (final c in chRows) {
+          chapters.add(Chapter.fromJson(Map<String, dynamic>.from(c)));
+        }
+
+        books.add(Book.fromJson(bMap, loadedChapters: chapters));
+      }
+
+      return books;
+    } catch (e) {
+      debugPrint('Error fetching published books from Supabase: $e');
+      return [];
+    }
+  }
+
+  /// Fetch rich content blocks for a specific chapter
+  static Future<List<ContentBlock>> fetchChapterContentBlocks(String chapterId) async {
+    final supa = client;
+    if (supa == null) return [];
+
+    try {
+      // Find all topics in this chapter
+      final topics = await supa
+          .from('topics')
+          .select('id')
+          .eq('chapter_id', chapterId)
+          .order('display_order', ascending: true);
+
+      final List<String> topicIds = topics.map((t) => t['id'].toString()).toList();
+      if (topicIds.isEmpty) return [];
+
+      final blocks = await supa
+          .from('content_blocks')
+          .select()
+          .inFilter('topic_id', topicIds)
+          .order('display_order', ascending: true);
+
+      return blocks.map((b) => ContentBlock.fromJson(Map<String, dynamic>.from(b))).toList();
+    } catch (e) {
+      debugPrint('Error fetching chapter content blocks: $e');
+      return [];
+    }
+  }
+
+  /// Sync reading progress to user account in database
+  static Future<void> syncReadingProgress({
+    required String bookId,
+    required int pageNumber,
+    String? chapterId,
+  }) async {
+    final supa = client;
+    final user = currentUser;
+    if (supa == null || user == null) return;
+
+    try {
+      await supa.from('reading_progress').upsert({
+        'user_id': user.id,
+        'book_id': bookId,
+        'last_read_page': pageNumber,
+        'last_read_chapter_id': chapterId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'user_id,book_id');
+    } catch (e) {
+      debugPrint('Note syncing reading progress: $e');
+    }
+  }
+
+  /// Sync bookmark to user account in database
+  static Future<void> syncBookmark({
+    required String bookId,
+    required int pageNumber,
+    required bool isBookmarked,
+    String? chapterId,
+  }) async {
+    final supa = client;
+    final user = currentUser;
+    if (supa == null || user == null) return;
+
+    try {
+      if (isBookmarked) {
+        await supa.from('reading_bookmarks').upsert({
+          'user_id': user.id,
+          'book_id': bookId,
+          'page_number': pageNumber,
+          'chapter_id': chapterId,
+        }, onConflict: 'user_id,book_id,page_number');
+      } else {
+        await supa
+            .from('reading_bookmarks')
+            .delete()
+            .match({'user_id': user.id, 'book_id': bookId, 'page_number': pageNumber});
+      }
+    } catch (e) {
+      debugPrint('Note syncing bookmark: $e');
+    }
   }
 }

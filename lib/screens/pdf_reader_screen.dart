@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
+import '../models/content_block_model.dart';
 import '../providers/app_state.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_colors.dart';
 
 enum ReaderTheme { light, sepia, dark }
@@ -27,11 +31,14 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
   late int _currentPage;
   ReaderTheme _readerTheme = ReaderTheme.light;
   bool _showControls = true;
+  final Map<int, List<ContentBlock>> _loadedChapterBlocks = {};
+  bool _isLoadingBlocks = false;
 
   @override
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
+    _fetchBlocksForCurrentChapter();
     // Set initial theme according to app state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appState = Provider.of<AppState>(context, listen: false);
@@ -43,12 +50,33 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
     });
   }
 
+  void _fetchBlocksForCurrentChapter() async {
+    final curCh = _currentChapter;
+    if (curCh.contentBlocks.isNotEmpty) {
+      _loadedChapterBlocks[curCh.number] = curCh.contentBlocks;
+      if (mounted) setState(() {});
+      return;
+    }
+
+    if (curCh.id.isNotEmpty && !_loadedChapterBlocks.containsKey(curCh.number)) {
+      setState(() => _isLoadingBlocks = true);
+      final blocks = await SupabaseService.fetchChapterContentBlocks(curCh.id);
+      if (mounted) {
+        setState(() {
+          _loadedChapterBlocks[curCh.number] = blocks;
+          _isLoadingBlocks = false;
+        });
+      }
+    }
+  }
+
   void _changePage(int newPage) {
     if (newPage >= 1 && newPage <= widget.book.pagesCount) {
       setState(() {
         _currentPage = newPage;
       });
       Provider.of<AppState>(context, listen: false).updateReadingProgress(widget.book, newPage);
+      _fetchBlocksForCurrentChapter();
     }
   }
 
@@ -568,29 +596,50 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             const SizedBox(height: 12),
           ],
 
-          // Textbook Reading Passage
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: _canvasCardBgSubtle,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _canvasBorder),
+          // Dynamic Content Blocks Rendering (or Fallback if no blocks extracted yet)
+          if (_isLoadingBlocks)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 30),
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: _accentColor),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Loading verified curriculum blocks...', style: TextStyle(fontSize: 12, color: _textMuted)),
+                ],
+              ),
+            )
+          else if (_loadedChapterBlocks.containsKey(curCh.number) && _loadedChapterBlocks[curCh.number]!.isNotEmpty) ...[
+            ..._buildDynamicContentBlocks(_loadedChapterBlocks[curCh.number]!),
+          ] else ...[
+            // Textbook Reading Passage Fallback
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _canvasCardBgSubtle,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _canvasBorder),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Section ${curCh.number}.$pageInChapter: Conceptual Overview',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _accentColor),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'This official digital textbook edition is published by Khyber Pakhtunkhwa Textbook Board for Class ${widget.book.classNumber}. Every unit is designed to follow modern curriculum benchmarks with solved exercises, model board questions, and chapter-wise revisions.',
+                    style: TextStyle(fontSize: 13, height: 1.5, color: _textColor.withValues(alpha: 0.95)),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Section ${curCh.number}.$pageInChapter: Conceptual Overview',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: _accentColor),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'This official digital textbook edition is published by Khyber Pakhtunkhwa Textbook Board for Class ${widget.book.classNumber}. Every unit is designed to follow modern curriculum benchmarks with solved exercises, model board questions, and chapter-wise revisions.',
-                  style: TextStyle(fontSize: 13, height: 1.5, color: _textColor.withValues(alpha: 0.95)),
-                ),
-              ],
-            ),
-          ),
+          ],
 
           const SizedBox(height: 20),
 
@@ -629,6 +678,164 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildDynamicContentBlocks(List<ContentBlock> allBlocks) {
+    // Filter by current page if matching blocks exist, otherwise show all chapter blocks
+    final pageBlocks = allBlocks.where((b) => b.originalPdfPage == _currentPage).toList();
+    final blocksToShow = pageBlocks.isNotEmpty ? pageBlocks : allBlocks;
+
+    return blocksToShow.map((b) {
+      if (b.isHeading) {
+        return Container(
+          margin: const EdgeInsets.only(top: 16, bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: _canvasCardBgSubtle,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _canvasBorder),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  b.content,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: _textColor),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _canvasCardBg,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text('Pg ${b.originalPdfPage}', style: TextStyle(fontSize: 9, color: _textMuted)),
+              ),
+            ],
+          ),
+        );
+      } else if (b.isImportantNote) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _canvasCardBg,
+            borderRadius: BorderRadius.circular(8),
+            border: Border(left: BorderSide(color: _accentColor, width: 4)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'STUDENT LEARNING OBJECTIVES (SLO)',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: _accentColor),
+                  ),
+                  Text('Pg ${b.originalPdfPage}', style: TextStyle(fontSize: 9, color: _textMuted)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                b.content,
+                style: TextStyle(fontSize: 13, height: 1.5, fontWeight: FontWeight.w600, color: _textColor),
+              ),
+            ],
+          ),
+        );
+      } else if (b.isDefinition) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _readerTheme == ReaderTheme.dark ? const Color(0xFF2E2410) : const Color(0xFFFFFBEB),
+            borderRadius: BorderRadius.circular(8),
+            border: const Border(left: BorderSide(color: Color(0xFFD97706), width: 4)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'DEFINITION',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: Color(0xFFD97706)),
+                  ),
+                  Text('Pg ${b.originalPdfPage}', style: TextStyle(fontSize: 9, color: _textMuted)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                b.content,
+                style: TextStyle(fontSize: 13, height: 1.5, fontStyle: FontStyle.italic, color: _textColor),
+              ),
+            ],
+          ),
+        );
+      } else if (b.isFormula) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _canvasCardBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: _accentColor.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('MATHEMATICAL FORMULA', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: _accentColor)),
+                  Text('Pg ${b.originalPdfPage}', style: TextStyle(fontSize: 9, color: _textMuted)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Center(
+                child: Math.tex(
+                  b.content,
+                  textStyle: TextStyle(fontSize: 17, color: _textColor),
+                  onErrorFallback: (err) => Text(
+                    b.content,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: _textColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      } else if (b.isTable) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _canvasCardBgSubtle,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _canvasBorder),
+          ),
+          child: MarkdownBody(
+            data: b.content,
+            styleSheet: MarkdownStyleSheet(
+              tableBody: TextStyle(fontSize: 12, color: _textColor),
+              tableHead: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _textColor),
+            ),
+          ),
+        );
+      } else {
+        // Standard Paragraph
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Text(
+            b.content,
+            style: TextStyle(fontSize: 13.5, height: 1.55, color: _textColor),
+          ),
+        );
+      }
+    }).toList();
   }
 
   Widget _buildTocDrawer() {

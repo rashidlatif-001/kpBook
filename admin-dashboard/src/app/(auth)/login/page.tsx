@@ -590,7 +590,7 @@ function LoginFormContent() {
             <div className="mb-5 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs flex items-start space-x-2.5 animate-fadeIn">
               <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <span className="leading-relaxed">
-                You were automatically logged out due to 30 seconds of inactivity on the dashboard.
+                You were automatically logged out due to 2 minutes of inactivity on the dashboard.
               </span>
             </div>
           )}
