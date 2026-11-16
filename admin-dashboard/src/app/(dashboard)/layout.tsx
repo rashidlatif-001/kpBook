@@ -16,8 +16,8 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* 2-Minute Inactivity Auto-Logout Watcher */}
-      <InactivityWatcher timeoutSeconds={120} />
+      {/* 5-Minute Inactivity Auto-Logout Watcher (Resets on cursor/keyboard activity) */}
+      <InactivityWatcher timeoutSeconds={300} />
 
       {/* Sidebar */}
       <Sidebar
