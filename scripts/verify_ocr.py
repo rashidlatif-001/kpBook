@@ -51,6 +51,12 @@ def test_ocr_extraction():
     for blk in topic['content_blocks']:
         print(f" - [{blk['type']}] {blk['content']}")
 
+    # Clean up temporary test files
+    if os.path.exists(img_path):
+        os.remove(img_path)
+    if os.path.exists(scanned_pdf_path):
+        os.remove(scanned_pdf_path)
+
     print("\n>>> OCR VERIFICATION PASSED SUCCESSFULLY! <<<")
 
 if __name__ == '__main__':

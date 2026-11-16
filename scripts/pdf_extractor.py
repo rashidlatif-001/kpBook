@@ -21,8 +21,12 @@ import pg8000.native
 # Optional Tesseract OCR
 try:
     import pytesseract
+    import shutil
+    which_tess = shutil.which('tesseract')
     tess_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-    if os.path.exists(tess_path):
+    if which_tess:
+        pytesseract.pytesseract.tesseract_cmd = which_tess
+    elif os.path.exists(tess_path):
         pytesseract.pytesseract.tesseract_cmd = tess_path
     elif os.path.exists('/usr/bin/tesseract'):
         pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'

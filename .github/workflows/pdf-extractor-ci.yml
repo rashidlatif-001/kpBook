@@ -5,11 +5,13 @@ on:
     branches: [ main ]
     paths:
       - 'scripts/**'
+      - 'requirements.txt'
       - '.github/workflows/pdf-extractor-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'scripts/**'
+      - 'requirements.txt'
       - '.github/workflows/pdf-extractor-ci.yml'
   workflow_dispatch:
 
@@ -37,7 +39,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pymupdf pdfplumber pytesseract pillow pg8000
+          pip install -r requirements.txt
 
       - name: Run OCR and Scanned PDF Ingestion Test
         run: python scripts/verify_ocr.py
