@@ -24,6 +24,8 @@ try:
     tess_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     if os.path.exists(tess_path):
         pytesseract.pytesseract.tesseract_cmd = tess_path
+    elif os.path.exists('/usr/bin/tesseract'):
+        pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
     HAS_TESSERACT = True
 except ImportError:
     HAS_TESSERACT = False
