@@ -66,6 +66,7 @@ interface BookDetails {
   board_name: string;
   edition: string;
   total_pages: number;
+  extraction_status?: 'queued' | 'processing' | 'completed' | 'failed';
   publication_status: 'draft' | 'reviewing' | 'published';
 }
 
@@ -110,6 +111,26 @@ export default function TextbookPreviewPage() {
   useEffect(() => {
     if (bookId) fetchPreviewData();
   }, [bookId]);
+
+  // Auto-poll if extraction is still processing or queued
+  useEffect(() => {
+    if (!bookId) return;
+    if (book && book.extraction_status === 'completed' && chapters.length > 0) return;
+
+    const interval = setInterval(() => {
+      fetch(`/api/textbooks/${bookId}/preview`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.book) setBook(data.book);
+          if (data.chapters && data.chapters.length > 0) {
+            setChapters(data.chapters);
+          }
+        })
+        .catch(() => {});
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [bookId, book?.extraction_status, chapters.length]);
 
   const handleStartEdit = (block: ContentBlock) => {
     setEditingBlockId(block.id);
@@ -261,6 +282,31 @@ export default function TextbookPreviewPage() {
           </button>
         </div>
       </div>
+
+      {/* Extraction Status Alert (if queued, processing, or 0 chapters) */}
+      {(book.extraction_status !== 'completed' || chapters.length === 0) && (
+        <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-start space-x-3.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+              <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">
+                Automated Extraction in Progress ({book.extraction_status || 'processing'})
+              </p>
+              <p className="text-xs text-amber-200/80 mt-1 leading-relaxed">
+                The extraction engine parses units, topics, MCQs, and equations. This screen auto-refreshes every 4 seconds.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => fetchPreviewData()}
+            className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-bold rounded-xl border border-amber-500/40 transition-colors shrink-0"
+          >
+            Check Status
+          </button>
+        </div>
+      )}
 
       {/* Main Workspace Layout (Sidebar Chapter Nav + Central Interactive Content Canvas) */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
