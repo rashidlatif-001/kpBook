@@ -74,25 +74,63 @@ export default function UploadTextbookPage() {
     setError(null);
 
     try {
-      setProgressStage('Uploading PDF document and calculating SHA-256 integrity hash...');
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('title', title.trim());
-      formData.append('title_urdu', titleUrdu.trim());
-      formData.append('class_number', classNumber);
-      formData.append('subject_name', subjectName.trim());
-      formData.append('board_name', boardName.trim());
-      formData.append('publisher', publisher.trim());
-      formData.append('edition', edition.trim());
-      formData.append('group_type', groupType);
-      formData.append('book_type', bookType);
+      setProgressStage('Calculating SHA-256 integrity hash & verifying file...');
+      const fileHash = await calculateSha256(file);
+      const fileSizeFormatted = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
 
-      const regRes = await fetch('/api/textbooks/upload', {
+      // 1. Direct Cloud Upload to Supabase Storage (Bypasses Vercel 4.5MB Serverless Limit)
+      setProgressStage(`Uploading ${fileSizeFormatted} PDF directly to secure cloud storage...`);
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tsqypxgfaajwqcgtfdkq.supabase.co';
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_RQ8BvygKqcRAxmndpRt_OQ_PMtfMF6x';
+
+      const storageUploadUrl = `${supabaseUrl}/storage/v1/object/textbooks/${fileHash}.pdf`;
+      const storageRes = await fetch(storageUploadUrl, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/pdf',
+          'x-upsert': 'true',
+        },
+        body: file,
       });
 
-      const regData = await regRes.json();
+      if (!storageRes.ok) {
+        const errJson = await storageRes.json().catch(() => ({}));
+        throw new Error(errJson.message || `Cloud storage upload failed (HTTP ${storageRes.status}).`);
+      }
+
+      const publicPdfUrl = `${supabaseUrl}/storage/v1/object/public/textbooks/${fileHash}.pdf`;
+
+      // 2. Register textbook record in database via lightweight JSON
+      setProgressStage('Registering textbook metadata and queuing extraction job...');
+      const regRes = await fetch('/api/textbooks/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          title_urdu: titleUrdu.trim(),
+          class_number: classNumber,
+          subject_name: subjectName.trim(),
+          board_name: boardName.trim(),
+          publisher: publisher.trim(),
+          edition: edition.trim(),
+          group_type: groupType,
+          book_type: bookType,
+          file_hash: fileHash,
+          file_size: fileSizeFormatted,
+          pdf_url: publicPdfUrl,
+        }),
+      });
+
+      let regData: any = {};
+      try {
+        regData = await regRes.json();
+      } catch {
+        const rawText = await regRes.text().catch(() => '');
+        throw new Error(rawText || 'Server returned an invalid non-JSON response.');
+      }
+
       if (!regRes.ok) {
         throw new Error(regData.error || 'Failed to upload textbook');
       }
@@ -100,7 +138,7 @@ export default function UploadTextbookPage() {
       const bookId = regData.book_id;
       setSuccessBookId(bookId);
 
-      setProgressStage('Extraction engine initiated! Parsing chapters, formulas, and topics...');
+      setProgressStage('Textbook successfully queued! Redirecting to preview editor...');
       setTimeout(() => {
         router.push(`/textbooks/${bookId}/preview`);
       }, 1500);

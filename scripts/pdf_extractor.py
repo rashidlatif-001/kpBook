@@ -59,8 +59,20 @@ class TextbookExtractionEngine:
             num_bytes /= 1024.0
         return f"{num_bytes:.1f} GB"
 
+    def resolve_pdf_path(self, pdf_path: str) -> str:
+        """Download remote URL if needed, returning local filesystem path."""
+        if pdf_path.startswith(('http://', 'https://')):
+            import urllib.request
+            local_tmp = os.path.join(self.output_assets_dir, f"remote_{hashlib.md5(pdf_path.encode()).hexdigest()[:10]}.pdf")
+            if not os.path.exists(local_tmp) or os.path.getsize(local_tmp) == 0:
+                print(f"Downloading remote PDF from {pdf_path}...")
+                urllib.request.urlretrieve(pdf_path, local_tmp)
+            return local_tmp
+        return pdf_path
+
     def inspect_pdf(self, pdf_path: str) -> Dict[str, Any]:
         """Analyze page count, text vs scanned density, and metadata."""
+        pdf_path = self.resolve_pdf_path(pdf_path)
         doc = fitz.open(pdf_path)
         total_pages = len(doc)
         scanned_pages = 0
@@ -90,6 +102,7 @@ class TextbookExtractionEngine:
         Extract chapters, topics, headings, paragraphs, formulas, tables, and images.
         Preserves original PDF page references.
         """
+        pdf_path = self.resolve_pdf_path(pdf_path)
         doc = fitz.open(pdf_path)
         total_pages = len(doc)
         
@@ -720,21 +733,65 @@ def run_standalone_test():
     print("Standalone test passed with 100% success!")
 
 
+def process_single_job(con, engine, book_id: str, job_id: str, pdf_path: str):
+    print(f"\n[WORKER] Processing Book ID: {book_id}, Job ID: {job_id}")
+    con.run("UPDATE public.extraction_jobs SET status = 'processing', current_stage = 'inspecting' WHERE id = :jid;", jid=job_id)
+    
+    # 1. Inspect PDF (handles local or remote http/https Supabase storage URL)
+    inspection = engine.inspect_pdf(pdf_path)
+    print("Inspection details:", inspection)
+    con.run(
+        "UPDATE public.books SET total_pages = :tp, file_size = :fs WHERE id = :bid;",
+        tp=inspection['total_pages'], fs=inspection['file_size_formatted'], bid=book_id
+    )
+
+    # 2. Extract content
+    con.run("UPDATE public.extraction_jobs SET current_stage = 'extracting_content', total_pages = :tp WHERE id = :jid;", tp=inspection['total_pages'], jid=job_id)
+
+    def on_progress(page, total, stage):
+        if page % 5 == 0:
+            try:
+                con.run("UPDATE public.extraction_jobs SET processed_pages = :pp WHERE id = :jid;", pp=page, jid=job_id)
+            except Exception:
+                pass
+
+    res = engine.extract_text_and_layout(pdf_path, progress_callback=on_progress)
+
+    # 3. Book metadata
+    book_row = con.run("SELECT title, title_urdu, class_number, subject_name, board_name, publisher, edition FROM public.books WHERE id = :bid;", bid=book_id)
+    resolved_path = engine.resolve_pdf_path(pdf_path)
+    book_meta = {
+        'title': book_row[0][0],
+        'title_urdu': book_row[0][1],
+        'class_number': book_row[0][2],
+        'subject_name': book_row[0][3],
+        'board_name': book_row[0][4],
+        'publisher': book_row[0][5],
+        'edition': book_row[0][6],
+        'file_hash': engine.compute_sha256(resolved_path),
+    }
+
+    # 4. Standard JSON & DB persistence
+    std_json = engine.generate_standard_json(book_meta, res)
+    engine.persist_to_database(book_id, std_json, job_id=job_id)
+    print(f"[WORKER] Successfully extracted and persisted Book {book_id}!")
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="KPK E-Textbooks PDF Extraction & Ingestion Engine")
-    parser.add_argument("--pdf", type=str, help="Path to textbook PDF file")
+    parser.add_argument("--pdf", type=str, help="Path or URL to textbook PDF file")
     parser.add_argument("--book-id", type=str, help="Target book UUID in database")
     parser.add_argument("--job-id", type=str, help="Target extraction job UUID in database")
+    parser.add_argument("--watch", action="store_true", help="Run background worker daemon listening for queued jobs")
     parser.add_argument("--test", action="store_true", help="Run standalone test")
 
     args = parser.parse_args()
 
-    if args.test or (not args.pdf and not args.book_id):
+    if args.test:
         run_standalone_test()
         return
 
-    print(f"Starting extraction for PDF: {args.pdf}, Book ID: {args.book_id}, Job ID: {args.job_id}")
     con = pg8000.native.Connection(
         user='postgres.tsqypxgfaajwqcgtfdkq',
         host='aws-0-eu-west-1.pooler.supabase.com',
@@ -745,50 +802,38 @@ def main():
     )
     engine = TextbookExtractionEngine(db_connection=con)
 
-    # 1. Update job stage to inspecting
-    if args.job_id:
-        con.run("UPDATE public.extraction_jobs SET status = 'processing', current_stage = 'inspecting' WHERE id = :jid;", jid=args.job_id)
-
-    # 2. Inspect PDF
-    inspection = engine.inspect_pdf(args.pdf)
-    print("Inspection details:", inspection)
-    con.run(
-        "UPDATE public.books SET total_pages = :tp, file_size = :fs WHERE id = :bid;",
-        tp=inspection['total_pages'], fs=inspection['file_size_formatted'], bid=args.book_id
-    )
-
-    # 3. Extract text, chapters, topics, formulas, tables
-    if args.job_id:
-        con.run("UPDATE public.extraction_jobs SET current_stage = 'extracting_content', total_pages = :tp WHERE id = :jid;", tp=inspection['total_pages'], jid=args.job_id)
-
-    def on_progress(page, total, stage):
-        if args.job_id and page % 5 == 0:
+    if args.watch:
+        print("[WATCH DAEMON] PDF Extractor Daemon started. Listening for queued textbooks in Supabase...")
+        while True:
             try:
-                con.run("UPDATE public.extraction_jobs SET processed_pages = :pp WHERE id = :jid;", pp=page, jid=args.job_id)
-            except Exception:
-                pass
+                jobs = con.run("""
+                    SELECT j.id, j.book_id, b.original_pdf_path
+                    FROM public.extraction_jobs j
+                    JOIN public.books b ON j.book_id = b.id
+                    WHERE j.status = 'queued'
+                    ORDER BY j.created_at ASC
+                    LIMIT 1;
+                """)
+                if jobs:
+                    jid, bid, ppath = jobs[0]
+                    process_single_job(con, engine, bid, jid, ppath)
+                else:
+                    time.sleep(3)
+            except KeyboardInterrupt:
+                print("Stopping daemon.")
+                break
+            except Exception as e:
+                print("Daemon loop notice:", e)
+                time.sleep(5)
+        con.close()
+        return
 
-    res = engine.extract_text_and_layout(args.pdf, progress_callback=on_progress)
+    if not args.pdf and not args.book_id:
+        run_standalone_test()
+        return
 
-    # 4. Fetch book metadata from DB
-    book_row = con.run("SELECT title, title_urdu, class_number, subject_name, board_name, publisher, edition FROM public.books WHERE id = :bid;", bid=args.book_id)
-    book_meta = {
-        'title': book_row[0][0],
-        'title_urdu': book_row[0][1],
-        'class_number': book_row[0][2],
-        'subject_name': book_row[0][3],
-        'board_name': book_row[0][4],
-        'publisher': book_row[0][5],
-        'edition': book_row[0][6],
-        'file_hash': engine.compute_sha256(args.pdf),
-    }
-
-    std_json = engine.generate_standard_json(book_meta, res)
-
-    # 5. Persist to database
-    engine.persist_to_database(args.book_id, std_json, job_id=args.job_id)
+    process_single_job(con, engine, args.book_id, args.job_id, args.pdf)
     con.close()
-    print("Extraction and ingestion completed successfully!")
 
 
 if __name__ == '__main__':
