@@ -94,7 +94,10 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
           </p>
           <div className="space-y-1">
             {mainNavigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                item.href === '/'
+                  ? pathname === '/'
+                  : pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
               return (
                 <Link
@@ -123,7 +126,14 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
           </p>
           <div className="space-y-1">
             {textbookNavigation.map((item) => {
-              const isActive = pathname.startsWith(item.href);
+              const isActive =
+                item.href === '/textbooks'
+                  ? pathname === '/textbooks' ||
+                    (pathname.startsWith('/textbooks/') &&
+                      !pathname.startsWith('/textbooks/upload') &&
+                      !pathname.startsWith('/textbooks/jobs') &&
+                      !pathname.startsWith('/textbooks/published'))
+                  : pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
               return (
                 <Link
@@ -152,7 +162,8 @@ export function Sidebar({ adminName = 'AMRL Administrator', adminEmail = 'amrl36
           </p>
           <div className="space-y-1">
             {systemNavigation.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
               return (
                 <Link
