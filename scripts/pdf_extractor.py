@@ -582,28 +582,43 @@ class TextbookExtractionEngine:
                 topic_id = top_row[0][0]
 
                 blocks = top.get('content_blocks', [])
+                valid_blocks = []
                 for b_idx, blk in enumerate(blocks, 1):
-                    total_blocks_count += 1
-                    b_type = blk.get('type', 'paragraph')
                     b_content = blk.get('content', '').strip()
-                    b_page = blk.get('original_pdf_page', t_spage)
-                    b_meta = json.dumps(blk.get('metadata', {}))
-
                     if not b_content:
                         continue
+                    total_blocks_count += 1
+                    valid_blocks.append({
+                        'tid': topic_id,
+                        'btype': blk.get('type', 'paragraph'),
+                        'content': b_content,
+                        'dorder': b_idx,
+                        'opage': blk.get('original_pdf_page', t_spage),
+                        'meta': json.dumps(blk.get('metadata', {}))
+                    })
 
-                    con.run(
-                        """
+                # High-performance batch insert in chunks of 50 to avoid network round-trip timeouts
+                chunk_size = 50
+                for i in range(0, len(valid_blocks), chunk_size):
+                    chunk = valid_blocks[i:i + chunk_size]
+                    values_clauses = []
+                    params = {}
+                    for idx, row in enumerate(chunk):
+                        values_clauses.append(f"(:tid_{idx}, :btype_{idx}, :content_{idx}, :dorder_{idx}, :opage_{idx}, CAST(:meta_{idx} AS jsonb))")
+                        params[f"tid_{idx}"] = row['tid']
+                        params[f"btype_{idx}"] = row['btype']
+                        params[f"content_{idx}"] = row['content']
+                        params[f"dorder_{idx}"] = row['dorder']
+                        params[f"opage_{idx}"] = row['opage']
+                        params[f"meta_{idx}"] = row['meta']
+
+                    query = f"""
                         INSERT INTO public.content_blocks (
                             topic_id, block_type, content, display_order,
                             original_pdf_page, metadata
-                        ) VALUES (
-                            :tid, :btype, :content, :dorder, :opage, :meta::jsonb
-                        );
-                        """,
-                        tid=topic_id, btype=b_type, content=b_content,
-                        dorder=b_idx, opage=b_page, meta=b_meta
-                    )
+                        ) VALUES {", ".join(values_clauses)};
+                    """
+                    con.run(query, **params)
 
         # Update book extraction status
         con.run(
@@ -682,7 +697,7 @@ def run_standalone_test():
     con = pg8000.native.Connection(
         user='postgres.tsqypxgfaajwqcgtfdkq',
         host='aws-0-eu-west-1.pooler.supabase.com',
-        port=6543,
+        port=5432,
         database='postgres',
         password='Latif.00100',
         ssl_context=True
@@ -795,7 +810,7 @@ def main():
     con = pg8000.native.Connection(
         user='postgres.tsqypxgfaajwqcgtfdkq',
         host='aws-0-eu-west-1.pooler.supabase.com',
-        port=6543,
+        port=5432,
         database='postgres',
         password='Latif.00100',
         ssl_context=True
