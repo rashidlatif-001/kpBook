@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Lock,
@@ -66,8 +66,6 @@ const lightThemes = [
 
 function LoginFormContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isAutoLogout = searchParams.get('reason') === 'inactivity';
 
   // Authentication State (Empty by default)
   const [email, setEmail] = useState('');
@@ -584,16 +582,6 @@ function LoginFormContent() {
                 : `Enter the 6-digit authentication code dispatched to your email.`}
             </p>
           </div>
-
-          {/* Inactivity Auto-Logout Security Notice */}
-          {isAutoLogout && (
-            <div className="mb-5 p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs flex items-start space-x-2.5 animate-fadeIn">
-              <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <span className="leading-relaxed">
-                You were automatically logged out due to 5 minutes of inactivity on the dashboard.
-              </span>
-            </div>
-          )}
 
           {/* Alert Messages */}
           {error && (
