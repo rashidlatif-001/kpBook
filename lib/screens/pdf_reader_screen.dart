@@ -825,6 +825,43 @@ class _PdfReaderScreenState extends State<PdfReaderScreen> {
             ),
           ),
         );
+      } else if (b.isQuestion) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _canvasCardBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: _accentColor.withValues(alpha: 0.25)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _accentColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'QUESTION / MCQ',
+                      style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: _accentColor),
+                    ),
+                  ),
+                  Text('Pg ${b.originalPdfPage}', style: TextStyle(fontSize: 9, color: _textMuted)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                b.content,
+                style: TextStyle(fontSize: 13, height: 1.5, fontWeight: FontWeight.w600, color: _textColor),
+              ),
+            ],
+          ),
+        );
       } else {
         // Standard Paragraph
         return Padding(

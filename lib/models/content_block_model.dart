@@ -51,5 +51,6 @@ class ContentBlock {
   bool get isImportantNote => blockType == 'important_note';
   bool get isTable => blockType == 'table';
   bool get isSolvedExample => blockType == 'solved_example';
+  bool get isQuestion => blockType == 'question' || blockType == 'exercise';
   bool get isDiagram => blockType == 'diagram' || blockType == 'image';
 }

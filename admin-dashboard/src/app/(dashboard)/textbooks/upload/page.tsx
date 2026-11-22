@@ -78,20 +78,25 @@ export default function UploadTextbookPage() {
       const fileHash = await calculateSha256(file);
       const fileSizeFormatted = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
 
-      // 1. Direct Cloud Upload to Supabase Storage (Bypasses Vercel 4.5MB Serverless Limit)
-      setProgressStage(`Uploading ${fileSizeFormatted} PDF directly to secure cloud storage...`);
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tsqypxgfaajwqcgtfdkq.supabase.co';
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_RQ8BvygKqcRAxmndpRt_OQ_PMtfMF6x';
-
-      const storageUploadUrl = `${supabaseUrl}/storage/v1/object/textbooks/${fileHash}.pdf`;
-      const storageRes = await fetch(storageUploadUrl, {
+      // 1. Direct Cloud Upload (Cloudflare R2 or Supabase - Bypasses Vercel 4.5MB Serverless Limit)
+      setProgressStage(`Preparing direct cloud storage upload for ${fileSizeFormatted} PDF...`);
+      const prepRes = await fetch('/api/storage/upload-url', {
         method: 'POST',
-        headers: {
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'Content-Type': 'application/pdf',
-          'x-upsert': 'true',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: `${fileHash}.pdf`, contentType: 'application/pdf' }),
+      });
+
+      if (!prepRes.ok) {
+        throw new Error('Failed to obtain cloud storage upload URL.');
+      }
+
+      const prepData = await prepRes.json();
+      const providerLabel = prepData.provider === 'r2' ? 'Cloudflare R2' : 'Cloud Storage';
+      setProgressStage(`Uploading ${fileSizeFormatted} PDF directly to ${providerLabel}...`);
+
+      const storageRes = await fetch(prepData.uploadUrl, {
+        method: prepData.provider === 'r2' ? 'PUT' : 'POST',
+        headers: prepData.headers || { 'Content-Type': 'application/pdf' },
         body: file,
       });
 
@@ -100,7 +105,7 @@ export default function UploadTextbookPage() {
         throw new Error(errJson.message || `Cloud storage upload failed (HTTP ${storageRes.status}).`);
       }
 
-      const publicPdfUrl = `${supabaseUrl}/storage/v1/object/public/textbooks/${fileHash}.pdf`;
+      const publicPdfUrl = prepData.publicUrl;
 
       // 2. Register textbook record in database via lightweight JSON
       setProgressStage('Registering textbook metadata and queuing extraction job...');

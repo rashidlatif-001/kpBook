@@ -426,12 +426,18 @@ export default function TextbookPreviewPage() {
                               ? 'bg-purple-500/20 text-purple-300'
                               : blk.block_type === 'definition'
                               ? 'bg-amber-500/20 text-amber-300'
+                              : blk.block_type === 'important_note' || blk.metadata?.is_slo
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : blk.block_type === 'question' || blk.metadata?.is_mcq
+                              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                              : blk.block_type === 'solved_example'
+                              ? 'bg-teal-500/20 text-teal-300'
                               : blk.block_type === 'table'
                               ? 'bg-cyan-500/20 text-cyan-300'
                               : 'bg-slate-800 text-slate-400'
                           }`}
                         >
-                          {blk.block_type}
+                          {blk.metadata?.is_slo ? 'SLO Card' : blk.metadata?.is_overview ? 'Overview' : blk.block_type}
                         </span>
                         <span className="text-[11px] text-slate-500">PDF Page {blk.original_pdf_page}</span>
                       </div>
@@ -462,6 +468,7 @@ export default function TextbookPreviewPage() {
                             <option value="formula">Formula (LaTeX)</option>
                             <option value="definition">Definition</option>
                             <option value="important_note">Important Note / SLO</option>
+                            <option value="question">Question / MCQ</option>
                             <option value="table">Table (Markdown)</option>
                             <option value="solved_example">Solved Example</option>
                           </select>
@@ -503,33 +510,97 @@ export default function TextbookPreviewPage() {
                         </div>
                       </div>
                     ) : (
-                      <div>
+                      <div className="space-y-2">
                         {blk.block_type === 'heading' && (
                           <h3 className="text-base font-bold text-white tracking-tight">{blk.content}</h3>
                         )}
+
+                        {/* SLO Card (Emerald matching Mobile App) */}
+                        {(blk.block_type === 'important_note' || blk.metadata?.is_slo) && (
+                          <div className="p-4 rounded-xl bg-emerald-950/40 border-l-4 border-emerald-500 shadow-sm space-y-1.5">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                              <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
+                                Student Learning Objectives (SLO)
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium text-emerald-100 leading-relaxed">
+                              {blk.content}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Conceptual Overview Card (matching Mobile App) */}
+                        {blk.metadata?.is_overview && (
+                          <div className="p-4 rounded-xl bg-slate-950 border border-emerald-500/30 shadow-sm space-y-1.5">
+                            <p className="text-xs font-bold text-emerald-400">
+                              {blk.metadata?.title || 'Section Conceptual Overview'}
+                            </p>
+                            <p className="text-sm text-slate-200 leading-relaxed">
+                              {blk.content}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Question / MCQ Card */}
+                        {(blk.block_type === 'question' || blk.metadata?.is_mcq) && (
+                          <div className="p-4 rounded-xl bg-slate-950/90 border border-indigo-500/30 shadow-sm space-y-2.5">
+                            <div className="flex items-center space-x-2">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                Question / MCQ
+                              </span>
+                            </div>
+                            <p className="text-sm font-semibold text-slate-100 leading-relaxed whitespace-pre-line">
+                              {blk.content}
+                            </p>
+                          </div>
+                        )}
+
                         {blk.block_type === 'formula' && (
                           <div className="p-3 my-1 rounded-lg bg-purple-950/30 border border-purple-800/40 font-mono text-purple-200 text-sm">
                             {blk.content}
                           </div>
                         )}
+
                         {blk.block_type === 'definition' && (
                           <div className="p-3 my-1 rounded-lg bg-amber-950/30 border-l-4 border-amber-500 text-amber-200 text-sm">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-0.5">
+                              Definition
+                            </span>
                             {blk.content}
                           </div>
                         )}
-                        {blk.block_type === 'paragraph' && (
-                          <p className="text-sm text-slate-300 leading-relaxed">{blk.content}</p>
+
+                        {blk.block_type === 'solved_example' && (
+                          <div className="p-3 my-1 rounded-lg bg-teal-950/30 border border-teal-800/40 text-teal-200 text-sm whitespace-pre-line">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-400 block mb-0.5">
+                              Solved Example
+                            </span>
+                            {blk.content}
+                          </div>
                         )}
+
                         {blk.block_type === 'table' && (
                           <div className="overflow-x-auto p-2 bg-slate-950/60 rounded border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre">
                             {blk.content}
                           </div>
                         )}
+
+                        {blk.block_type === 'paragraph' && !blk.metadata?.is_overview && (
+                          <p className="text-sm text-slate-300 leading-relaxed">{blk.content}</p>
+                        )}
+
                         {blk.block_type !== 'heading' &&
                           blk.block_type !== 'formula' &&
                           blk.block_type !== 'definition' &&
+                          blk.block_type !== 'important_note' &&
+                          blk.block_type !== 'question' &&
+                          blk.block_type !== 'solved_example' &&
                           blk.block_type !== 'paragraph' &&
-                          blk.block_type !== 'table' && (
+                          blk.block_type !== 'table' &&
+                          !blk.metadata?.is_slo &&
+                          !blk.metadata?.is_overview &&
+                          !blk.metadata?.is_mcq && (
                             <p className="text-sm text-slate-300">{blk.content}</p>
                           )}
                       </div>
